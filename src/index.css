@@ -1,0 +1,417 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide all scrollbars project-wide; content remains scrollable */
+html,
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  min-width: 0;
+  overflow-x: hidden;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Utility: hide scrollbar on an element while keeping scroll behavior (use with overflow-auto/overflow-x-auto) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+
+@layer base {
+  :root {
+    --background: 225 25% 97%;
+    --foreground: 230 50% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 230 50% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 50% 10%;
+
+    --primary: 220 90% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 225 20% 92%;
+    --secondary-foreground: 230 50% 10%;
+
+    --muted: 225 20% 92%;
+    --muted-foreground: 225 15% 46%;
+
+    --accent: 270 85% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 225 18% 87%;
+    --input: 225 18% 87%;
+    --ring: 220 90% 56%;
+
+    --radius: 0.75rem;
+
+    --gold: 220 90% 56%;
+    --gold-foreground: 0 0% 100%;
+    --crimson: 270 85% 60%;
+    --crimson-foreground: 0 0% 100%;
+    --navy: 230 50% 10%;
+    --navy-foreground: 210 40% 98%;
+    --success: 152 69% 41%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --neon: 185 100% 55%;
+    --neon-foreground: 230 50% 10%;
+    --violet: 280 85% 65%;
+    --violet-foreground: 0 0% 100%;
+    --electric: 195 100% 50%;
+    --electric-foreground: 230 50% 10%;
+
+    --sidebar-background: 230 50% 10%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 220 90% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 230 35% 18%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 230 35% 20%;
+    --sidebar-ring: 220 90% 56%;
+  }
+
+  /* Home page design: dark gaming theme (HOME_PAGE_DESIGN.md) */
+  .home-design {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 8%;
+    --primary: 187 100% 50%;
+    --secondary: 270 70% 55%;
+    --muted: 222 30% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 45 100% 55%;
+    --border: 222 30% 18%;
+    --radius: 0.75rem;
+    --neon-cyan: 187 100% 50%;
+    --neon-purple: 270 70% 55%;
+    --neon-gold: 45 100% 55%;
+    --neon-green: 142 76% 45%;
+    --neon-red: 0 84% 60%;
+    --neon-pink: 330 85% 60%;
+  }
+  .home-design body {
+    font-family: 'Poppins', sans-serif;
+  }
+  .home-design .font-mono-nums {
+    font-family: 'Roboto Mono', monospace;
+  }
+  .home-design .odds-cell-blue {
+    background-color: hsl(var(--neon-cyan));
+    color: white;
+  }
+  .home-design .odds-cell-red {
+    background-color: hsl(var(--neon-red));
+    color: white;
+  }
+
+  /* Second home: dark + red/blue accents (first-home reference) */
+  .second-home {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 8%;
+    --primary: 0 72% 51%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 30% 14%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 30% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    --border: 222 30% 18%;
+    --navy: 222 47% 4%;
+    --navy-foreground: 210 40% 98%;
+    --odds-blue: 199 89% 48%;
+    --odds-red: 0 72% 51%;
+  }
+  .second-home body {
+    font-family: 'Poppins', sans-serif;
+  }
+  .second-home .odds-cell-blue {
+    background-color: hsl(199 89% 48%);
+    color: white;
+  }
+  .second-home .odds-cell-red {
+    background-color: hsl(0 72% 51%);
+    color: white;
+  }
+
+  .dark {
+    --background: 230 50% 4%;
+    --foreground: 210 40% 95%;
+
+    --card: 230 45% 7%;
+    --card-foreground: 210 40% 95%;
+
+    --popover: 230 45% 7%;
+    --popover-foreground: 210 40% 95%;
+
+    --primary: 220 90% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 230 35% 12%;
+    --secondary-foreground: 210 40% 95%;
+
+    --muted: 230 35% 12%;
+    --muted-foreground: 225 20% 55%;
+
+    --accent: 270 85% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 230 35% 14%;
+    --input: 230 35% 14%;
+    --ring: 220 90% 60%;
+
+    --gold: 220 90% 65%;
+    --gold-foreground: 0 0% 100%;
+    --crimson: 270 85% 65%;
+    --crimson-foreground: 0 0% 100%;
+    --navy: 230 50% 5%;
+    --navy-foreground: 210 40% 98%;
+    --success: 152 69% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 100%;
+    --neon: 185 100% 60%;
+    --neon-foreground: 230 50% 6%;
+    --violet: 280 85% 72%;
+    --violet-foreground: 0 0% 100%;
+    --electric: 195 100% 55%;
+    --electric-foreground: 230 50% 6%;
+
+    --sidebar-background: 230 50% 4%;
+    --sidebar-foreground: 210 40% 95%;
+    --sidebar-primary: 220 90% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 230 35% 10%;
+    --sidebar-accent-foreground: 210 40% 95%;
+    --sidebar-border: 230 35% 12%;
+    --sidebar-ring: 220 90% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Inter', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Rajdhani', sans-serif;
+  }
+}
+
+@layer utilities {
+  .gold-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  }
+  .gold-text {
+    background: linear-gradient(135deg, hsl(220 90% 56%), hsl(270 85% 60%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .neon-gradient {
+    background: linear-gradient(135deg, hsl(185 100% 55%), hsl(220 90% 56%), hsl(270 85% 60%));
+  }
+  .neon-text {
+    background: linear-gradient(135deg, hsl(185 100% 55%), hsl(220 90% 60%), hsl(280 85% 65%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .electric-gradient {
+    background: linear-gradient(135deg, hsl(185 100% 55%), hsl(220 90% 60%));
+  }
+  .electric-text {
+    background: linear-gradient(135deg, hsl(185 100% 55%), hsl(220 90% 60%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .fire-gradient {
+    background: linear-gradient(135deg, hsl(38 92% 50%), hsl(0 84% 60%), hsl(270 85% 60%));
+  }
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50;
+  }
+  .gaming-card {
+    @apply bg-card/90 backdrop-blur-xl border border-primary/10 shadow-lg;
+    box-shadow: 0 0 20px -5px hsl(220 90% 56% / 0.15), 0 0 40px -10px hsl(270 85% 60% / 0.08);
+  }
+  .neon-glow {
+    box-shadow: 0 0 20px -3px hsl(220 90% 56% / 0.5), 0 0 40px -6px hsl(270 85% 60% / 0.25);
+  }
+  .neon-glow-sm {
+    box-shadow: 0 0 10px -2px hsl(var(--primary) / 0.35);
+  }
+  .neon-glow-lg {
+    box-shadow: 0 0 30px -3px hsl(220 90% 56% / 0.6), 0 0 60px -6px hsl(270 85% 60% / 0.3), 0 0 80px -10px hsl(185 100% 55% / 0.15);
+  }
+  .neon-border {
+    border-image: linear-gradient(135deg, hsl(220 90% 56%), hsl(270 85% 60%)) 1;
+  }
+  .nav-bottom-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .font-gaming {
+    font-family: 'Orbitron', sans-serif;
+  }
+  .hero-bg {
+    background: radial-gradient(ellipse at 20% 50%, hsl(220 90% 56% / 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, hsl(270 85% 60% / 0.18) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, hsl(185 100% 55% / 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 10% 10%, hsl(280 85% 65% / 0.08) 0%, transparent 40%);
+  }
+  .gaming-grid-bg {
+    background-image: 
+      linear-gradient(hsl(220 90% 56% / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(220 90% 56% / 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .cyber-border {
+    position: relative;
+  }
+  .cyber-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(185 100% 55% / 0.5), hsl(220 90% 56% / 0.3), hsl(270 85% 60% / 0.5));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .text-glow {
+    text-shadow: 0 0 10px hsl(220 90% 56% / 0.5), 0 0 20px hsl(270 85% 60% / 0.3);
+  }
+  .text-glow-sm {
+    text-shadow: 0 0 6px hsl(220 90% 56% / 0.4);
+  }
+
+  /* Home design utilities (HOME_PAGE_DESIGN.md) */
+  .glass {
+    background-color: hsl(var(--card) / 0.6);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgb(255 255 255 / 0.1);
+  }
+  .glass-strong {
+    background-color: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid hsl(var(--border) / 0.8);
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .gradient-text-gold {
+    background: linear-gradient(135deg, hsl(var(--accent)), hsl(25 95% 53%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .glow-cyan {
+    box-shadow: 0 0 20px -3px hsl(187 100% 50% / 0.5);
+  }
+  .glow-purple {
+    box-shadow: 0 0 20px -3px hsl(270 70% 55% / 0.5);
+  }
+  .glow-gold {
+    box-shadow: 0 0 20px -3px hsl(45 100% 55% / 0.5);
+  }
+  .bg-hero-pattern {
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, hsl(187 100% 50% / 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, hsl(270 70% 55% / 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 20% 80%, hsl(45 100% 55% / 0.06) 0%, transparent 50%);
+  }
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out forwards;
+  }
+  .animate-ticker {
+    animation: ticker 30s linear infinite;
+  }
+  /* Neon color utilities (match maitidevi when .home-design sets --neon-*) */
+  .bg-neon-cyan { background-color: hsl(var(--neon-cyan, 187 100% 50%)); }
+  .bg-neon-purple { background-color: hsl(var(--neon-purple, 270 70% 55%)); }
+  .bg-neon-gold { background-color: hsl(var(--neon-gold, 45 100% 55%)); }
+  .bg-neon-green { background-color: hsl(var(--neon-green, 142 76% 45%)); }
+  .bg-neon-red { background-color: hsl(var(--neon-red, 0 84% 60%)); }
+  .bg-neon-pink { background-color: hsl(var(--neon-pink, 330 85% 60%)); }
+  .text-neon-cyan { color: hsl(var(--neon-cyan, 187 100% 50%)); }
+  .text-neon-purple { color: hsl(var(--neon-purple, 270 70% 55%)); }
+  .text-neon-gold { color: hsl(var(--neon-gold, 45 100% 55%)); }
+  .text-neon-green { color: hsl(var(--neon-green, 142 76% 45%)); }
+  .text-neon-red { color: hsl(var(--neon-red, 0 84% 60%)); }
+  .text-neon-pink { color: hsl(var(--neon-pink, 330 85% 60%)); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Rich text editor (Quill) theme alignment */
+.rich-text-editor .ql-toolbar.ql-snow,
+.rich-text-editor .ql-container.ql-snow {
+  border-color: hsl(var(--border));
+}
+.rich-text-editor .ql-toolbar.ql-snow {
+  background: hsl(var(--muted));
+  border-radius: 6px 6px 0 0;
+}
+.rich-text-editor .ql-container.ql-snow {
+  border-radius: 0 0 6px 6px;
+  background: hsl(var(--background));
+}
+.rich-text-editor .ql-editor {
+  color: hsl(var(--foreground));
+  min-height: var(--min-height, 120px);
+}

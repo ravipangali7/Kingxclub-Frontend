@@ -1,0 +1,13 @@
+export { SecondHomeSlider } from "./SecondHomeSlider";
+export { SecondGameCategoryBar } from "./SecondGameCategoryBar";
+export { LiveBettingSection } from "./LiveBettingSection";
+export { SecondHomeSidebar } from "./SecondHomeSidebar";
+export { SecondHomeTopGamesCarousel } from "./SecondHomeTopGamesCarousel";
+export { SecondHomeCategoryGames } from "./SecondHomeCategoryGames";
+export { SecondHomePopularGames } from "./SecondHomePopularGames";
+export { SecondHomeReferBonus } from "./SecondHomeReferBonus";
+export { SecondHomeBonusSection } from "./SecondHomeBonusSection";
+export { SecondHomeComingSoon } from "./SecondHomeComingSoon";
+export { SecondHomeFooter } from "./SecondHomeFooter";
+export { SecondHomeAllCategories } from "./SecondHomeAllCategories";
+export { SecondHomePaymentsAccepted } from "./SecondHomePaymentsAccepted";
