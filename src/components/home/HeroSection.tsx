@@ -26,7 +26,7 @@ export function HeroSection({ hero: heroProp, heroStats: heroStatsProp }: HeroSe
     <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-32 pb-16">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-hero-pattern" />
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-radial from-primary/10 via-transparent to-transparent" />
 
       {/* Animated Orbs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-float" />

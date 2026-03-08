@@ -21,6 +21,7 @@ export default {
         display: ["Rajdhani", "sans-serif"],
         gaming: ["Orbitron", "sans-serif"],
         poppins: ["Poppins", "sans-serif"],
+        mono: ["Roboto Mono", "monospace"],
         "roboto-mono": ["Roboto Mono", "monospace"],
       },
       colors: {
@@ -154,6 +155,9 @@ export default {
           from: { opacity: "0", transform: "translateY(20px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+      },
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",

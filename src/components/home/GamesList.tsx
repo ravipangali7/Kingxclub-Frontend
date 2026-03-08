@@ -1,16 +1,23 @@
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Dices, Rocket, Video, Gamepad2, Trophy } from "lucide-react";
 import { gamesByCategory as defaultGamesByCategory, categories as defaultCategories } from "@/data/homePageMockData";
 import { GameCardSmall } from "@/components/games/GameCard";
-import { Gamepad2, Zap, Tv, Trophy, Sparkles } from "lucide-react";
 import type { CategoryShape, GameCardShape } from "@/data/homePageMockData";
 
-const slugIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  crash: Zap,
-  casino: Gamepad2,
-  liveCasino: Tv,
+const SLUG_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  crash: Rocket,
+  casino: Dices,
+  liveCasino: Video,
   sports: Trophy,
-  casual: Sparkles,
+  casual: Gamepad2,
+};
+
+const SLUG_COLOR_CLASS: Record<string, string> = {
+  crash: "bg-primary/20 text-primary",
+  casino: "bg-secondary/20 text-secondary",
+  liveCasino: "bg-neon-red/20 text-neon-red",
+  sports: "bg-neon-green/20 text-neon-green",
+  casual: "bg-accent/20 text-accent",
 };
 
 interface AllGameCategoriesProps {
@@ -27,23 +34,28 @@ export function AllGameCategories({ gamesByCategory: gamesByCategoryProp, catego
       {categories.map((cat) => {
         const games = gamesByCategory[cat.slug];
         if (!games?.length) return null;
-        const href = cat.id != null ? `/games?category=${cat.id}` : (cat.slug === "sports" ? "/sports" : "/games");
-        const Icon = slugIcons[cat.slug] ?? Gamepad2;
+        const href = cat.slug === "sports" ? "/sports" : "/games";
+        const Icon = SLUG_ICON[cat.slug] ?? Gamepad2;
+        const colorClass = SLUG_COLOR_CLASS[cat.slug] ?? "bg-muted text-muted-foreground";
         return (
-          <section key={cat.slug} className="container px-4 py-8">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Icon className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-bold text-foreground">{cat.label ?? cat.slug}</h2>
+          <section key={cat.slug} className="py-8">
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorClass}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h2 className="text-xl md:text-2xl font-bold">{cat.label ?? cat.slug}</h2>
+                </div>
+                <Link to={href} className="text-sm text-primary font-medium flex items-center gap-1 hover:underline">
+                  View All <ChevronRight className="w-4 h-4" />
+                </Link>
               </div>
-              <Link to={href} className="text-sm text-primary font-medium flex items-center gap-1 hover:underline">
-                View All <ChevronRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {games.slice(0, 10).map((game) => (
-                <GameCardSmall key={game.id} {...game} />
-              ))}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+                {games.slice(0, 10).map((game) => (
+                  <GameCardSmall key={game.id} {...game} />
+                ))}
+              </div>
             </div>
           </section>
         );

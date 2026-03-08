@@ -90,17 +90,25 @@ body::-webkit-scrollbar {
     --sidebar-ring: 220 90% 56%;
   }
 
-  /* Home page design: dark gaming theme (HOME_PAGE_DESIGN.md) */
+  /* Home page design: dark gaming theme (match maitidevi) */
   .home-design {
     --background: 222 47% 6%;
     --foreground: 210 40% 98%;
     --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 10%;
+    --popover-foreground: 210 40% 98%;
     --primary: 187 100% 50%;
+    --primary-foreground: 222 47% 6%;
     --secondary: 270 70% 55%;
+    --secondary-foreground: 210 40% 98%;
     --muted: 222 30% 15%;
     --muted-foreground: 215 20% 65%;
     --accent: 45 100% 55%;
+    --accent-foreground: 222 47% 6%;
     --border: 222 30% 18%;
+    --input: 222 30% 12%;
+    --ring: 187 100% 50%;
     --radius: 0.75rem;
     --neon-cyan: 187 100% 50%;
     --neon-purple: 270 70% 55%;
@@ -379,6 +387,12 @@ body::-webkit-scrollbar {
   .text-neon-green { color: hsl(var(--neon-green, 142 76% 45%)); }
   .text-neon-red { color: hsl(var(--neon-red, 0 84% 60%)); }
   .text-neon-pink { color: hsl(var(--neon-pink, 330 85% 60%)); }
+  .game-card {
+    @apply transition-all duration-300;
+  }
+  .game-card:hover {
+    transform: translateY(-8px) scale(1.02);
+  }
 }
 
 @keyframes float {

@@ -88,7 +88,7 @@ export interface RecentWinShape {
 export const hero: HeroData = {
   badge: "Nepal's #1 Gaming Platform",
   title: "Play. Win. Repeat.",
-  subtitle: "Discover a world of endless entertainment. Dive into a diverse collection of exciting games.",
+  subtitle: "Experience the thrill of 500+ games with live dealers, instant payouts, and unbeatable odds. Join thousands of winners today!",
   ctaText: "Start Playing",
   ctaHref: "/register",
 };
@@ -102,38 +102,38 @@ export const featuredGames: GameCardShape[] = [
 ];
 
 export const promosGrid: PromoShape[] = [
-  { variant: "welcome", badge: "New Players", title: "Welcome Bonus", highlight: "200%", subtitle: "Up to ₹50,000", description: "Get a massive boost on your first deposit. Terms apply.", cta: "Claim Now", href: "/bonus" },
-  { variant: "referral", badge: "Earn Free", title: "Invite Friends", highlight: "₹500", subtitle: "Per referral", description: "Share your link and earn when friends join and play.", cta: "Get Link", href: "/referral" },
+  { variant: "welcome", badge: "🎁 LIMITED OFFER", title: "Welcome Bonus", highlight: "200%", subtitle: "Up to ₹50,000", description: "Double your first deposit and start winning big!", cta: "Claim Now", href: "/bonus" },
+  { variant: "referral", badge: "👥 REFER & EARN", title: "Invite Friends", highlight: "₹500", subtitle: "Per Referral", description: "Share your link and earn for every friend who joins!", cta: "Get Your Link", href: "/player/referral" },
 ];
 
 export const tournamentPromo: PromoShape = {
   variant: "tournament",
-  badge: "Mega Event",
+  badge: "🏆 WEEKLY EVENT",
   title: "Mega Tournament",
   highlight: "₹10 Lakh",
   subtitle: "Prize Pool",
-  description: "Compete for the top spot. Join now and show your skills.",
+  description: "Compete with the best and win massive rewards!",
   cta: "Join Now",
-  href: "/tournaments",
+  href: "/promotions",
 };
 
 export const cashbackPromo: PromoShape = {
   variant: "cashback",
-  badge: "Weekly",
-  title: "15% Weekly Cashback",
-  highlight: "Every Monday",
-  subtitle: "On net losses",
-  description: "Get 15% back on your net losses every week. No cap on loyalty tiers.",
+  badge: "💰 EVERY WEEK",
+  title: "Cashback Offer",
+  highlight: "15%",
+  subtitle: "Weekly Cashback",
+  description: "Get money back on your losses every week!",
   cta: "Learn More",
   href: "/promotions",
 };
 
 export const categories: CategoryShape[] = [
   { slug: "crash", label: "Crash Games", count: 12 },
-  { slug: "casino", label: "Casino", count: 85 },
+  { slug: "casino", label: "Casino Games", count: 85 },
   { slug: "liveCasino", label: "Live Casino", count: 42 },
-  { slug: "sports", label: "Sports", count: 28 },
-  { slug: "casual", label: "Casual", count: 35 },
+  { slug: "sports", label: "Sports Betting", count: 28 },
+  { slug: "casual", label: "Casual Games", count: 35 },
 ];
 
 const gameImage = (seed: string) => `https://picsum.photos/seed/${seed}/400/300`;

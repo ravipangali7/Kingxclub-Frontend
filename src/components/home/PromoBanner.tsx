@@ -58,10 +58,7 @@ export function PromoBanner({ promo, className, fullWidth }: PromoBannerProps) {
             <h3 className="text-xl md:text-2xl font-bold mb-2 text-foreground">
               {promo.title}
               {promo.highlight != null && (
-                <>
-                  {" "}
-                  <span className="gradient-text">{promo.highlight}</span>
-                </>
+                <>: <span className="gradient-text">{promo.highlight}</span></>
               )}
               {promo.subtitle != null && ` ${promo.subtitle}`}
             </h3>
