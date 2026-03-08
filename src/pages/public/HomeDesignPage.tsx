@@ -31,7 +31,11 @@ function HomePageContent({
       />
       <PromoBannerGrid promos={data.promosGrid} />
       <GameCategories categories={data.categories} />
-      <AllGameCategories gamesByCategory={data.gamesByCategory} categories={data.categories} />
+      <AllGameCategories
+        gamesByCategory={data.gamesByCategory}
+        categories={data.categories}
+        categorySectionOverrides={data.categorySectionOverrides}
+      />
       <section className="container px-4 py-6">
         <PromoBanner promo={data.tournamentPromo} fullWidth />
       </section>
@@ -98,7 +102,7 @@ export default function HomeDesignPage() {
     };
   }
 
-  // Explore Game Categories: dynamic from site_categories_json (order + labels) with same slug-based color theme
+  // Explore Game Categories + All Game Categories (crash, casino, etc.): dynamic from site_categories_json + site_categories_game_json
   if (isFirstVariant && siteSetting && typeof siteSetting === "object") {
     const site = siteSetting as Record<string, unknown>;
     const siteCategoriesJson = (site.site_categories_json as { category_ids?: number[] } | null) ?? {};
@@ -118,6 +122,30 @@ export default function HomeDesignPage() {
         .filter((c) => c.slug);
       if (builtCategories.length > 0) {
         data = { ...data, categories: builtCategories };
+      }
+    }
+
+    // site_categories_game_json: games per category + section_title/section_icon overrides for each section
+    if (categoriesGame.length > 0 && categoriesList.length > 0) {
+      const gamesByCategoryFromApi: Record<string, GameCardShape[]> = {};
+      const categorySectionOverrides: Record<number, { section_title?: string; section_icon?: string }> = {};
+      for (const sec of categoriesGame) {
+        const cat = categoriesList.find((c) => c.id === sec.category_id);
+        const slug = slugFromCategoryName(cat?.name ?? sec.section_title ?? "");
+        if (slug) {
+          gamesByCategoryFromApi[slug] = (sec.games ?? []).map((g, i) => mapTopGameToCardShape(g, i));
+          categorySectionOverrides[sec.category_id] = {
+            ...(sec.section_title?.trim() && { section_title: sec.section_title.trim() }),
+            ...(sec.section_icon?.trim() && { section_icon: sec.section_icon.trim() }),
+          };
+        }
+      }
+      if (Object.keys(gamesByCategoryFromApi).length > 0) {
+        data = {
+          ...data,
+          gamesByCategory: { ...data.gamesByCategory, ...gamesByCategoryFromApi },
+          categorySectionOverrides: { ...data.categorySectionOverrides, ...categorySectionOverrides },
+        };
       }
     }
   }

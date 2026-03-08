@@ -152,6 +152,8 @@ export interface HomePageData {
   cashbackPromo: PromoShape;
   categories: CategoryShape[];
   gamesByCategory: Record<string, GameCardShape[]>;
+  /** Per-category overrides from site_categories_game_json (section_title, section_icon). Key = category id. */
+  categorySectionOverrides?: Record<number, { section_title?: string; section_icon?: string }>;
   providers: ProviderShape[];
   testimonials: TestimonialShape[];
   recentWins: RecentWinShape[];
