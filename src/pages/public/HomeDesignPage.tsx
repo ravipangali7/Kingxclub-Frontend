@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getSiteSetting } from "@/api/site";
+import { getSiteSetting, getSecondHomeSections, type SecondHomeSectionGame } from "@/api/site";
+import type { GameCardShape } from "@/data/homePageMockData";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedGames } from "@/components/home/FeaturedGames";
 import { PromoBannerGrid, PromoBanner } from "@/components/home/PromoBanner";
@@ -21,7 +22,11 @@ function HomePageContent({
     <>
       <ActivePopups />
       <HeroSection hero={data.hero} heroStats={data.heroStats} />
-      <FeaturedGames games={data.featuredGames} />
+      <FeaturedGames
+        games={data.featuredGames}
+        sectionTitle={data.featuredGamesSectionTitle}
+        sectionSubtitle={data.featuredGamesSectionSubtitle}
+      />
       <PromoBannerGrid promos={data.promosGrid} />
       <GameCategories categories={data.categories} />
       <AllGameCategories gamesByCategory={data.gamesByCategory} categories={data.categories} />
@@ -41,22 +46,49 @@ function HomePageContent({
 export default function HomeDesignPage() {
   const staticResult = useHomePageStaticData();
   const apiResult = useHomePageData();
+  const isFirstVariant = HOME_PAGE_VARIANT === "first";
   const { data: siteSetting } = useQuery({
     queryKey: ["siteSetting"],
     queryFn: getSiteSetting,
-    enabled: HOME_PAGE_VARIANT === "first",
+    enabled: isFirstVariant,
+  });
+  const { data: secondHomeSections } = useQuery({
+    queryKey: ["secondHomeSections"],
+    queryFn: getSecondHomeSections,
+    enabled: isFirstVariant,
   });
 
-  const isFirstVariant = HOME_PAGE_VARIANT === "first";
   const { data: baseData, isLoading, isError, refetch } = isFirstVariant ? staticResult : apiResult;
 
-  // For first variant: merge dynamic hero from SiteSetting (hero_title, hero_subtitle, active_players, etc.) into static page data
-  const data = isFirstVariant && siteSetting && typeof siteSetting === "object"
-    ? {
-        ...baseData,
-        ...buildHeroFromSiteSetting(siteSetting as Record<string, unknown>),
-      }
-    : baseData;
+  // Map backend top_games item to GameCardShape (same design as second home)
+  const mapTopGameToCardShape = (item: SecondHomeSectionGame, index: number): GameCardShape => ({
+    id: String(item.id),
+    name: item.name,
+    image: item.image ?? "",
+    category: item.category ?? "",
+    players: 0,
+    minBet: item.min_bet ?? 0,
+    maxBet: item.max_bet ?? 0,
+    rating: 4.5,
+    isHot: index < 2,
+    isNew: index < 3,
+    provider: item.provider ?? "",
+  });
+
+  // For first variant: merge dynamic hero + Top Picks (site_top_games_json) into static page data
+  let data = baseData;
+  if (isFirstVariant && siteSetting && typeof siteSetting === "object") {
+    data = { ...data, ...buildHeroFromSiteSetting(siteSetting as Record<string, unknown>) };
+  }
+  if (isFirstVariant && secondHomeSections?.top_games?.items?.length) {
+    const topGames = secondHomeSections.top_games.items.map(mapTopGameToCardShape);
+    data = {
+      ...data,
+      featuredGames: topGames,
+      featuredGamesSectionTitle: secondHomeSections.top_games.section_title?.trim() || undefined,
+      featuredGamesSectionSubtitle: undefined,
+    };
+  }
 
   if (isLoading) {
     return (

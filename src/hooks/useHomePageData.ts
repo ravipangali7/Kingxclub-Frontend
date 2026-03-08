@@ -142,6 +142,10 @@ export interface HomePageData {
   hero: HeroData;
   heroStats: { label: string; value: string; icon: string }[];
   featuredGames: GameCardShape[];
+  /** When set (e.g. from site_top_games_json.section_title), overrides "Top Picks for You" heading */
+  featuredGamesSectionTitle?: string;
+  /** When set (e.g. from site config), overrides the Top Picks subtitle */
+  featuredGamesSectionSubtitle?: string;
   promosGrid: PromoShape[];
   tournamentPromo: PromoShape;
   cashbackPromo: PromoShape;

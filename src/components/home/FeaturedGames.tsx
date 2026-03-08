@@ -8,13 +8,19 @@ import type { GameCardShape } from "@/data/homePageMockData";
 interface FeaturedGamesProps {
   games?: GameCardShape[] | null;
   loading?: boolean;
+  /** Override section heading (default: "Top Picks for You") */
+  sectionTitle?: string | null;
+  /** Override section subtitle (default: "Most popular games right now") */
+  sectionSubtitle?: string | null;
 }
 
-export function FeaturedGames({ games: gamesProp, loading }: FeaturedGamesProps) {
+export function FeaturedGames({ games: gamesProp, loading, sectionTitle, sectionSubtitle }: FeaturedGamesProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const games = gamesProp && gamesProp.length > 0 ? gamesProp : defaultFeaturedGames;
+  const title = sectionTitle?.trim() || "Top Picks for You";
+  const subtitle = sectionSubtitle?.trim() || "Most popular games right now";
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -41,8 +47,8 @@ export function FeaturedGames({ games: gamesProp, loading }: FeaturedGamesProps)
               <Flame className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold">Top Picks for You</h2>
-              <p className="text-muted-foreground text-sm">Most popular games right now</p>
+              <h2 className="text-2xl md:text-3xl font-bold">{title}</h2>
+              <p className="text-muted-foreground text-sm">{subtitle}</p>
             </div>
           </div>
           <div className="flex gap-2">
