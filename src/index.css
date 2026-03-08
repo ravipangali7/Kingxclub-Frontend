@@ -96,6 +96,12 @@ body.home-design-scrollbar::-webkit-scrollbar-thumb:hover {
     --warning-foreground: 0 0% 100%;
     --neon: 185 100% 55%;
     --neon-foreground: 230 50% 10%;
+    --neon-cyan: 187 100% 50%;
+    --neon-purple: 270 70% 55%;
+    --neon-gold: 45 100% 55%;
+    --neon-green: 142 76% 45%;
+    --neon-red: 0 84% 60%;
+    --neon-pink: 330 85% 60%;
     --violet: 280 85% 65%;
     --violet-foreground: 0 0% 100%;
     --electric: 195 100% 50%;
