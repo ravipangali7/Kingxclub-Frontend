@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSiteSetting, getSecondHomeSections, type SecondHomeSectionGame } from "@/api/site";
-import type { GameCardShape } from "@/data/homePageMockData";
+import { getCategories, type GameCategory } from "@/api/games";
+import type { GameCardShape, CategoryShape } from "@/data/homePageMockData";
+import { slugFromCategoryName } from "@/hooks/useHomePageData";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedGames } from "@/components/home/FeaturedGames";
 import { PromoBannerGrid, PromoBanner } from "@/components/home/PromoBanner";
@@ -57,6 +59,12 @@ export default function HomeDesignPage() {
     queryFn: getSecondHomeSections,
     enabled: isFirstVariant,
   });
+  const { data: categoriesApi = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+    enabled: isFirstVariant,
+  });
+  const categoriesList = (categoriesApi as GameCategory[]) ?? [];
 
   const { data: baseData, isLoading, isError, refetch } = isFirstVariant ? staticResult : apiResult;
 
@@ -88,6 +96,30 @@ export default function HomeDesignPage() {
       featuredGamesSectionTitle: secondHomeSections.top_games.section_title?.trim() || undefined,
       featuredGamesSectionSubtitle: undefined,
     };
+  }
+
+  // Explore Game Categories: dynamic from site_categories_json (order + labels) with same slug-based color theme
+  if (isFirstVariant && siteSetting && typeof siteSetting === "object") {
+    const site = siteSetting as Record<string, unknown>;
+    const siteCategoriesJson = (site.site_categories_json as { category_ids?: number[] } | null) ?? {};
+    const categoryIds = Array.isArray(siteCategoriesJson.category_ids) ? siteCategoriesJson.category_ids : [];
+    const categoriesGame = secondHomeSections?.categories_game?.categories ?? [];
+    if (categoryIds.length > 0 && categoriesList.length > 0) {
+      const builtCategories: CategoryShape[] = categoryIds
+        .map((id) => {
+          const cat = categoriesList.find((c) => c.id === id);
+          const sec = categoriesGame.find((c) => c.category_id === id);
+          const name = cat?.name ?? sec?.section_title ?? "";
+          const slug = slugFromCategoryName(name);
+          const label = (sec?.section_title?.trim() || cat?.name?.trim() || name) || String(id);
+          const count = sec?.games?.length ?? 0;
+          return { slug, label, count, id };
+        })
+        .filter((c) => c.slug);
+      if (builtCategories.length > 0) {
+        data = { ...data, categories: builtCategories };
+      }
+    }
   }
 
   if (isLoading) {

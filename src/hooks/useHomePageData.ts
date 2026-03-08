@@ -44,7 +44,8 @@ const PROVIDER_COLORS = [
   "from-teal-500 to-cyan-500",
 ];
 
-function slugFromCategoryName(name: string): string {
+/** Map category name to slug for CategoryCard color/icon theme (crash=cyan, casino=purple, etc.). */
+export function slugFromCategoryName(name: string): string {
   const map: Record<string, string> = {
     crash: "crash",
     casino: "casino",
