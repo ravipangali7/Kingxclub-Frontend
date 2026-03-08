@@ -1,8 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import { getSiteSetting, getSecondHomeSections, type SecondHomeSectionGame } from "@/api/site";
-import { getCategories, type GameCategory } from "@/api/games";
-import type { GameCardShape, CategoryShape } from "@/data/homePageMockData";
+import { getSiteSetting, getSecondHomeSections, type SecondHomeSectionGame, type SecondHomeSectionProvider } from "@/api/site";
+import { getCategories, getComingSoonGames, type GameCategory } from "@/api/games";
+import type { GameCardShape, CategoryShape, ProviderShape } from "@/data/homePageMockData";
 import { slugFromCategoryName } from "@/hooks/useHomePageData";
+
+const PROVIDER_COLORS = [
+  "from-orange-500 to-red-500",
+  "from-amber-500 to-orange-500",
+  "from-cyan-500 to-blue-500",
+  "from-green-500 to-emerald-600",
+  "from-violet-500 to-purple-600",
+  "from-pink-500 to-rose-500",
+  "from-yellow-500 to-amber-500",
+  "from-teal-500 to-cyan-500",
+];
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedGames } from "@/components/home/FeaturedGames";
 import { PromoBannerGrid, PromoBanner } from "@/components/home/PromoBanner";
@@ -68,6 +79,11 @@ export default function HomeDesignPage() {
     queryFn: getCategories,
     enabled: isFirstVariant,
   });
+  const { data: comingSoonApi = [] } = useQuery({
+    queryKey: ["comingSoonGames"],
+    queryFn: getComingSoonGames,
+    enabled: isFirstVariant,
+  });
   const categoriesList = (categoriesApi as GameCategory[]) ?? [];
 
   const { data: baseData, isLoading, isError, refetch } = isFirstVariant ? staticResult : apiResult;
@@ -100,6 +116,26 @@ export default function HomeDesignPage() {
       featuredGamesSectionTitle: secondHomeSections.top_games.section_title?.trim() || undefined,
       featuredGamesSectionSubtitle: undefined,
     };
+  }
+
+  // Providers: dynamic from second-home-sections (site_providers_json)
+  if (isFirstVariant && secondHomeSections?.providers?.items?.length) {
+    const providersFromApi: ProviderShape[] = secondHomeSections.providers.items.map((p: SecondHomeSectionProvider, i: number) => ({
+      id: p.id,
+      name: p.name,
+      logo: p.logo ?? p.name?.slice(0, 2).toUpperCase() ?? "",
+      logoImage: p.logo_image?.trim() ? p.logo_image.trim() : undefined,
+      games: p.games ?? 0,
+      color: PROVIDER_COLORS[i % PROVIDER_COLORS.length],
+      link: p.link ?? `/providers/${p.id}`,
+      single_game_id: p.single_game_id ?? undefined,
+    }));
+    data = { ...data, providers: providersFromApi };
+  }
+
+  // Coming Soon: dynamic from getComingSoonGames API
+  if (isFirstVariant && Array.isArray(comingSoonApi) && comingSoonApi.length > 0) {
+    data = { ...data, comingSoon: comingSoonApi };
   }
 
   // Explore Game Categories + All Game Categories (crash, casino, etc.): dynamic from site_categories_json + site_categories_game_json
