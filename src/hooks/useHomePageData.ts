@@ -105,6 +105,39 @@ function mapBiggestWinToRecentWin(item: Record<string, unknown>, index: number):
   };
 }
 
+/**
+ * Build hero and heroStats from SiteSetting API response (models.SiteSetting fields 833–842).
+ * Use for dynamic hero section when rest of page is static.
+ */
+export function buildHeroFromSiteSetting(site: Record<string, unknown> | null | undefined): {
+  hero: HeroData;
+  heroStats: { label: string; value: string; icon: string }[];
+} {
+  if (!site || typeof site !== "object") {
+    return { hero: defaultHero, heroStats: [...defaultHeroStats] };
+  }
+  const hero: HeroData = {
+    badge: (site.hero_badge as string) ?? defaultHero.badge,
+    title: (site.hero_title as string)?.trim() || defaultHero.title,
+    subtitle: (site.hero_subtitle as string)?.trim() || defaultHero.subtitle,
+    ctaText: (site.hero_cta_text as string) ?? defaultHero.ctaText,
+    ctaHref: (site.hero_cta_href as string) ?? defaultHero.ctaHref,
+  };
+  const homeStatsRaw =
+    Array.isArray(site.home_stats) && site.home_stats.length > 0
+      ? (site.home_stats as { label?: string; value?: string; icon?: string }[])
+      : null;
+  const heroStats = homeStatsRaw?.length
+    ? homeStatsRaw.map((s) => ({ label: s.label ?? "", value: s.value ?? "", icon: s.icon ?? "trophy" }))
+    : [
+        { label: "Active Players", value: site.active_players != null ? `${Number(site.active_players)}` : "50K+", icon: "users" },
+        { label: "Games", value: site.games_available != null ? `${Number(site.games_available)}+` : "500+", icon: "gamepad" },
+        { label: "Total Winnings", value: site.total_winnings != null ? `₹${Number(site.total_winnings).toLocaleString()}` : "₹10Cr+", icon: "trophy" },
+        { label: "Instant Payouts", value: site.instant_payouts != null ? `${site.instant_payouts}` : "24/7", icon: "zap" },
+      ];
+  return { hero, heroStats };
+}
+
 export interface HomePageData {
   hero: HeroData;
   heroStats: { label: string; value: string; icon: string }[];

@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { getSiteSetting } from "@/api/site";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedGames } from "@/components/home/FeaturedGames";
 import { PromoBannerGrid, PromoBanner } from "@/components/home/PromoBanner";
@@ -7,7 +9,7 @@ import { GameProviders } from "@/components/home/GameProviders";
 import { ComingSoon } from "@/components/home/ComingSoon";
 import { Testimonials } from "@/components/home/Testimonials";
 import { ActivePopups } from "@/components/home/ActivePopups";
-import { useHomePageData, useHomePageStaticData } from "@/hooks/useHomePageData";
+import { useHomePageData, useHomePageStaticData, buildHeroFromSiteSetting } from "@/hooks/useHomePageData";
 import { HOME_PAGE_VARIANT } from "@/config";
 
 function HomePageContent({
@@ -39,8 +41,22 @@ function HomePageContent({
 export default function HomeDesignPage() {
   const staticResult = useHomePageStaticData();
   const apiResult = useHomePageData();
-  const { data, isLoading, isError, refetch } =
-    HOME_PAGE_VARIANT === "first" ? staticResult : apiResult;
+  const { data: siteSetting } = useQuery({
+    queryKey: ["siteSetting"],
+    queryFn: getSiteSetting,
+    enabled: HOME_PAGE_VARIANT === "first",
+  });
+
+  const isFirstVariant = HOME_PAGE_VARIANT === "first";
+  const { data: baseData, isLoading, isError, refetch } = isFirstVariant ? staticResult : apiResult;
+
+  // For first variant: merge dynamic hero from SiteSetting (hero_title, hero_subtitle, active_players, etc.) into static page data
+  const data = isFirstVariant && siteSetting && typeof siteSetting === "object"
+    ? {
+        ...baseData,
+        ...buildHeroFromSiteSetting(siteSetting as Record<string, unknown>),
+      }
+    : baseData;
 
   if (isLoading) {
     return (
