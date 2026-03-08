@@ -33,7 +33,7 @@ function HomePageContent({
       <GameCategories categories={data.categories} />
       <AllGameCategories
         gamesByCategory={data.gamesByCategory}
-        categories={data.categories}
+        categories={data.categoriesForAllSections ?? data.categories}
         categorySectionOverrides={data.categorySectionOverrides}
       />
       <section className="container px-4 py-6">
@@ -125,24 +125,35 @@ export default function HomeDesignPage() {
       }
     }
 
-    // site_categories_game_json: games per category + section_title/section_icon overrides for each section
+    // site_categories_game_json: category-wise sections in API order (same as second-home-sections)
     if (categoriesGame.length > 0 && categoriesList.length > 0) {
       const gamesByCategoryFromApi: Record<string, GameCardShape[]> = {};
       const categorySectionOverrides: Record<number, { section_title?: string; section_icon?: string }> = {};
+      const categoriesForAllSections: CategoryShape[] = [];
+      const usedSlugs = new Set<string>();
       for (const sec of categoriesGame) {
         const cat = categoriesList.find((c) => c.id === sec.category_id);
-        const slug = slugFromCategoryName(cat?.name ?? sec.section_title ?? "");
-        if (slug) {
-          gamesByCategoryFromApi[slug] = (sec.games ?? []).map((g, i) => mapTopGameToCardShape(g, i));
-          categorySectionOverrides[sec.category_id] = {
-            ...(sec.section_title?.trim() && { section_title: sec.section_title.trim() }),
-            ...(sec.section_icon?.trim() && { section_icon: sec.section_icon.trim() }),
-          };
-        }
+        const baseSlug = slugFromCategoryName(cat?.name ?? sec.section_title ?? "");
+        const slug = baseSlug ? (usedSlugs.has(baseSlug) ? `${baseSlug}-${sec.category_id}` : baseSlug) : `cat-${sec.category_id}`;
+        if (baseSlug) usedSlugs.add(baseSlug);
+        usedSlugs.add(slug);
+        const label = (sec.section_title?.trim() || cat?.name?.trim() || "") || String(sec.category_id);
+        categoriesForAllSections.push({
+          slug,
+          label,
+          count: sec.games?.length ?? 0,
+          id: sec.category_id,
+        });
+        gamesByCategoryFromApi[slug] = (sec.games ?? []).map((g, i) => mapTopGameToCardShape(g, i));
+        categorySectionOverrides[sec.category_id] = {
+          ...(sec.section_title?.trim() && { section_title: sec.section_title.trim() }),
+          ...(sec.section_icon?.trim() && { section_icon: sec.section_icon.trim() }),
+        };
       }
-      if (Object.keys(gamesByCategoryFromApi).length > 0) {
+      if (categoriesForAllSections.length > 0) {
         data = {
           ...data,
+          categoriesForAllSections,
           gamesByCategory: { ...data.gamesByCategory, ...gamesByCategoryFromApi },
           categorySectionOverrides: { ...data.categorySectionOverrides, ...categorySectionOverrides },
         };

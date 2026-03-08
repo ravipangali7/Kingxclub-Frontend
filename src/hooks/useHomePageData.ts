@@ -151,6 +151,8 @@ export interface HomePageData {
   tournamentPromo: PromoShape;
   cashbackPromo: PromoShape;
   categories: CategoryShape[];
+  /** When set, AllGameCategories uses this list in API order (from categories_game); else uses categories. */
+  categoriesForAllSections?: CategoryShape[];
   gamesByCategory: Record<string, GameCardShape[]>;
   /** Per-category overrides from site_categories_game_json (section_title, section_icon). Key = category id. */
   categorySectionOverrides?: Record<number, { section_title?: string; section_icon?: string }>;
