@@ -68,7 +68,7 @@ export function AllGameCategories({ gamesByCategory: gamesByCategoryProp, catego
         const href = cat.slug === "sports" ? "/sports" : "/games";
         const colorClass = SLUG_COLOR_CLASS[cat.slug] ?? "bg-muted text-muted-foreground";
         const overrides = cat.id != null ? categorySectionOverrides?.[cat.id] : undefined;
-        const sectionTitle = overrides?.section_title?.trim() || cat.label ?? cat.slug;
+        const sectionTitle = (overrides?.section_title?.trim() || cat.label) ?? cat.slug;
         const sectionIcon = overrides?.section_icon;
         return (
           <section key={cat.slug} className="py-8">
