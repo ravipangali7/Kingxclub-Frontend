@@ -82,9 +82,14 @@ export function AllGameCategories({ gamesByCategory: gamesByCategoryProp, catego
                   View All <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-                {games.slice(0, 10).map((game) => (
-                  <GameCardSmall key={game.id} {...game} />
+              <div
+                className="flex gap-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {games.map((game) => (
+                  <div key={game.id} className="w-[160px] sm:w-[180px] flex-shrink-0 snap-start">
+                    <GameCardSmall {...game} />
+                  </div>
                 ))}
               </div>
             </div>
