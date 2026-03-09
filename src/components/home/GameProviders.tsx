@@ -52,7 +52,7 @@ export function GameProviders({ providers: providersProp, loading }: GameProvide
                     )}
                   </div>
                   <h3 className="font-semibold text-foreground mb-1">{provider.name}</h3>
-                  <p className="text-sm text-muted-foreground">{provider.games}+ Games</p>
+                  {/* <p className="text-sm text-muted-foreground">{provider.games}+ Games</p> */}
                 </div>
               );
               const key = provider.id ?? provider.name;
