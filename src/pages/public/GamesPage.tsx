@@ -1,17 +1,15 @@
-import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GameCard } from "@/components/shared/GameCard";
+import { GameCardSmall } from "@/components/games/GameCard";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { getGames, getCategories, getGameImageUrl } from "@/api/games";
-import type { Game, GameCategory } from "@/api/games";
+import { getGames, getCategories, getProviders, getGameImageUrl } from "@/api/games";
+import type { Game, GameCategory, GameProvider } from "@/api/games";
 import { getMediaUrl } from "@/lib/api";
 import { svgToImgSrc } from "@/lib/svg";
-import { LayoutGrid, Search } from "lucide-react";
-
-const IRREGULAR_SHAPE = "60% 40% 50% 50% / 50% 60% 40% 50%";
+import { LayoutGrid, Search, Grid3X3, LayoutList, ChevronDown, Gamepad2 } from "lucide-react";
 
 function categoryIconSrc(cat: GameCategory): string | null {
   const icon = cat.icon?.trim();
@@ -26,7 +24,7 @@ function CategoryIcon({ cat, name }: { cat: GameCategory; name: string }) {
   if (!src) {
     return (
       <div className="h-full w-full flex items-center justify-center">
-        <LayoutGrid className="h-6 w-6 text-muted-foreground" />
+        <LayoutGrid className="h-5 w-5 text-muted-foreground" />
       </div>
     );
   }
@@ -35,28 +33,73 @@ function CategoryIcon({ cat, name }: { cat: GameCategory; name: string }) {
 
 const PAGE_SIZE = 24;
 
+type SortOption = "popular" | "rating" | "name" | "minBet";
+
+function sortGames(games: Game[], sortBy: SortOption): Game[] {
+  const arr = [...games];
+  switch (sortBy) {
+    case "popular":
+      return arr.sort((a, b) => {
+        const aPop = (a.is_popular_game ? 2 : 0) + (a.is_top_game ? 1 : 0);
+        const bPop = (b.is_popular_game ? 2 : 0) + (b.is_top_game ? 1 : 0);
+        return bPop - aPop;
+      });
+    case "rating":
+      return arr.sort((a, b) => a.name.localeCompare(b.name));
+    case "name":
+      return arr.sort((a, b) => a.name.localeCompare(b.name));
+    case "minBet":
+      return arr.sort((a, b) => Number(a.min_bet) - Number(b.min_bet));
+    default:
+      return arr;
+  }
+}
+
+function gameToCardShape(game: Game) {
+  return {
+    id: String(game.id),
+    name: game.name,
+    image: getGameImageUrl(game),
+    category: game.category_name ?? "",
+    players: 0,
+    minBet: Number(game.min_bet) || 10,
+    maxBet: Number(game.max_bet) || 5000,
+    rating: 4.5,
+    isHot: !!(game.is_popular_game ?? game.is_top_game),
+    isNew: false,
+    provider: game.provider_name ?? "",
+  };
+}
+
 const GamesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get("category") ?? "all";
   const searchParam = searchParams.get("search") ?? "";
+  const providerParam = searchParams.get("provider") ?? "all";
   const pageParam = searchParams.get("page");
   const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
 
   const [searchInput, setSearchInput] = useState(searchParam);
+  const [sortBy, setSortBy] = useState<SortOption>("popular");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
   useEffect(() => {
     setSearchInput(searchParam);
   }, [searchParam]);
 
   const categoryId = categoryParam === "all" ? undefined : Number(categoryParam) || undefined;
+  const providerId = providerParam === "all" ? undefined : Number(providerParam) || undefined;
   const searchQuery = searchParam.trim() || undefined;
 
-  const setFilters = (updates: { category?: string; search?: string; page?: number }) => {
+  const setFilters = (updates: { category?: string; search?: string; page?: number; provider?: string }) => {
     const next = new URLSearchParams(searchParams);
     if (updates.category !== undefined) next.set("category", updates.category);
     if (updates.search !== undefined) {
-      if (updates.search) next.set("search", updates.search); else next.delete("search");
+      if (updates.search) next.set("search", updates.search);
+      else next.delete("search");
     }
     if (updates.page !== undefined) next.set("page", String(updates.page));
+    if (updates.provider !== undefined) next.set("provider", updates.provider);
     setSearchParams(next);
   };
 
@@ -66,119 +109,197 @@ const GamesPage = () => {
   };
 
   const { data: gamesData, isLoading: gamesLoading, isError: gamesError, refetch: refetchGames } = useQuery({
-    queryKey: ["games", categoryId, currentPage, searchQuery],
-    queryFn: () => getGames(categoryId, undefined, currentPage, PAGE_SIZE, searchQuery),
+    queryKey: ["games", categoryId, providerId, currentPage, searchQuery],
+    queryFn: () => getGames(categoryId, providerId, currentPage, PAGE_SIZE, searchQuery),
   });
   const { data: categories = [] } = useQuery({ queryKey: ["categories"], queryFn: getCategories });
+  const { data: providers = [] } = useQuery({ queryKey: ["providers"], queryFn: getProviders });
 
   const results = gamesData?.results ?? [];
   const totalCount = gamesData?.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const sortedResults = useMemo(() => sortGames(results as Game[], sortBy), [results, sortBy]);
+
+  const categoryList = categories as GameCategory[];
+  const providerList = providers as GameProvider[];
+  const selectedCategoryName =
+    categoryParam === "all"
+      ? "All Games"
+      : categoryList.find((c) => String(c.id) === categoryParam)?.name ?? "Games";
 
   return (
-    <div className="container px-2 mobile:px-4 py-4 mobile:py-6 space-y-4 min-w-0 max-w-full">
-      <div className="min-w-0">
-        <h1 className="font-gaming font-bold text-xl mobile:text-2xl neon-text tracking-wide truncate">ALL GAMES</h1>
-        <p className="text-xs mobile:text-sm text-muted-foreground mt-1 truncate">Discover {totalCount} exciting games to play and win</p>
+    <div className="container mx-auto px-4 py-4 md:py-6 min-w-0 max-w-full">
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">{selectedCategoryName}</h1>
+        <p className="text-muted-foreground">
+          Discover {gamesLoading ? "..." : totalCount} exciting games to play and win
+        </p>
       </div>
 
-      {/* Search - uses backend API with pagination */}
-      <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-2 w-full sm:max-w-md min-w-0">
-        <div className="relative flex-1 min-w-0">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-          <Input
-            type="search"
-            placeholder="Search games..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="pl-9 h-10 min-h-[44px] touch-manipulation"
-            aria-label="Search games"
-          />
-        </div>
-        <Button type="submit" size="sm" className="h-10 min-h-[44px] shrink-0 touch-manipulation">
-          Search
-        </Button>
-      </form>
-
-      {/* Category row - horizontal scroll, touch-friendly */}
-      <div className="flex flex-row flex-nowrap gap-2 mobile:gap-3 overflow-x-auto overflow-y-hidden pb-2 scrollbar-hide w-full min-w-0 -mx-2 mobile:mx-0 px-2 mobile:px-0" style={{ WebkitOverflowScrolling: "touch" }}>
-        <button
-          type="button"
-          onClick={() => setFilters({ category: "all", page: 1 })}
-          className={`flex flex-col items-center gap-1 flex-shrink-0 w-14 mobile:w-16 min-h-[44px] touch-manipulation transition-all focus:outline-none focus:ring-0 focus-visible:outline-none ${categoryParam === "all" ? "opacity-100" : "opacity-60 hover:opacity-90"}`}
-          style={{ borderRadius: IRREGULAR_SHAPE }}
-        >
-          <div className="h-12 w-12 mobile:h-14 mobile:w-14 flex items-center justify-center overflow-hidden transition-all" style={{ borderRadius: IRREGULAR_SHAPE }}>
-            <LayoutGrid className={`h-5 w-5 mobile:h-6 mobile:w-6 ${categoryParam === "all" ? "text-primary" : "text-muted-foreground"}`} />
-          </div>
-          <span className={`text-[10px] font-medium text-center truncate w-full max-w-[56px] mobile:max-w-[64px] ${categoryParam === "all" ? "text-primary" : "text-muted-foreground"}`}>All</span>
-        </button>
-        {(categories as GameCategory[]).map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            onClick={() => setFilters({ category: String(cat.id), page: 1 })}
-            className={`flex flex-col items-center gap-1 flex-shrink-0 w-14 mobile:w-16 min-h-[44px] touch-manipulation transition-all focus:outline-none focus:ring-0 focus-visible:outline-none ${categoryParam === String(cat.id) ? "opacity-100" : "opacity-60 hover:opacity-90"}`}
-            style={{ borderRadius: IRREGULAR_SHAPE }}
-          >
-            <div className="h-12 w-12 mobile:h-14 mobile:w-14 flex items-center justify-center overflow-hidden transition-all" style={{ borderRadius: IRREGULAR_SHAPE }}>
-              <CategoryIcon cat={cat} name={cat.name} />
+      {/* Filters Bar */}
+      <div className="glass rounded-xl p-4 mb-8">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <form onSubmit={handleSearchSubmit} className="relative flex-1 flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+              <Input
+                type="search"
+                placeholder="Search games..."
+                className="pl-10 h-12 bg-input border-border"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                aria-label="Search games"
+              />
             </div>
-            <span className={`text-[10px] font-medium text-center truncate w-full max-w-[56px] mobile:max-w-[64px] ${categoryParam === String(cat.id) ? "text-primary" : "text-muted-foreground"}`}>{cat.name}</span>
-          </button>
-        ))}
+            <Button type="submit" size="sm" className="h-12 shrink-0">
+              Search
+            </Button>
+          </form>
+
+          <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
+            <Button
+              variant={categoryParam === "all" ? "default" : "outline"}
+              size="sm"
+              className="flex-shrink-0 gap-2"
+              onClick={() => setFilters({ category: "all", page: 1 })}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              All Games
+            </Button>
+            {categoryList.map((cat) => (
+              <Button
+                key={cat.id}
+                variant={categoryParam === String(cat.id) ? "default" : "outline"}
+                size="sm"
+                className="flex-shrink-0 gap-2"
+                onClick={() => setFilters({ category: String(cat.id), page: 1 })}
+              >
+                <div className="w-4 h-4 flex items-center justify-center overflow-hidden rounded flex-shrink-0">
+                  <CategoryIcon cat={cat} name={cat.name} />
+                </div>
+                {cat.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-4 mt-4 pt-4 border-t border-border">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <select
+                className="appearance-none bg-input border border-border rounded-lg px-4 py-2 pr-8 text-sm min-w-[140px]"
+                value={providerParam}
+                onChange={(e) => setFilters({ provider: e.target.value, page: 1 })}
+              >
+                <option value="all">All Providers</option>
+                {providerList.map((p) => (
+                  <option key={p.id} value={String(p.id)}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            </div>
+            <div className="relative">
+              <select
+                className="appearance-none bg-input border border-border rounded-lg px-4 py-2 pr-8 text-sm"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+              >
+                <option value="popular">Most Popular</option>
+                <option value="rating">Top Rated</option>
+                <option value="name">A-Z</option>
+                <option value="minBet">Min Bet</option>
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">{sortedResults.length} games</span>
+            <div className="flex gap-1">
+              <Button
+                variant={viewMode === "grid" ? "default" : "ghost"}
+                size="icon"
+                onClick={() => setViewMode("grid")}
+                aria-label="Grid view"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "ghost"}
+                size="icon"
+                onClick={() => setViewMode("list")}
+                aria-label="List view"
+              >
+                <LayoutList className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Loading / error for games */}
       {gamesLoading && (
-        <p className="text-center text-muted-foreground py-8 text-sm">Loading games…</p>
+        <div className="py-16 text-center text-muted-foreground">Loading games...</div>
       )}
       {gamesError && !gamesLoading && (
         <div className="text-center py-8 space-y-2">
-          <p className="text-muted-foreground text-sm">Could not load games.</p>
-          <Button variant="outline" size="sm" className="touch-manipulation min-h-[44px]" onClick={() => refetchGames()}>Retry</Button>
+          <p className="text-muted-foreground">Could not load games.</p>
+          <Button variant="outline" size="sm" onClick={() => refetchGames()}>
+            Retry
+          </Button>
         </div>
       )}
 
-      {/* Games - responsive grid on mobile, horizontal scroll optional; use grid for native feel */}
       {!gamesLoading && !gamesError && (
-        <div className="grid grid-cols-2 mobile:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 mobile:gap-3 min-w-0">
-          {results.map((game: Game) => (
-            <div key={game.id} className="min-w-0 w-full">
-              <Link to={`/games/${game.id}`} className="block min-w-0">
-                <GameCard image={getGameImageUrl(game)} name={game.name} category={game.category_name ?? ""} minBet={Number(game.min_bet)} maxBet={Number(game.max_bet)} />
-              </Link>
-            </div>
+        <div
+          className={`grid gap-4 ${
+            viewMode === "grid"
+              ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+              : "grid-cols-1 md:grid-cols-2"
+          }`}
+        >
+          {sortedResults.map((game: Game) => (
+            <GameCardSmall key={game.id} {...gameToCardShape(game)} />
           ))}
         </div>
       )}
 
-      {!gamesLoading && !gamesError && results.length === 0 && (
-        <p className="text-center text-muted-foreground py-12 text-sm">No games found</p>
+      {!gamesLoading && !gamesError && sortedResults.length === 0 && (
+        <div className="text-center py-16">
+          <Gamepad2 className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-xl font-semibold mb-2">No games found</h3>
+          <p className="text-muted-foreground">Try adjusting your filters or search query</p>
+        </div>
       )}
 
-      {/* Pagination - touch-friendly */}
       {!gamesLoading && !gamesError && totalPages > 1 && (
-        <Pagination className="pt-4">
-          <PaginationContent className="gap-1 mobile:gap-2 flex-wrap">
+        <Pagination className="pt-6">
+          <PaginationContent className="gap-2 flex-wrap">
             <PaginationItem>
               <PaginationPrevious
                 href="#"
-                onClick={(e) => { e.preventDefault(); setFilters({ page: currentPage - 1 }); }}
-                className={`min-h-[44px] touch-manipulation ${currentPage <= 1 ? "pointer-events-none opacity-50" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setFilters({ page: currentPage - 1 });
+                }}
+                className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
                 aria-disabled={currentPage <= 1}
               />
             </PaginationItem>
             <PaginationItem>
-              <span className="px-2 mobile:px-3 py-2 text-xs mobile:text-sm text-muted-foreground whitespace-nowrap">
+              <span className="px-3 py-2 text-sm text-muted-foreground whitespace-nowrap">
                 Page {currentPage} of {totalPages}
               </span>
             </PaginationItem>
             <PaginationItem>
               <PaginationNext
                 href="#"
-                onClick={(e) => { e.preventDefault(); setFilters({ page: currentPage + 1 }); }}
-                className={`min-h-[44px] touch-manipulation ${currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setFilters({ page: currentPage + 1 });
+                }}
+                className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
                 aria-disabled={currentPage >= totalPages}
               />
             </PaginationItem>

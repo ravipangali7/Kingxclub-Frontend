@@ -2,26 +2,45 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { GameCard } from "@/components/shared/GameCard";
+import { Input } from "@/components/ui/input";
 import { GameImageWithFallback } from "@/components/shared/GameImageWithFallback";
-import { getGame, getGames, getGameImageUrl } from "@/api/games";
+import { getGame, getGameImageUrl } from "@/api/games";
 import { getSiteSetting } from "@/api/site";
 import { getPlayerWallet, launchGameByMode } from "@/api/player";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Game } from "@/api/games";
-import { Shield, Zap, Lock, Users, Trophy, Clock, Flame, TrendingUp, Crown, Dice1, Target, Eye } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+  ChevronLeft,
+  Play,
+  Info,
+  Star,
+  Users,
+  Wallet,
+  Minus,
+  Plus,
+  MessageCircle,
+  Phone,
+  Zap,
+  Shield,
+  Clock,
+  Gift,
+  Trophy,
+} from "lucide-react";
 
-const chips = [10, 50, 100, 500, 1000, 5000];
+const quickBets = [50, 100, 500, 1000, 5000];
+const defaultHowToPlay = ["Place your bet", "Start the game and wait for the round", "Collect winnings instantly"];
+const defaultFeatures = ["Live", "Fair", "Secure"];
+const defaultDescription = "A thrilling game. Place your bet and play.";
 
-const recentWinners = [
-  { name: "Ram S.", amount: 15000, time: "2 min ago" },
-  { name: "Sita D.", amount: 8500, time: "5 min ago" },
-  { name: "Hari B.", amount: 22000, time: "12 min ago" },
-  { name: "Gita K.", amount: 5600, time: "18 min ago" },
-  { name: "Bikash T.", amount: 31000, time: "25 min ago" },
-];
+function buildWhatsAppLinks(whatsappNumber: string) {
+  const num = String(whatsappNumber || "").replace(/[^0-9]/g, "") || "918000825980";
+  const prefix = num.length <= 10 ? "91" : "";
+  const full = prefix ? prefix + num : num;
+  return {
+    deposit: `https://wa.me/${full}?text=${encodeURIComponent("Hi! I want to deposit funds to my account.")}`,
+    withdraw: `https://wa.me/${full}?text=${encodeURIComponent("Hi! I want to withdraw funds from my account.")}`,
+  };
+}
 
 const GameDetailPage = () => {
   const { id } = useParams();
@@ -31,9 +50,13 @@ const GameDetailPage = () => {
   const isPlayer = user?.role === "player";
   const [betAmount, setBetAmount] = useState(100);
   const [isLaunching, setIsLaunching] = useState(false);
-  const { data: game, isLoading, isError: gameError, refetch: refetchGame } = useQuery({ queryKey: ["game", id], queryFn: () => getGame(id!), enabled: !!id });
-  const { data: gamesResp } = useQuery({ queryKey: ["games", "detail"], queryFn: () => getGames(undefined, undefined, 1, 100) });
-  const games: Game[] = Array.isArray(gamesResp?.results) ? (gamesResp.results as Game[]) : [];
+  const [activeTab, setActiveTab] = useState<"about" | "howToPlay" | "stats">("about");
+
+  const { data: game, isLoading, isError: gameError, refetch: refetchGame } = useQuery({
+    queryKey: ["game", id],
+    queryFn: () => getGame(id!),
+    enabled: !!id,
+  });
   const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
   const { data: wallet } = useQuery({
     queryKey: ["playerWallet"],
@@ -41,7 +64,6 @@ const GameDetailPage = () => {
     enabled: !!isPlayer,
   });
 
-  // When user returns from game tab (visibility or window focus), refetch wallet and auth so balance updates
   useEffect(() => {
     let visibilityTimeoutId: ReturnType<typeof setTimeout> | null = null;
     const refetchBalance = () => {
@@ -71,308 +93,382 @@ const GameDetailPage = () => {
     };
   }, [isPlayer, queryClient, refreshUser]);
 
-  if (isLoading || !id) return <div className="p-8 text-center">Loading...</div>;
-  if (gameError) return (
-    <div className="p-8 text-center space-y-2">
-      <p className="text-muted-foreground">Could not load game.</p>
-      <Button variant="outline" size="sm" onClick={() => refetchGame()}>Retry</Button>
-    </div>
-  );
-  if (!game) return <div className="p-8 text-center">Game not found</div>;
+  if (isLoading || !id)
+    return (
+      <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
+        Loading game...
+      </div>
+    );
+  if (gameError)
+    return (
+      <div className="container mx-auto px-4 py-8 text-center space-y-2">
+        <p className="text-muted-foreground">Could not load game.</p>
+        <Button variant="outline" size="sm" onClick={() => refetchGame()}>
+          Retry
+        </Button>
+      </div>
+    );
+  if (!game) return <div className="container mx-auto px-4 py-8 text-center">Game not found</div>;
 
   const g = game as Game;
   const minBet = Number(g.min_bet) || 10;
   const maxBet = Number(g.max_bet) || 5000;
-  const totalBalance = isPlayer && wallet != null
-    ? Number((wallet as { main_balance?: string }).main_balance || 0) + Number((wallet as { bonus_balance?: string }).bonus_balance || 0)
-    : 0;
+  const totalBalance =
+    isPlayer && wallet != null
+      ? Number((wallet as { main_balance?: string }).main_balance || 0) +
+        Number((wallet as { bonus_balance?: string }).bonus_balance || 0)
+      : 0;
+  const balanceFormatted = totalBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 });
   const canPlay = totalBalance >= betAmount;
-  const related = (games as Game[]).filter((x) => x.category === g.category && x.id !== g.id).slice(0, 12);
-  const mostPlayed = (games as Game[]).filter((x) => x.id !== g.id).slice(0, 12);
-  const gameHistory: { id: string; username: string; result: string; betAmount: number; winAmount: number }[] = [];
-  const livePlayers = Math.floor(Math.random() * 200) + 50;
-  const todayWins = Math.floor(Math.random() * 500000) + 100000;
+  const rating = 4.5;
+  const rtp = 96;
   const whatsapp = (siteSetting as { whatsapp_number?: string })?.whatsapp_number ?? "";
+  const phones = (siteSetting as { phones?: string[] })?.phones;
+  const phoneNumber = whatsapp || (Array.isArray(phones) && phones[0] ? phones[0] : "");
+  const whatsAppLinks = buildWhatsAppLinks(whatsapp || phoneNumber);
+
+  const handleBetChange = (value: number) => {
+    setBetAmount(Math.max(minBet, Math.min(maxBet, value)));
+  };
+
+  const handleStartPlaying = async () => {
+    if (!id) return;
+    if (!user) {
+      navigate("/login", { state: { from: `/games/${id}` } });
+      return;
+    }
+    if (user?.role !== "player") return;
+    if (totalBalance < betAmount) return;
+    setIsLaunching(true);
+    try {
+      await launchGameByMode(g.id, navigate);
+    } finally {
+      setIsLaunching(false);
+    }
+  };
 
   return (
-    <div className="container px-2 mobile:px-4 py-4 space-y-4 mobile:space-y-5 min-w-0 max-w-full">
-      {/* Game Hero */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 mobile:gap-4 min-w-0">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-3 relative rounded-2xl overflow-hidden aspect-[16/9] lg:aspect-[4/3]">
-          <GameImageWithFallback src={getGameImageUrl(g)} alt={g.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-          {/* Live badge */}
-          <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded-full bg-destructive/90 text-white text-[10px] font-gaming tracking-wider flex items-center gap-1 animate-pulse-neon">
-              <span className="h-1.5 w-1.5 rounded-full bg-white" /> LIVE
-            </span>
-            <span className="px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-sm text-white text-[10px] flex items-center gap-1">
-              <Users className="h-3 w-3" /> {livePlayers} playing
-            </span>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 z-20 p-4 md:p-6">
-            <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold gold-gradient text-primary-foreground mb-2">{g.category_name ?? ""}</span>
-            <h1 className="font-gaming font-bold text-2xl md:text-3xl lg:text-4xl text-white tracking-wide text-glow">{g.name}</h1>
-            <p className="text-xs text-white/60 mt-1 flex items-center gap-2 flex-wrap">
-              <span>Min: ₹{minBet}</span>
-              <span>•</span>
-              <span>Max: ₹{maxBet.toLocaleString()}</span>
-              <span>•</span>
-              <span>{g.provider_name ?? ""}</span>
-            </p>
-          </div>
-        </motion.div>
+    <div className="container mx-auto px-4 py-4 md:py-6 min-w-0 max-w-full">
+      <Link
+        to="/games"
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        Back to Games
+      </Link>
 
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2 space-y-3">
-          <Card className="gaming-card">
-            <CardContent className="p-4 space-y-4">
-              {/* Balance */}
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="p-2 rounded-xl bg-muted/50 cyber-border">
-                  <p className="text-[10px] text-muted-foreground">Main</p>
-                  <p className="font-bold text-sm">{isPlayer && wallet != null ? `₹${Number((wallet as { main_balance?: string }).main_balance || 0).toLocaleString()}` : "—"}</p>
-                </div>
-                <div className="p-2 rounded-xl bg-muted/50 cyber-border">
-                  <p className="text-[10px] text-muted-foreground">Bonus</p>
-                  <p className="font-bold text-sm text-primary">{isPlayer && wallet != null ? `₹${Number((wallet as { bonus_balance?: string }).bonus_balance || 0).toLocaleString()}` : "—"}</p>
-                </div>
-                <div className="p-2 rounded-xl bg-primary/5 border border-primary/20 neon-glow-sm">
-                  <p className="text-[10px] text-muted-foreground">Total</p>
-                  <p className="font-bold text-sm neon-text">
-                    {isPlayer && wallet != null
-                      ? `₹${(Number((wallet as { main_balance?: string }).main_balance || 0) + Number((wallet as { bonus_balance?: string }).bonus_balance || 0)).toLocaleString()}`
-                      : "—"}
-                  </p>
-                </div>
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Left: Game frame + info */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="relative aspect-video rounded-2xl overflow-hidden glass border border-border">
+            <GameImageWithFallback
+              src={getGameImageUrl(g)}
+              alt={g.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold mb-4">{g.name}</h2>
+                <p className="text-muted-foreground mb-6">by {g.provider_name ?? ""}</p>
+                <Button
+                  variant="neon"
+                  size="xl"
+                  className="gap-2"
+                  onClick={() => {
+                    if (!user) {
+                      navigate("/login", { state: { from: `/games/${id}` } });
+                      return;
+                    }
+                    handleStartPlaying();
+                  }}
+                  disabled={isLaunching || (!!user && isPlayer && !canPlay)}
+                >
+                  <Play className="w-6 h-6" />
+                  {!user
+                    ? "Login to Play"
+                    : !isPlayer
+                      ? "Only players can play"
+                      : isLaunching
+                        ? "Redirecting..."
+                        : "Play Now"}
+                </Button>
+                {isPlayer && !canPlay && user && (
+                  <p className="text-sm text-destructive mt-2">Insufficient balance</p>
+                )}
+                <p className="text-sm text-muted-foreground mt-4">
+                  Min Bet: ₹{minBet} | Max Bet: ₹{maxBet.toLocaleString()}
+                </p>
               </div>
+            </div>
+            <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-background/80 backdrop-blur-sm rounded-full">
+              <span className="w-2 h-2 bg-neon-green rounded-full animate-pulse" />
+              <Users className="w-4 h-4 text-neon-green" />
+              <span className="font-mono text-sm">0 playing</span>
+            </div>
+          </div>
 
-              {/* Bet Amount */}
+          <div className="glass rounded-xl p-6">
+            <div className="flex items-center gap-4 mb-6 border-b border-border pb-4">
+              <Button
+                variant={activeTab === "about" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setActiveTab("about")}
+              >
+                About
+              </Button>
+              <Button
+                variant={activeTab === "howToPlay" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setActiveTab("howToPlay")}
+              >
+                How to Play
+              </Button>
+              <Button
+                variant={activeTab === "stats" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setActiveTab("stats")}
+              >
+                Stats
+              </Button>
+            </div>
+
+            <div className="space-y-4">
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs text-muted-foreground font-medium">Bet Amount</label>
-                  <Link to="/wallet">
-                    <Button variant="ghost" size="sm" className="text-xs text-primary h-6 px-2">+ Add Fund</Button>
-                  </Link>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Button variant="outline" size="icon" className="h-10 w-10 text-base font-bold shrink-0" onClick={() => setBetAmount(Math.max(minBet, betAmount - minBet))}>-</Button>
-                  <input
-                    type="number"
-                    value={betAmount}
-                    onChange={(e) => setBetAmount(Number(e.target.value))}
-                    className="flex-1 h-12 text-center text-xl font-gaming font-bold rounded-xl border border-border bg-background focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                  />
-                  <Button variant="outline" size="icon" className="h-10 w-10 text-base font-bold shrink-0" onClick={() => setBetAmount(Math.min(maxBet, betAmount + minBet))}>+</Button>
-                </div>
-                <div className="flex gap-1.5 mt-2 flex-wrap">
-                  {chips.map((chip) => (
-                    <Button
-                      key={chip}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setBetAmount(chip)}
-                      className={`text-xs font-gaming h-7 px-2 ${betAmount === chip ? "border-primary text-primary neon-glow-sm bg-primary/5" : ""}`}
-                    >
-                      {chip >= 1000 ? `${chip / 1000}K` : chip}
-                    </Button>
-                  ))}
-                  <Button variant="outline" size="sm" onClick={() => setBetAmount(maxBet)} className="text-xs text-accent border-accent font-gaming h-7 px-2">
-                    MAX
-                  </Button>
-                </div>
+                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                  <Info className="w-5 h-5 text-primary" />
+                  About {g.name}
+                </h3>
+                <p className="text-muted-foreground">{defaultDescription}</p>
               </div>
 
-              {!user ? (
-                <Link to="/login">
-                  <Button className="w-full gold-gradient text-primary-foreground font-gaming font-bold text-base h-12 neon-glow tracking-widest">
-                    🎮 Login to play
-                  </Button>
-                </Link>
-              ) : !isPlayer ? (
-                <Button className="w-full bg-muted text-muted-foreground font-gaming font-bold text-base h-12" disabled>
-                  Only players can launch games
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    className="w-full gold-gradient text-primary-foreground font-gaming font-bold text-base h-12 neon-glow tracking-widest animate-scale-pulse disabled:opacity-60 disabled:cursor-not-allowed"
-                    onClick={async () => {
-                      setIsLaunching(true);
-                      try {
-                        await launchGameByMode(g.id, navigate);
-                      } finally {
-                        setIsLaunching(false);
-                      }
-                    }}
-                    disabled={!canPlay || isLaunching}
-                  >
-                    {isLaunching ? "Launching..." : "🎮 START PLAYING"}
-                  </Button>
-                  {!canPlay && (
-                    <p className="text-xs text-muted-foreground text-center mt-1">Insufficient balance</p>
-                  )}
-                </>
-              )}
-              {isPlayer && (
-                <Link to="/player/game-results">
-                  <Button variant="outline" size="sm" className="w-full mt-2 text-xs text-muted-foreground">
-                    View Bet History and balance
-                  </Button>
-                </Link>
-              )}
-              <a href={`https://wa.me/${String(whatsapp).replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" className="w-full border-success text-success mt-2" size="sm">
-                  💬 Instant Deposit via WhatsApp
-                </Button>
-              </a>
-
-              {/* Trust badges */}
-              <div className="flex justify-center gap-5 pt-2 text-[10px] text-muted-foreground">
-                <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-success" /> Secure</span>
-                <span className="flex items-center gap-1"><Zap className="h-3.5 w-3.5 text-primary" /> Instant</span>
-                <span className="flex items-center gap-1"><Lock className="h-3.5 w-3.5 text-accent" /> Encrypted</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Game Stats */}
-          <div className="grid grid-cols-3 gap-3">
-            <Card className="gaming-card">
-              <CardContent className="p-3 text-center">
-                <Eye className="h-4 w-4 mx-auto text-neon mb-1" />
-                <p className="font-gaming font-bold text-sm">{livePlayers}</p>
-                <p className="text-[9px] text-muted-foreground">Live Players</p>
-              </CardContent>
-            </Card>
-            <Card className="gaming-card">
-              <CardContent className="p-3 text-center">
-                <Trophy className="h-4 w-4 mx-auto text-warning mb-1" />
-                <p className="font-gaming font-bold text-sm">₹{(todayWins / 1000).toFixed(0)}K</p>
-                <p className="text-[9px] text-muted-foreground">Today Wins</p>
-              </CardContent>
-            </Card>
-            <Card className="gaming-card">
-              <CardContent className="p-3 text-center">
-                <TrendingUp className="h-4 w-4 mx-auto text-success mb-1" />
-                <p className="font-gaming font-bold text-sm">—</p>
-                <p className="text-[9px] text-muted-foreground">Total Plays</p>
-              </CardContent>
-            </Card>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Recent Winners */}
-      <section>
-        <h2 className="font-display font-bold text-base mb-3 flex items-center gap-2">
-          <Crown className="h-4 w-4 text-warning" /> Recent Winners
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
-          {recentWinners.map((w, i) => (
-            <Card key={i} className="gaming-card hover:neon-glow-sm transition-all">
-              <CardContent className="p-3 flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full gold-gradient flex items-center justify-center text-xs font-bold text-primary-foreground">{w.name[0]}</div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{w.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{w.time}</p>
-                </div>
-                <span className="text-success font-gaming font-bold text-sm">+₹{w.amount.toLocaleString()}</span>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Game History - from API when available */}
-      {gameHistory.length > 0 && (
-        <section>
-          <h2 className="font-display font-bold text-lg mb-4 flex items-center gap-2">
-            <Clock className="h-5 w-5 text-primary" /> Recent Rounds
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {gameHistory.map((log) => (
-              <Card key={log.id} className="gaming-card">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium">{log.username}</span>
-                    <span className={`text-[10px] font-gaming font-bold px-2 py-0.5 rounded-full ${log.result === "win" ? "bg-success/10 text-success" : log.result === "loss" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
-                      {log.result.toUpperCase()}
-                    </span>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                <div className="glass rounded-lg p-4 text-center">
+                  <div className="flex items-center justify-center gap-1 text-accent mb-1">
+                    <Star className="w-4 h-4 fill-current" />
+                    <span className="font-bold">{rating}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Bet: ₹{log.betAmount}</p>
-                  {log.winAmount > 0 && <p className="text-xs text-success font-bold">Won: ₹{log.winAmount}</p>}
-                </CardContent>
-              </Card>
-            ))}
+                  <p className="text-xs text-muted-foreground">Rating</p>
+                </div>
+                <div className="glass rounded-lg p-4 text-center">
+                  <div className="font-bold text-primary mb-1">{rtp}%</div>
+                  <p className="text-xs text-muted-foreground">RTP</p>
+                </div>
+                <div className="glass rounded-lg p-4 text-center">
+                  <div className="font-bold text-neon-green mb-1">₹{minBet}</div>
+                  <p className="text-xs text-muted-foreground">Min Bet</p>
+                </div>
+                <div className="glass rounded-lg p-4 text-center">
+                  <div className="font-bold text-accent mb-1">₹{maxBet.toLocaleString()}</div>
+                  <p className="text-xs text-muted-foreground">Max Bet</p>
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <h4 className="font-semibold mb-3">How to Play</h4>
+                <ol className="space-y-2">
+                  {defaultHowToPlay.map((step, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
+                      <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">
+                        {i + 1}
+                      </span>
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-4">
+                {defaultFeatures.map((feature) => (
+                  <span
+                    key={feature}
+                    className="px-3 py-1 bg-muted rounded-full text-xs font-medium"
+                  >
+                    {feature}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
-        </section>
-      )}
-
-      {/* Game Rules */}
-      <section>
-        <Card className="gaming-card">
-          <CardContent className="p-4">
-            <h2 className="font-display font-bold text-base mb-3 flex items-center gap-2">
-              <Target className="h-4 w-4 text-accent" /> How to Play
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex gap-3">
-                <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center text-primary-foreground font-gaming font-bold text-sm flex-shrink-0">1</div>
-                <div>
-                  <h4 className="font-semibold text-sm">Place Your Bet</h4>
-                  <p className="text-xs text-muted-foreground mt-1">Choose your bet amount using the chips above or enter a custom amount.</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center text-primary-foreground font-gaming font-bold text-sm flex-shrink-0">2</div>
-                <div>
-                  <h4 className="font-semibold text-sm">Start the Game</h4>
-                  <p className="text-xs text-muted-foreground mt-1">Click Start Playing and wait for the round to begin. Results are instant.</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center text-primary-foreground font-gaming font-bold text-sm flex-shrink-0">3</div>
-                <div>
-                  <h4 className="font-semibold text-sm">Collect Winnings</h4>
-                  <p className="text-xs text-muted-foreground mt-1">Winnings are added to your balance instantly. Withdraw anytime!</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Most Played */}
-      <section>
-        <h2 className="font-display font-bold text-base mb-3 flex items-center gap-2">
-          <span className="h-4 w-1 rounded-full gold-gradient inline-block" />
-          <Flame className="h-4 w-4 text-warning" /> Most Played
-        </h2>
-        <div className="flex gap-2 overflow-x-auto pb-2 snap-x scrollbar-hide">
-          {mostPlayed.map((x) => (
-            <div key={x.id} className="snap-start min-w-[120px] sm:min-w-[150px] md:min-w-[180px]">
-              <Link to={`/games/${x.id}`}><GameCard image={getGameImageUrl(x)} name={x.name} category={x.category_name ?? ""} minBet={Number(x.min_bet)} maxBet={Number(x.max_bet)} /></Link>
-            </div>
-          ))}
         </div>
-      </section>
 
-      {/* Related */}
-      {related.length > 0 && (
-        <section>
-          <h2 className="font-display font-bold text-base mb-3 flex items-center gap-2">
-            <span className="h-4 w-1 rounded-full gold-gradient inline-block" />
-            <Dice1 className="h-4 w-4 text-accent" /> Related Games
-          </h2>
-          <div className="flex gap-2 overflow-x-auto pb-2 snap-x scrollbar-hide">
-            {related.map((x) => (
-              <div key={x.id} className="snap-start min-w-[120px] sm:min-w-[150px] md:min-w-[180px]">
-                <Link to={`/games/${x.id}`}><GameCard image={getGameImageUrl(x)} name={x.name} category={x.category_name ?? ""} minBet={Number(x.min_bet)} maxBet={Number(x.max_bet)} /></Link>
+        {/* Right: Sidebar */}
+        <div className="space-y-6">
+          <div className="glass rounded-xl p-6">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <Wallet className="w-5 h-5 text-primary" />
+              Place Your Bet
+            </h3>
+
+            <div className="glass rounded-lg p-4 mb-4 bg-muted/50">
+              <p className="text-sm text-muted-foreground mb-1">Your Balance</p>
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-bold font-mono">₹{balanceFormatted}</span>
+                <Link to={isPlayer ? "/player/wallet" : "/wallet"}>
+                  <Button variant="gold" size="sm">
+                    Add Funds
+                  </Button>
+                </Link>
               </div>
-            ))}
+              {!user && (
+                <p className="text-xs text-muted-foreground mt-1">Log in to see your balance</p>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Bet Amount</label>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleBetChange(betAmount - 10)}
+                  disabled={betAmount <= minBet}
+                >
+                  <Minus className="w-4 h-4" />
+                </Button>
+                <Input
+                  type="number"
+                  value={betAmount}
+                  onChange={(e) => handleBetChange(Number(e.target.value))}
+                  className="text-center font-mono text-lg h-12"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleBetChange(betAmount + 10)}
+                  disabled={betAmount >= maxBet}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {quickBets.map((amount) => (
+                  <Button
+                    key={amount}
+                    variant={betAmount === amount ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setBetAmount(amount)}
+                  >
+                    ₹{amount}
+                  </Button>
+                ))}
+                <Button variant="outline" size="sm" onClick={() => setBetAmount(maxBet)}>
+                  MAX
+                </Button>
+              </div>
+            </div>
+
+            <Button
+              variant="neon"
+              size="xl"
+              className="w-full mt-6 gap-2"
+              onClick={() => {
+                if (!user) {
+                  navigate("/login", { state: { from: `/games/${id}` } });
+                  return;
+                }
+                handleStartPlaying();
+              }}
+              disabled={isLaunching || (!!user && isPlayer && !canPlay)}
+            >
+              <Play className="w-5 h-5" />
+              {!user
+                ? "Login to Play"
+                : !isPlayer
+                  ? "Only players can play"
+                  : isLaunching
+                    ? "Redirecting..."
+                    : "Start Playing"}
+            </Button>
+            {isPlayer && !canPlay && user && (
+              <p className="text-sm text-destructive mt-2">Insufficient balance</p>
+            )}
           </div>
-        </section>
-      )}
+
+          <div className="glass rounded-xl p-4 space-y-3">
+            <Link
+              to={isPlayer ? "/player/wallet" : "/wallet"}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+            >
+              <div className="w-10 h-10 rounded-lg bg-neon-green/20 flex items-center justify-center">
+                <Wallet className="w-5 h-5 text-neon-green" />
+              </div>
+              <div>
+                <p className="font-medium">Deposit Funds</p>
+                <p className="text-xs text-muted-foreground">Add money to play</p>
+              </div>
+            </Link>
+            <a
+              href={whatsAppLinks.deposit}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors border border-[#25D366]/30"
+            >
+              <div className="w-10 h-10 rounded-lg bg-[#25D366]/20 flex items-center justify-center">
+                <MessageCircle className="w-5 h-5 text-[#25D366]" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium flex items-center gap-2">
+                  Instant Deposit
+                  <Zap className="w-4 h-4 text-accent" />
+                </p>
+                <p className="text-xs text-muted-foreground">Via WhatsApp</p>
+              </div>
+            </a>
+            <a
+              href={whatsAppLinks.withdraw}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+            >
+              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                <Wallet className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium flex items-center gap-2">
+                  Instant Withdraw
+                  <Zap className="w-4 h-4 text-accent" />
+                </p>
+                <p className="text-xs text-muted-foreground">Via WhatsApp</p>
+              </div>
+            </a>
+            {phoneNumber && (
+              <a
+                href={`tel:${phoneNumber.replace(/[^0-9+]/g, "")}`}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">Call Admin</p>
+                  <p className="text-xs text-muted-foreground">{phoneNumber}</p>
+                </div>
+              </a>
+            )}
+          </div>
+
+          <div className="glass rounded-xl p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <Shield className="w-5 h-5 text-neon-green" />
+              <span className="text-sm font-medium">Safe & Secure Gaming</span>
+            </div>
+            <div className="space-y-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Instant payouts 24/7
+              </div>
+              <div className="flex items-center gap-2">
+                <Gift className="w-4 h-4" />
+                Daily bonuses & rewards
+              </div>
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4" />
+                Fair & transparent gameplay
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
