@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +13,9 @@ import {
   type GameCategory,
   type GameProvider,
 } from "@/api/games";
+import { getMediaUrl } from "@/lib/api";
+import { PLAY_MODE } from "@/config";
+import { launchGameByMode } from "@/api/player";
 import {
   DollarSign,
   Users,
@@ -53,6 +56,7 @@ const defaultPromoBanners = [
 const categoryIcons = ["🎮", "🤖", "🕹️", "🎰", "🎡", "🎣", "🃏", "📋"];
 
 const FirstHomePage = () => {
+  const navigate = useNavigate();
   const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
   const { data: gamesResp, isLoading: gamesLoading, isError: gamesError, refetch: refetchGames } = useQuery({
     queryKey: ["games", "first-home"],
@@ -247,14 +251,51 @@ const FirstHomePage = () => {
         {providersLoading && <p className="text-sm text-muted-foreground py-4">Loading providers…</p>}
         {!providersLoading && (
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-            {providers.slice(0, 8).map((p: GameProvider) => (
-              <div
-                key={p.id}
-                className="flex flex-col items-center justify-center p-4 rounded-xl bg-card border border-border hover:border-violet-500/30 transition-all"
-              >
-                <span className="text-lg font-semibold text-foreground">{p.name}</span>
-              </div>
-            ))}
+            {providers.slice(0, 8).map((p: GameProvider) => {
+              const playGameId = p.single_game_id != null && p.single_game_id > 0 ? p.single_game_id : null;
+              const to = playGameId != null ? `/games/${playGameId}/play` : `/providers/${p.id}`;
+              const useLaunchHandler = playGameId != null && PLAY_MODE !== "iframe";
+              const imgUrl = p.image?.trim() ? getMediaUrl(p.image.trim()) : undefined;
+              const content = (
+                <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-card border border-border hover:border-violet-500/30 transition-all cursor-pointer">
+                  {imgUrl ? (
+                    <img src={imgUrl} alt="" className="h-12 w-12 rounded-lg object-cover mb-2" />
+                  ) : (
+                    <span className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center text-lg font-bold text-muted-foreground mb-2">
+                      {(p.name ?? "?").slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
+                  <span className="text-lg font-semibold text-foreground">{p.name}</span>
+                </div>
+              );
+              return (
+                <span key={p.id}>
+                  {useLaunchHandler ? (
+                    <span
+                      role="link"
+                      tabIndex={0}
+                      className="focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        launchGameByMode(playGameId!, navigate);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          launchGameByMode(playGameId!, navigate);
+                        }
+                      }}
+                    >
+                      {content}
+                    </span>
+                  ) : (
+                    <Link to={to} className="block">
+                      {content}
+                    </Link>
+                  )}
+                </span>
+              );
+            })}
           </div>
         )}
       </section>

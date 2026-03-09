@@ -1,13 +1,18 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { providers as defaultProviders } from "@/data/homePageMockData";
 import type { ProviderShape } from "@/data/homePageMockData";
+import { PLAY_MODE } from "@/config";
+import { launchGameByMode } from "@/api/player";
 
 interface GameProvidersProps {
   providers?: ProviderShape[] | null;
   loading?: boolean;
 }
 
+const linkClass = "group block";
+
 export function GameProviders({ providers: providersProp, loading }: GameProvidersProps) {
+  const navigate = useNavigate();
   const providers = providersProp && providersProp.length > 0 ? providersProp : defaultProviders;
 
   return (
@@ -25,12 +30,17 @@ export function GameProviders({ providers: providersProp, loading }: GameProvide
           {loading ? (
             <div className="col-span-2 md:col-span-4 text-center text-muted-foreground">Loading providers...</div>
           ) : (
-            providers.map((provider) => (
-              <Link
-                key={provider.name}
-                to={provider.link ?? `/games?provider=${provider.name.toLowerCase().replace(/\s+/g, "-")}`}
-                className="group"
-              >
+            providers.map((provider) => {
+              const playGameId =
+                provider.single_game_id != null && provider.single_game_id > 0 ? provider.single_game_id : null;
+              const to =
+                playGameId != null
+                  ? `/games/${playGameId}/play`
+                  : provider.id != null
+                    ? `/providers/${provider.id}`
+                    : provider.link ?? `/games?provider=${provider.name.toLowerCase().replace(/\s+/g, "-")}`;
+              const useLaunchHandler = playGameId != null && PLAY_MODE !== "iframe";
+              const content = (
                 <div className="glass rounded-xl p-6 text-center hover:glow-cyan transition-all duration-300 group-hover:scale-105">
                   <div
                     className={`w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br ${provider.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
@@ -44,8 +54,36 @@ export function GameProviders({ providers: providersProp, loading }: GameProvide
                   <h3 className="font-semibold text-foreground mb-1">{provider.name}</h3>
                   <p className="text-sm text-muted-foreground">{provider.games}+ Games</p>
                 </div>
-              </Link>
-            ))
+              );
+              const key = provider.id ?? provider.name;
+              return (
+                <span key={key}>
+                  {useLaunchHandler ? (
+                    <span
+                      role="link"
+                      tabIndex={0}
+                      className={`${linkClass} cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        launchGameByMode(playGameId!, navigate);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          launchGameByMode(playGameId!, navigate);
+                        }
+                      }}
+                    >
+                      {content}
+                    </span>
+                  ) : (
+                    <Link to={to} className={linkClass}>
+                      {content}
+                    </Link>
+                  )}
+                </span>
+              );
+            })
           )}
         </div>
       </div>
