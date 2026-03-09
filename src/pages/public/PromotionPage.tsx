@@ -58,7 +58,7 @@ const PromotionPage = () => {
             return (
               <article
                 key={promo.id}
-                className="rounded-xl border border-border bg-card overflow-hidden flex flex-col shadow-sm"
+                className="theme-card overflow-hidden flex flex-col"
               >
                 {imgUrl && (
                   <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
@@ -102,7 +102,7 @@ const PromotionPage = () => {
           if (!open) setSelectedPromotion(null);
         }}
       >
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto theme-card">
           {selectedPromotion && (
             <>
               <DialogHeader>

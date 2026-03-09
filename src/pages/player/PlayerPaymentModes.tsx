@@ -122,11 +122,11 @@ const PlayerPaymentModes = () => {
 
       <div className="space-y-2">
         {modes.map((pm) => (
-          <Card key={String(pm.id ?? "")} className="gaming-card hover:neon-glow-sm transition-all">
+          <Card key={String(pm.id ?? "")} className="theme-card">
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center neon-glow-sm">
-                  <CreditCard className="h-5 w-5 text-primary-foreground" />
+                <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                  <CreditCard className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold">{displayName(pm)}</p>
@@ -155,7 +155,7 @@ const PlayerPaymentModes = () => {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetAddForm(); }}>
-        <DialogContent className="max-w-sm gaming-card">
+        <DialogContent className="max-w-sm theme-card">
           <DialogHeader>
             <DialogTitle className="font-gaming neon-text tracking-wider">ADD PAYMENT MODE</DialogTitle>
           </DialogHeader>
@@ -232,7 +232,7 @@ const PlayerPaymentModes = () => {
       </Dialog>
 
       <Dialog open={deleteId != null} onOpenChange={() => { if (!submitting) setDeleteId(null); }}>
-        <DialogContent className="max-w-sm gaming-card">
+        <DialogContent className="max-w-sm theme-card">
           <DialogHeader>
             <DialogTitle className="font-display">Delete Payment Mode?</DialogTitle>
           </DialogHeader>

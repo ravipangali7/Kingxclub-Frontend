@@ -90,7 +90,7 @@ const PlayerWallet = () => {
       {/* Balance Cards */}
       <div className="grid grid-cols-3 gap-2 mobile:gap-3 md:gap-4 min-w-0">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="min-w-0">
-          <Card className="text-center gaming-card hover:neon-glow-sm transition-all min-w-0">
+          <Card className="text-center theme-card min-w-0">
             <CardContent className="p-2 mobile:p-4">
               <Wallet className="h-4 w-4 mobile:h-5 mobile:w-5 mx-auto mb-1 text-primary" />
               <p className="text-[10px] text-muted-foreground">Main Balance</p>
@@ -99,7 +99,7 @@ const PlayerWallet = () => {
           </Card>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="min-w-0">
-          <Card className="text-center gaming-card hover:neon-glow-sm transition-all min-w-0">
+          <Card className="text-center theme-card min-w-0">
             <CardContent className="p-2 mobile:p-4">
               <Sparkles className="h-4 w-4 mobile:h-5 mobile:w-5 mx-auto mb-1 text-accent" />
               <p className="text-[10px] text-muted-foreground">Bonus</p>
@@ -108,7 +108,7 @@ const PlayerWallet = () => {
           </Card>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="min-w-0">
-          <Card className="text-center gaming-card neon-glow-sm min-w-0">
+          <Card className="text-center theme-card min-w-0">
             <CardContent className="p-2 mobile:p-4">
               <TrendingUp className="h-4 w-4 mobile:h-5 mobile:w-5 mx-auto mb-1 text-neon" />
               <p className="text-[10px] text-muted-foreground">Total</p>
@@ -230,7 +230,7 @@ const PlayerWallet = () => {
 
       {/* Deposit Modal */}
       <Dialog open={depositOpen} onOpenChange={(open) => { setDepositOpen(open); if (!open) setDepositScreenshot(null); }}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] mobile:max-w-2xl gaming-card w-full">
+        <DialogContent className="max-w-[calc(100vw-2rem)] mobile:max-w-2xl theme-card w-full">
           <DialogHeader>
             <DialogTitle className="font-gaming text-lg neon-text tracking-wider">DEPOSIT FUNDS</DialogTitle>
           </DialogHeader>
@@ -433,7 +433,7 @@ const PlayerWallet = () => {
 
       {/* Withdraw Modal — only reachable when KYC approved */}
       <Dialog open={withdrawOpen} onOpenChange={(open) => { setWithdrawOpen(open); if (!open) { setAmount(""); setWithdrawPassword(""); setSelectedPM(null); setWithdrawWallet("main"); } }}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] mobile:max-w-md gaming-card w-full">
+        <DialogContent className="max-w-[calc(100vw-2rem)] mobile:max-w-md theme-card w-full">
           <DialogHeader>
             <DialogTitle className="font-gaming text-lg neon-text tracking-wider">WITHDRAW FUNDS</DialogTitle>
           </DialogHeader>

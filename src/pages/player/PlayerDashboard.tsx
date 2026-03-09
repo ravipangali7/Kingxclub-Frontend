@@ -33,13 +33,13 @@ const PlayerDashboard = () => {
     <div className="p-2 mobile:p-4 md:p-6 space-y-4 mobile:space-y-5 max-w-5xl mx-auto min-w-0">
       {/* Welcome */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="min-w-0">
-        <Card className="gold-gradient neon-glow overflow-hidden relative">
+        <Card className="theme-card overflow-hidden relative border-primary/30">
           <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -mr-10 -mt-10" />
           <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full bg-white/5 -ml-8 -mb-8" />
           <CardContent className="p-4 mobile:p-6 relative z-10">
-            <p className="text-primary-foreground/70 text-xs font-medium">Welcome back,</p>
-            <h2 className="font-gaming font-bold text-xl mobile:text-2xl text-primary-foreground tracking-wide truncate">{user?.name || user?.username || "Player"}</h2>
-            <p className="text-primary-foreground/60 text-[10px] mobile:text-xs mt-1 truncate">
+            <p className="text-muted-foreground text-xs font-medium">Welcome back,</p>
+            <h2 className="font-gaming font-bold text-xl mobile:text-2xl text-foreground tracking-wide truncate">{user?.name || user?.username || "Player"}</h2>
+            <p className="text-muted-foreground text-[10px] mobile:text-xs mt-1 truncate">
               {user?.last_login
                 ? `Last login: ${new Date(user.last_login).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}`
                 : "Last login: —"}
@@ -58,7 +58,7 @@ const PlayerDashboard = () => {
       {/* Quick Actions - 2x2 on tiny, 4 in a row on mobile+ */}
       <div className="grid grid-cols-2 mobile:grid-cols-4 gap-2 mobile:gap-3 min-w-0">
         <Link to="/player/wallet" className="min-w-0">
-          <Card className="cursor-pointer hover:border-primary/50 hover:neon-glow-sm transition-all gaming-card h-full min-h-[72px] mobile:min-h-0 touch-manipulation">
+          <Card className="theme-card cursor-pointer h-full min-h-[72px] mobile:min-h-0 touch-manipulation">
             <CardContent className="p-3 mobile:p-4 text-center">
               <ArrowDownCircle className="h-5 w-5 mobile:h-6 mobile:w-6 mx-auto mb-1 text-success" />
               <p className="text-[10px] mobile:text-xs font-medium">Deposit</p>
@@ -66,29 +66,29 @@ const PlayerDashboard = () => {
           </Card>
         </Link>
         <Link to="/player/wallet" className="min-w-0">
-          <Card className="cursor-pointer hover:border-primary/50 hover:neon-glow-sm transition-all gaming-card h-full min-h-[72px] mobile:min-h-0 touch-manipulation">
+          <Card className="theme-card cursor-pointer h-full min-h-[72px] mobile:min-h-0 touch-manipulation">
             <CardContent className="p-3 mobile:p-4 text-center">
               <ArrowUpCircle className="h-5 w-5 mobile:h-6 mobile:w-6 mx-auto mb-1 text-accent" />
               <p className="text-[10px] mobile:text-xs font-medium">Withdraw</p>
             </CardContent>
           </Card>
         </Link>
-        <Card className="cursor-pointer hover:border-primary/50 hover:neon-glow-sm transition-all gaming-card min-h-[72px] mobile:min-h-0 touch-manipulation" onClick={() => setTransferOpen(true)}>
+        <Card className="theme-card cursor-pointer min-h-[72px] mobile:min-h-0 touch-manipulation" onClick={() => setTransferOpen(true)}>
           <CardContent className="p-3 mobile:p-4 text-center">
             <Send className="h-5 w-5 mobile:h-6 mobile:w-6 mx-auto mb-1 text-primary" />
             <p className="text-[10px] mobile:text-xs font-medium">Transfer</p>
           </CardContent>
         </Card>
         <Link to="/games" className="min-w-0">
-          <Card className="cursor-pointer hover:border-primary/50 hover:neon-glow-sm transition-all gaming-card h-full min-h-[72px] mobile:min-h-0 touch-manipulation">
+          <Card className="theme-card cursor-pointer h-full min-h-[72px] mobile:min-h-0 touch-manipulation">
             <CardContent className="p-3 mobile:p-4 text-center">
-              <Gamepad2 className="h-5 w-5 mobile:h-6 mobile:w-6 mx-auto mb-1 text-neon" />
+              <Gamepad2 className="h-5 w-5 mobile:h-6 mobile:w-6 mx-auto mb-1 text-primary" />
               <p className="text-[10px] mobile:text-xs font-medium">Play</p>
             </CardContent>
           </Card>
         </Link>
         <Link to="/player/game-results" className="min-w-0">
-          <Card className="cursor-pointer hover:border-primary/50 hover:neon-glow-sm transition-all gaming-card h-full min-h-[72px] mobile:min-h-0 touch-manipulation">
+          <Card className="theme-card cursor-pointer h-full min-h-[72px] mobile:min-h-0 touch-manipulation">
             <CardContent className="p-3 mobile:p-4 text-center">
               <Radio className="h-5 w-5 mobile:h-6 mobile:w-6 mx-auto mb-1 text-primary" />
               <p className="text-[10px] mobile:text-xs font-medium">Bet History</p>
@@ -106,7 +106,7 @@ const PlayerDashboard = () => {
           </h3>
           <div className="space-y-2">
             {recent.map((t: Record<string, unknown>, i: number) => (
-              <Card key={String(t.id ?? i)} className="hover:border-primary/20 transition-colors min-w-0">
+              <Card key={String(t.id ?? i)} className="theme-card min-w-0">
                 <CardContent className="p-2.5 mobile:p-3 flex items-center justify-between gap-2 min-w-0">
                   <div className="min-w-0 flex-1">
                     <p className="text-xs mobile:text-sm font-medium capitalize truncate">{String(t.transaction_type ?? t.type ?? "").replace(/_/g, " ")}</p>
@@ -138,7 +138,7 @@ const PlayerDashboard = () => {
 
       {/* Transfer Dialog - responsive */}
       <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] mobile:max-w-sm gaming-card w-full">
+        <DialogContent className="max-w-[calc(100vw-2rem)] mobile:max-w-sm theme-card w-full">
           <DialogHeader><DialogTitle className="font-gaming neon-text tracking-wider">TRANSFER</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div>

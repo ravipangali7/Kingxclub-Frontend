@@ -58,10 +58,10 @@ export const PlayerSidebarContent = ({
     <>
       {/* Balance card */}
       <div className={compact ? "p-3" : "p-4"}>
-        <div className="rounded-xl gold-gradient p-4 neon-glow-sm">
-          <p className="text-primary-foreground/60 text-[10px] font-medium">Total Balance</p>
-          <p className="font-gaming font-bold text-2xl text-primary-foreground">{total}</p>
-          <div className="flex gap-3 mt-2 text-[10px] text-primary-foreground/70">
+        <div className="glass rounded-xl p-4 border border-border">
+          <p className="text-muted-foreground text-[10px] font-medium">Total Balance</p>
+          <p className="font-gaming font-bold text-2xl text-foreground">{total}</p>
+          <div className="flex gap-3 mt-2 text-[10px] text-muted-foreground">
             <span>Main: {main}</span>
             <span>Bonus: {bonus}</span>
           </div>
@@ -84,11 +84,11 @@ export const PlayerSidebarContent = ({
                 }}
                 className={`${linkClass} w-full ${
                   isActive(link.path)
-                    ? "bg-primary/10 text-primary neon-glow-sm"
+                    ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
-                <link.icon className={`h-4 w-4 flex-shrink-0 ${isActive(link.path) ? "text-primary" : ""}`} />
+                <link.icon className={`h-4 w-4 flex-shrink-0 ${isActive(link.path) ? "text-primary-foreground" : ""}`} />
                 <span className="flex-1 truncate text-left">{link.label}</span>
                 <Badge variant="destructive" className="text-[10px] min-w-5 h-5 justify-center px-1">
                   {messageBadge > 99 ? "99+" : messageBadge}
@@ -103,11 +103,11 @@ export const PlayerSidebarContent = ({
               onClick={onNavigate}
               className={`${linkClass} ${
                 isActive(link.path)
-                  ? "bg-primary/10 text-primary neon-glow-sm"
+                  ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
-              <link.icon className={`h-4 w-4 flex-shrink-0 ${isActive(link.path) ? "text-primary" : ""}`} />
+              <link.icon className={`h-4 w-4 flex-shrink-0 ${isActive(link.path) ? "text-primary-foreground" : ""}`} />
               <span className="flex-1 truncate">{link.label}</span>
               {isMessages && messageBadge > 0 && (
                 <Badge variant="destructive" className="text-[10px] min-w-5 h-5 justify-center px-1">

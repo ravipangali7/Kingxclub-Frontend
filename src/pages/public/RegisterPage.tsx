@@ -194,7 +194,7 @@ const RegisterPage = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-navy relative overflow-hidden">
       <div className="absolute inset-0 hero-bg" />
       <div className="absolute inset-0 gaming-grid-bg opacity-30" />
-      <Card className="w-full max-w-sm relative z-10 gaming-card">
+      <Card className="w-full max-w-sm relative z-10 theme-card">
         <CardHeader className="text-center space-y-3">
           <div className="h-16 w-16 mx-auto rounded-xl gold-gradient flex items-center justify-center neon-glow">
             <UserPlus className="h-8 w-8 text-primary-foreground" />

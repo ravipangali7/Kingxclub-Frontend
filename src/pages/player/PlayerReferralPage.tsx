@@ -125,7 +125,7 @@ const PlayerReferralPage = () => {
       )}
 
       {/* Referred friends */}
-      <Card className="gaming-card border-white/10 bg-white/[0.03]">
+      <Card className="theme-card">
         <CardContent className="p-5">
           <h3 className="font-display font-semibold text-base flex items-center gap-2 mb-3 text-foreground">
             <UserPlus className="h-4 w-4 text-emerald-400" />

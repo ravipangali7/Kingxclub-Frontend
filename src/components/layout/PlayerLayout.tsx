@@ -52,7 +52,7 @@ export const PlayerLayout = () => {
   return (
     <div className="min-h-screen flex flex-col mobile:flex-row bg-background">
       {/* Desktop Sidebar (visible from 450px up; below that, sidebar is in header hamburger) */}
-      <aside className="hidden mobile:flex flex-col w-64 bg-card text-foreground border-r border-border flex-shrink-0 sticky top-0 h-screen overflow-y-auto min-w-0">
+      <aside className="hidden mobile:flex flex-col w-64 glass text-foreground border-r border-border flex-shrink-0 sticky top-0 h-screen overflow-y-auto min-w-0">
         <PlayerSidebarContent
           user={user}
           logout={logout}
@@ -65,7 +65,7 @@ export const PlayerLayout = () => {
       {/* Main Content Area (mobile: no extra top bar – logo + balance live in header) */}
       <div className="flex-1 flex flex-col min-h-screen mobile:min-h-0 min-w-0">
         {/* Desktop top bar – same horizontal spacing as site header/footer */}
-        <header className="hidden mobile:flex sticky top-0 z-50 glass-card border-b border-border/50 h-14 items-center justify-between container px-2 mobile:px-4 mx-auto w-full max-w-[100%]">
+        <header className="hidden mobile:flex sticky top-0 z-50 glass border-b border-border h-14 items-center justify-between container px-2 mobile:px-4 mx-auto w-full max-w-[100%]">
           <div className="min-w-0">
             <h1 className="font-display font-bold text-lg capitalize truncate">
               {location.pathname.split("/").pop()?.replace(/-/g, " ") || "Dashboard"}

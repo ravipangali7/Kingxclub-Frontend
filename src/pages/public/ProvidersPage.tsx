@@ -15,7 +15,7 @@ const ProvidersPage = () => {
     queryFn: getProviders,
   });
   const linkClass =
-    "flex flex-col items-center gap-3 p-4 rounded-xl transition-all group focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0";
+    "flex flex-col items-center gap-3 p-4 theme-card group focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0";
 
   if (isLoading) {
     return (

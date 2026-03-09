@@ -188,7 +188,7 @@ const BonusPage = () => {
                   return (
                     <div
                       key={bonus.id}
-                      className={`rounded-xl border overflow-hidden bg-gradient-to-r ${variantStyle} ${rules.length === 1 ? "md:col-span-2" : ""}`}
+                      className={`rounded-xl border border-border overflow-hidden bg-gradient-to-r ${variantStyle} hover:border-primary/50 transition-all ${rules.length === 1 ? "md:col-span-2" : ""}`}
                     >
                       <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="flex items-center gap-4 min-w-0">

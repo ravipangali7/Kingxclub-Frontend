@@ -81,10 +81,10 @@ const PlayerKYC = () => {
     <div className="p-4 md:p-6 space-y-5 max-w-2xl mx-auto">
       <h2 className="font-gaming font-bold text-xl neon-text tracking-wider">KYC VERIFICATION</h2>
 
-      <Card className="gaming-card">
+      <Card className="theme-card">
         <CardContent className="p-6 text-center space-y-4">
-          <div className={`h-16 w-16 mx-auto rounded-full flex items-center justify-center ${kycStatus === "approved" ? "bg-success/10" : "gold-gradient neon-glow-sm"}`}>
-            {kycStatus === "approved" ? <CheckCircle className="h-8 w-8 text-success" /> : <Shield className="h-8 w-8 text-primary-foreground" />}
+          <div className={`h-16 w-16 mx-auto rounded-full flex items-center justify-center ${kycStatus === "approved" ? "bg-success/10" : "bg-primary/20"}`}>
+            {kycStatus === "approved" ? <CheckCircle className="h-8 w-8 text-success" /> : <Shield className="h-8 w-8 text-primary" />}
           </div>
           <div>
             <p className="font-display font-semibold text-sm">Verification Status</p>
@@ -106,7 +106,7 @@ const PlayerKYC = () => {
       </Card>
 
       {canUpload && (
-        <Card className="gaming-card">
+        <Card className="theme-card">
           <CardHeader className="p-5 pb-3">
             <CardTitle className="text-sm font-display flex items-center gap-2">
               <FileText className="h-4 w-4 text-primary" /> Upload Document

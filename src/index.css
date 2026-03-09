@@ -371,6 +371,17 @@ body.home-design-scrollbar::-webkit-scrollbar-thumb:hover {
     -webkit-backdrop-filter: blur(40px);
     border: 1px solid hsl(var(--border) / 0.8);
   }
+  .theme-card {
+    background-color: hsl(var(--card) / 0.6);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    transition: all 0.3s;
+  }
+  .theme-card:hover {
+    border-color: hsl(var(--primary) / 0.5);
+  }
   .gradient-text {
     background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
     -webkit-background-clip: text;
@@ -443,6 +454,13 @@ body.home-design-scrollbar::-webkit-scrollbar-thumb:hover {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+  .home-design .gaming-card {
+    border-color: hsl(var(--border));
+    box-shadow: none;
+  }
+  .home-design .gaming-card:hover {
+    border-color: hsl(var(--primary) / 0.5);
   }
   .home-design .glass-strong {
     border-color: rgb(255 255 255 / 0.15);

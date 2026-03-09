@@ -93,10 +93,10 @@ const PlayerMessages = () => {
       <div
         className={`${selectedContactId != null ? "hidden md:flex" : "flex"} md:w-72 border-r border-border overflow-y-auto flex-shrink-0 flex flex-col`}
       >
-        <div className="p-4 border-b border-border gaming-card flex-shrink-0">
+        <div className="p-4 border-b border-border glass flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full gold-gradient flex items-center justify-center neon-glow-sm">
-              <MessageCircle className="h-4 w-4 text-primary-foreground" />
+            <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+              <MessageCircle className="h-4 w-4" />
             </div>
             <div>
               <h2 className="font-display font-semibold">Messages</h2>

@@ -16,9 +16,9 @@ const WalletPage = () => {
     <div className="container px-4 py-6 space-y-4 max-w-lg mx-auto">
       {/* Balance Overview - login to see real balance */}
       <div className="grid grid-cols-3 gap-3">
-        <Card className="text-center hover:border-primary/20 transition-colors"><CardContent className="p-3"><p className="text-[10px] text-muted-foreground">Main</p><p className="font-display font-bold">—</p></CardContent></Card>
-        <Card className="text-center hover:border-primary/20 transition-colors"><CardContent className="p-3"><p className="text-[10px] text-muted-foreground">Bonus</p><p className="font-display font-bold text-primary">—</p></CardContent></Card>
-        <Card className="text-center border-primary/20 hover:neon-glow-sm transition-all"><CardContent className="p-3"><p className="text-[10px] text-muted-foreground">Total</p><p className="font-display font-bold neon-text">—</p></CardContent></Card>
+        <Card className="text-center theme-card"><CardContent className="p-3"><p className="text-[10px] text-muted-foreground">Main</p><p className="font-display font-bold">—</p></CardContent></Card>
+        <Card className="text-center theme-card"><CardContent className="p-3"><p className="text-[10px] text-muted-foreground">Bonus</p><p className="font-display font-bold text-primary">—</p></CardContent></Card>
+        <Card className="text-center theme-card border-primary/30"><CardContent className="p-3"><p className="text-[10px] text-muted-foreground">Total</p><p className="font-display font-bold text-primary">—</p></CardContent></Card>
       </div>
       <p className="text-xs text-muted-foreground text-center"><Link to="/login" className="text-primary hover:underline">Login</Link> to view balance and deposit/withdraw</p>
 
@@ -29,7 +29,7 @@ const WalletPage = () => {
         </TabsList>
 
         <TabsContent value="deposit" className="space-y-4 mt-4">
-          <Card>
+          <Card className="theme-card">
             <CardHeader className="p-4 pb-2"><CardTitle className="text-sm">Select Payment Method</CardTitle></CardHeader>
             <CardContent className="p-4 pt-0 space-y-2">
               {paymentModes.length === 0 ? <p className="text-xs text-muted-foreground">Login as player to see your master&apos;s payment options.</p> : paymentModes.map((pm) => (
@@ -62,13 +62,13 @@ const WalletPage = () => {
         </TabsContent>
 
         <TabsContent value="withdraw" className="space-y-4 mt-4">
-          <Card className="border-warning/30 bg-warning/5">
+          <Card className="theme-card border-warning/30 bg-warning/5">
             <CardContent className="p-4 text-center">
               <p className="text-xs text-warning font-medium">⚠️ KYC verification required before withdrawal</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="theme-card">
             <CardHeader className="p-4 pb-2"><CardTitle className="text-sm">Select Your Payment Mode</CardTitle></CardHeader>
             <CardContent className="p-4 pt-0 space-y-2">
               {paymentModes.length === 0 ? <p className="text-xs text-muted-foreground">Login as player to see your payment modes.</p> : paymentModes.map((pm) => (

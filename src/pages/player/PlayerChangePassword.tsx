@@ -43,10 +43,10 @@ const PlayerChangePassword = () => {
     <div className="p-4 md:p-6 max-w-lg mx-auto space-y-5">
       <h2 className="font-gaming font-bold text-xl neon-text tracking-wider">CHANGE PASSWORD</h2>
 
-      <Card className="gaming-card">
+      <Card className="theme-card">
         <CardContent className="p-5 space-y-4">
-          <div className="h-14 w-14 mx-auto rounded-full gold-gradient flex items-center justify-center neon-glow-sm mb-2">
-            <Lock className="h-7 w-7 text-primary-foreground" />
+          <div className="h-14 w-14 mx-auto rounded-full bg-primary/20 flex items-center justify-center text-primary mb-2">
+            <Lock className="h-7 w-7" />
           </div>
 
           <div>

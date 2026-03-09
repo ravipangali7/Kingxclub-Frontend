@@ -122,12 +122,12 @@ const PlayerProfile = () => {
       <h2 className="font-gaming font-bold text-xl neon-text tracking-wider">PROFILE</h2>
 
       {/* Avatar & Info */}
-      <Card className="overflow-hidden gaming-card">
-        <div className="h-20 gold-gradient relative">
+      <Card className="overflow-hidden theme-card">
+        <div className="h-20 bg-primary/30 relative">
           <div className="absolute inset-0 gaming-grid-bg opacity-30" />
         </div>
         <CardContent className="p-5 -mt-10 text-center">
-          <div className="h-20 w-20 rounded-full gold-gradient mx-auto flex items-center justify-center ring-4 ring-card neon-glow">
+          <div className="h-20 w-20 rounded-full bg-primary/30 mx-auto flex items-center justify-center ring-4 ring-card">
             <span className="font-gaming font-bold text-2xl text-primary-foreground">{avatarInitial(profile)}</span>
           </div>
           <h3 className="font-display font-semibold text-xl mt-3">{displayName}</h3>
@@ -150,7 +150,7 @@ const PlayerProfile = () => {
       </Card>
 
       {/* Edit Info */}
-      <Card className="gaming-card">
+      <Card className="theme-card">
         <CardContent className="p-5 space-y-3">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-display font-semibold text-sm">Personal Info</h3>
@@ -196,7 +196,7 @@ const PlayerProfile = () => {
       <div className="space-y-2">
         {profileLinks.map((link) => (
           <Link key={link.path} to={link.path}>
-            <Card className="hover:border-primary/30 hover:neon-glow-sm transition-all gaming-card">
+            <Card className="theme-card">
               <CardContent className="p-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-lg bg-muted/50 flex items-center justify-center">

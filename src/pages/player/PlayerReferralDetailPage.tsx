@@ -53,7 +53,7 @@ const PlayerReferralDetailPage = () => {
         </Button>
       </div>
 
-      <Card className="gaming-card">
+      <Card className="theme-card">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg font-gaming">
             <User className="h-5 w-5 text-primary" />

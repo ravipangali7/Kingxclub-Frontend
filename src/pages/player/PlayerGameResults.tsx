@@ -49,7 +49,7 @@ const PlayerGameResults = () => {
       </div>
 
       {/* Wallet (real-time) */}
-      <Card className="gaming-card border-primary/30 min-w-0">
+      <Card className="theme-card min-w-0 border-primary/30">
         <CardContent className="p-3 mobile:p-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2 min-w-0">
@@ -81,21 +81,21 @@ const PlayerGameResults = () => {
 
       {/* Summary */}
       <div className="grid grid-cols-3 gap-2 mobile:gap-3 min-w-0">
-        <Card className="gaming-card min-w-0">
+        <Card className="theme-card min-w-0">
           <CardContent className="p-2 mobile:p-3 text-center">
             <Gamepad2 className="h-4 w-4 mx-auto text-primary mb-1" />
             <p className="font-gaming font-bold text-sm">{filtered.length}</p>
             <p className="text-[9px] text-muted-foreground">Total Games</p>
           </CardContent>
         </Card>
-        <Card className="gaming-card min-w-0">
+        <Card className="theme-card min-w-0">
           <CardContent className="p-2 mobile:p-3 text-center">
             <Trophy className="h-4 w-4 mx-auto text-success mb-1" />
             <p className="font-gaming font-bold text-xs mobile:text-sm text-success truncate">{symbol}{totalWin.toLocaleString()}</p>
             <p className="text-[9px] text-muted-foreground">Total Won</p>
           </CardContent>
         </Card>
-        <Card className="gaming-card min-w-0">
+        <Card className="theme-card min-w-0">
           <CardContent className="p-2 mobile:p-3 text-center">
             <TrendingDown className="h-4 w-4 mx-auto text-accent mb-1" />
             <p className="font-gaming font-bold text-xs mobile:text-sm truncate">{symbol}{totalBet.toLocaleString()}</p>
@@ -108,7 +108,7 @@ const PlayerGameResults = () => {
       <div className="flex gap-2 overflow-x-auto scrollbar-hide min-w-0 pb-1" style={{ WebkitOverflowScrolling: "touch" }}>
         {["all", "win", "lose", "draw"].map((f) => (
           <Button key={f} variant={filter === f ? "default" : "outline"} size="sm" onClick={() => setFilter(f)}
-            className={`text-xs capitalize shrink-0 min-h-[40px] touch-manipulation ${filter === f ? "gold-gradient text-primary-foreground" : ""}`}>
+            className="text-xs capitalize shrink-0 min-h-[40px] touch-manipulation">
             {f === "lose" ? "Loss" : f}
           </Button>
         ))}

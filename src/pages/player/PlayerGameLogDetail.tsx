@@ -65,7 +65,7 @@ const PlayerGameLogDetail = () => {
         </Button>
       </div>
 
-      <Card className="gaming-card">
+      <Card className="theme-card">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg font-gaming">
             <Gamepad2 className="h-5 w-5 text-primary" />
@@ -110,7 +110,7 @@ const PlayerGameLogDetail = () => {
         </CardContent>
       </Card>
 
-      <Card className="gaming-card">
+      <Card className="theme-card">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg font-gaming">
             <Receipt className="h-5 w-5 text-primary" />

@@ -50,7 +50,7 @@ const PlayerTransactions = () => {
               variant={typeFilter === t ? "default" : "outline"}
               size="sm"
               onClick={() => setTypeFilter(t)}
-              className={`text-xs capitalize whitespace-nowrap shrink-0 min-h-[40px] touch-manipulation ${typeFilter === t ? "gold-gradient text-primary-foreground" : ""}`}
+              className={`text-xs capitalize whitespace-nowrap shrink-0 min-h-[40px] touch-manipulation ${typeFilter === t ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
             >
               {t}
             </Button>
