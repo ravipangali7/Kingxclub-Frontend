@@ -57,7 +57,7 @@ export function SecondHomeAllCategories({ categories, sectionTitle, sectionSvg }
         {categories.map((cat) => (
           <Link
             key={cat.id}
-            to={`/games?category=${cat.id}`}
+            to={`/categories/${cat.id}`}
             className="flex flex-col items-center gap-2 flex-shrink-0 group focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
           >
             <div className="h-14 w-14 flex items-center justify-center overflow-hidden transition-all" style={{ borderRadius: IRREGULAR_SHAPE }}>

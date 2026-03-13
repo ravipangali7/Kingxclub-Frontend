@@ -27,6 +27,7 @@ import {
   Trophy,
 } from "lucide-react";
 
+const WALLET_URL = "https://luckyuser365.com/player/wallet";
 const quickBets = [50, 100, 500, 1000, 5000];
 const defaultHowToPlay = ["Place your bet", "Start the game and wait for the round", "Collect winnings instantly"];
 const defaultFeatures = ["Live", "Fair", "Secure"];
@@ -303,11 +304,11 @@ const GameDetailPage = () => {
               <p className="text-sm text-muted-foreground mb-1">Your Balance</p>
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-bold font-mono">₹{balanceFormatted}</span>
-                <Link to={isPlayer ? "/player/wallet" : "/wallet"}>
+                <a href={WALLET_URL}>
                   <Button variant="gold" size="sm">
                     Add Funds
                   </Button>
-                </Link>
+                </a>
               </div>
               {!user && (
                 <p className="text-xs text-muted-foreground mt-1">Log in to see your balance</p>
@@ -385,8 +386,8 @@ const GameDetailPage = () => {
           </div>
 
           <div className="glass rounded-xl p-4 space-y-3">
-            <Link
-              to={isPlayer ? "/player/wallet" : "/wallet"}
+            <a
+              href={WALLET_URL}
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
             >
               <div className="w-10 h-10 rounded-lg bg-neon-green/20 flex items-center justify-center">
@@ -396,11 +397,9 @@ const GameDetailPage = () => {
                 <p className="font-medium">Deposit Funds</p>
                 <p className="text-xs text-muted-foreground">Add money to play</p>
               </div>
-            </Link>
+            </a>
             <a
-              href={whatsAppLinks.deposit}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={WALLET_URL}
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors border border-[#25D366]/30"
             >
               <div className="w-10 h-10 rounded-lg bg-[#25D366]/20 flex items-center justify-center">

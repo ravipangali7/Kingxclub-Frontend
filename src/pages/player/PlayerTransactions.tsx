@@ -5,7 +5,7 @@ import { getCurrencySymbol } from "@/utils/currency";
 import { getPlayerTransactions } from "@/api/player";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, Download } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const typeColors: Record<string, string> = {
@@ -33,9 +33,6 @@ const PlayerTransactions = () => {
     <div className="p-2 mobile:p-4 md:p-6 space-y-4 max-w-4xl mx-auto min-w-0">
       <div className="flex items-center justify-between gap-2 min-w-0">
         <h2 className="font-gaming font-bold text-lg mobile:text-xl neon-text tracking-wider truncate">TRANSACTIONS</h2>
-        <Button variant="outline" size="sm" className="gap-1 text-xs shrink-0 min-h-[44px] touch-manipulation">
-          <Download className="h-3 w-3" /> Export
-        </Button>
       </div>
 
       <div className="flex gap-2 mobile:gap-3 flex-col md:flex-row min-w-0">

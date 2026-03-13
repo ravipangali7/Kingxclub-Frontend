@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -11,6 +12,7 @@ import type { SliderSlide } from "@/hooks/useSecondHomePageData";
 
 interface SecondHomeSliderProps {
   slides: SliderSlide[];
+  hideTitle?: boolean;
 }
 
 function isExternalHref(href: string): boolean {
@@ -24,11 +26,19 @@ function hasCta(slide: SliderSlide): boolean {
   return link.length > 0 && link !== "#" && label.length > 0;
 }
 
-export function SecondHomeSlider({ slides }: SecondHomeSliderProps) {
+export function SecondHomeSlider({ slides, hideTitle }: SecondHomeSliderProps) {
+  const [api, setApi] = useState<{ scrollNext: () => void } | null>(null);
+
+  useEffect(() => {
+    if (!api) return;
+    const id = setInterval(() => api.scrollNext(), 5000);
+    return () => clearInterval(id);
+  }, [api]);
+
   if (!slides.length) return null;
   return (
     <section className="w-full border-b border-white/10">
-      <Carousel opts={{ loop: true }} className="w-full">
+      <Carousel opts={{ loop: true }} className="w-full" setApi={setApi}>
         <CarouselContent>
           {slides.map((slide) => {
             const clickable = hasCta(slide);
@@ -41,14 +51,16 @@ export function SecondHomeSlider({ slides }: SecondHomeSliderProps) {
                   </div>
                 )}
                 <div className="relative z-10 flex flex-1 flex-col md:flex-row md:items-center md:justify-between gap-6 container">
-                  <div className="flex-1">
-                    <h2 className="font-bold text-xl md:text-2xl uppercase tracking-wide leading-tight text-primary-foreground">
-                      {slide.title}
-                    </h2>
-                    {slide.subtitle && (
-                      <p className="text-primary-foreground/90 text-sm mt-2">{slide.subtitle}</p>
-                    )}
-                  </div>
+                  {!hideTitle && (
+                    <div className="flex-1">
+                      <h2 className="font-bold text-xl md:text-2xl uppercase tracking-wide leading-tight text-primary-foreground">
+                        {slide.title}
+                      </h2>
+                      {slide.subtitle && (
+                        <p className="text-primary-foreground/90 text-sm mt-2">{slide.subtitle}</p>
+                      )}
+                    </div>
+                  )}
                   {clickable && (
                     <span className="flex-shrink-0 inline-flex">
                       <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-bold px-8 h-12 pointer-events-none">

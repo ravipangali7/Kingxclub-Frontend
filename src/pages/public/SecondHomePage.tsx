@@ -48,13 +48,14 @@ export default function SecondHomePage() {
       <ActivePopups />
 
       {/* 1. Banner */}
-      <SecondHomeSlider slides={data.sliderSlides} />
+      <SecondHomeSlider slides={data.sliderSlides} hideTitle />
 
       {/* 2. Trusted Game Providers – site JSON driven; hide when no providers configured */}
       {data.providerCards.length > 0 && (
         <GameProviders
           providers={data.providerCards}
           sectionTitle={data.sectionMeta.providers.title}
+          sectionSubtitle={data.sectionMeta.providers.subtitle}
           sectionSvg={data.sectionMeta.providers.svg}
         />
       )}

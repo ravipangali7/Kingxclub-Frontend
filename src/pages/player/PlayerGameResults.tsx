@@ -120,7 +120,7 @@ const PlayerGameResults = () => {
         <span>Category</span>
         <span>Bet amount</span>
         <span>Win/Loss</span>
-        <span>Total Amount</span>
+        <span className="font-bold text-primary">Total Amount</span>
         <span className="text-right">Result</span>
       </div>
 
@@ -155,7 +155,7 @@ const PlayerGameResults = () => {
                   <span className={winAmount > 0 ? "text-success font-bold" : isLoss && loseAmount > 0 ? "text-destructive font-bold" : ""}>
                     Win/Loss: {winLossDisplay}
                   </span>
-                  <span>Total Amount: {totalAmountDisplay}</span>
+                  <span className="font-bold text-primary">Total Amount: {totalAmountDisplay}</span>
                 </div>
               </div>
               <div className="hidden md:grid grid-cols-6 gap-2 items-center">
@@ -168,7 +168,7 @@ const PlayerGameResults = () => {
                 <span className={`text-xs font-bold ${winAmount > 0 ? "text-success" : isLoss && loseAmount > 0 ? "text-destructive" : "text-muted-foreground"}`}>
                   {winLossDisplay}
                 </span>
-                <span className="text-xs font-medium">{totalAmountDisplay}</span>
+                <span className="text-xs font-bold text-primary">{totalAmountDisplay}</span>
                 <span className="text-right"><StatusBadge status={result} /></span>
               </div>
             </CardContent>

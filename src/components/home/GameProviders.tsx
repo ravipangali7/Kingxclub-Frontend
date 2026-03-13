@@ -7,24 +7,33 @@ import { launchGameByMode } from "@/api/player";
 interface GameProvidersProps {
   providers?: ProviderShape[] | null;
   loading?: boolean;
+  sectionTitle?: string;
+  sectionSubtitle?: string;
+  sectionSvg?: string;
 }
 
 const linkClass = "group block";
 
-export function GameProviders({ providers: providersProp, loading }: GameProvidersProps) {
+const defaultSubtitle = "Partnered with world-class gaming providers for the best experience";
+
+export function GameProviders({ providers: providersProp, loading, sectionTitle, sectionSubtitle }: GameProvidersProps) {
   const navigate = useNavigate();
   const providers = providersProp && providersProp.length > 0 ? providersProp : defaultProviders;
+  const title = sectionTitle?.trim();
+  const subtitle = sectionSubtitle?.trim() || defaultSubtitle;
 
   return (
     <section className="py-16 bg-card/50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold mb-3">
-            Trusted <span className="gradient-text-gold">Game Providers</span>
+            {title ? title : <>Trusted <span className="gradient-text-gold">Game Providers</span></>}
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Partnered with world-class gaming providers for the best experience
-          </p>
+          {subtitle && (
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              {subtitle}
+            </p>
+          )}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {loading ? (

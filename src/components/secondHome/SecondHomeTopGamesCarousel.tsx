@@ -31,7 +31,7 @@ export function SecondHomeTopGamesCarousel({ games, sectionTitle, sectionSvg }: 
           }
           {sectionTitle || "Top Games"}
         </h2>
-        <Link to="/games" className="text-sm text-primary font-medium flex items-center gap-1 hover:underline">
+        <Link to="/games/top" className="text-sm text-primary font-medium flex items-center gap-1 hover:underline">
           View All <ChevronRight className="h-4 w-4" />
         </Link>
       </div>

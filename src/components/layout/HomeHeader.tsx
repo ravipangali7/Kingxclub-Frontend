@@ -61,6 +61,7 @@ export const HomeHeader = () => {
   const walletBalance = user?.total_balance != null ? `${symbol}${Number(user.total_balance).toLocaleString()}` : `${symbol}0.00`;
 
   const isPlayer = user?.role === "player";
+  const depositPath = isPlayer ? "/player/wallet" : "/login";
   const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
   const { data: liveBettingSections = [] } = useQuery({ queryKey: ["liveBettingSections"], queryFn: getLiveBettingSections });
   const { data: unreadMessages = 0 } = useQuery({
@@ -155,6 +156,15 @@ export const HomeHeader = () => {
               <Wallet className="h-4 w-4 text-primary" />
               <span className="font-roboto-mono text-sm font-semibold text-foreground truncate max-w-[100px] sm:max-w-none">{walletBalance}</span>
             </div>
+            <Link
+              to={depositPath}
+              className={cn(
+                "hidden mobile:flex px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                location.pathname === "/player/wallet" ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+              )}
+            >
+              Deposit
+            </Link>
             {isPlayer ? (
               <Button
                 variant="ghost"
@@ -241,6 +251,9 @@ export const HomeHeader = () => {
             ))}
             <Link to="/bonus" onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-3 mobile:px-4 py-3 rounded-lg text-sm font-medium", location.pathname === "/bonus" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-white/5")}>
               Bonus
+            </Link>
+            <Link to={depositPath} onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-3 mobile:px-4 py-3 rounded-lg text-sm font-medium min-h-[44px] touch-manipulation", location.pathname === "/player/wallet" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-white/5")}>
+              Deposit
             </Link>
             {isPlayer ? (
               <div className="border-t border-border mt-2 pt-2">

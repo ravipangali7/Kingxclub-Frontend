@@ -33,6 +33,7 @@ export interface LiveBettingSection {
 
 export interface SectionMeta {
   title?: string;
+  subtitle?: string;
   svg?: string;
 }
 
@@ -285,6 +286,7 @@ export function useSecondHomePageData(): {
 
   const getSectionMeta = (json: Record<string, unknown>): SectionMeta => ({
     title: (json.section_title as string) || undefined,
+    subtitle: (json.section_subtitle as string) || (json.subtitle as string) || undefined,
     svg: (json.section_svg as string) || undefined,
   });
 
@@ -344,7 +346,11 @@ export function useSecondHomePageData(): {
   // Section meta from backend response (or fallback from site JSON when no sections API)
   const sectionMetaFromSections = sectionsData
     ? {
-        providers: { title: sectionsData.providers?.section_title, svg: sectionsData.providers?.section_svg },
+        providers: {
+          title: sectionsData.providers?.section_title,
+          subtitle: sectionsData.providers?.section_subtitle,
+          svg: sectionsData.providers?.section_svg,
+        },
         topGames: { title: sectionsData.top_games?.section_title, svg: sectionsData.top_games?.section_svg },
         categoriesGame: { title: sectionsData.categories_game?.section_title, svg: sectionsData.categories_game?.section_svg },
         popularGames: { title: sectionsData.popular_games?.section_title, svg: sectionsData.popular_games?.section_svg },

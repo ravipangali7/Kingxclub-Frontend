@@ -35,7 +35,7 @@ export interface SecondHomeCategorySection {
 }
 
 export interface SecondHomeSectionsResponse {
-  providers: { section_title: string; section_svg: string; items: SecondHomeSectionProvider[] };
+  providers: { section_title: string; section_subtitle?: string; section_svg: string; items: SecondHomeSectionProvider[] };
   top_games: { section_title: string; section_svg: string; items: SecondHomeSectionGame[] };
   categories_game: { section_title: string; section_svg: string; categories: SecondHomeCategorySection[] };
   popular_games: { section_title: string; section_svg: string; items: SecondHomeSectionGame[] };

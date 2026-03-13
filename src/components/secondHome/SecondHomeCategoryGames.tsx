@@ -49,7 +49,7 @@ export function SecondHomeCategoryGames({ categories, gamesByCategory, categoryS
                 <CatIcon iconSrc={sectionIconSrc} name={sectionTitle} />
                 {sectionTitle}
               </h2>
-              <Link to={`/games?category=${cat.id}`} className="text-sm text-primary font-medium flex items-center gap-1 hover:underline">
+              <Link to={`/categories/${cat.id}`} className="text-sm text-primary font-medium flex items-center gap-1 hover:underline">
                 View All <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
