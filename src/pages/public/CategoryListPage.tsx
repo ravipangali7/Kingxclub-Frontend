@@ -45,7 +45,7 @@ const CategoryListPage = () => {
             return (
               <Link
                 key={cat.id}
-                to={`/categories/${cat.id}`}
+                to={`/games?category=${cat.id}&page=1`}
                 className="glass rounded-xl p-6 flex items-center gap-4 hover:glow-cyan transition-all duration-300 group"
               >
                 <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">

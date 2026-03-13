@@ -39,11 +39,11 @@ const iconColorClasses: Record<string, string> = {
 
 function slugToHref(slug: string): string {
   if (slug === "sports") return "/sports";
-  return `/games?category=${slug}`;
+  return "/games?page=1";
 }
 
 export function CategoryCard({ slug, label, count, id }: CategoryShape) {
-  const href = id != null ? `/categories/${id}` : slugToHref(slug);
+  const href = id != null ? `/games?category=${id}&page=1` : slugToHref(slug);
   const Icon = SLUG_ICON[slug] ?? Gamepad2;
   const color = SLUG_COLOR[slug] ?? "purple";
   const displayLabel = label ?? slug;

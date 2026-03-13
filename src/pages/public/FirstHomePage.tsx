@@ -182,7 +182,7 @@ const FirstHomePage = () => {
       <section className="container px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-sm text-muted-foreground mb-0">Explore Game Categories</h2>
-          <Link to="/categories" className="text-sm text-primary font-medium flex items-center gap-1 hover:underline shrink-0">
+          <Link to="/games?page=1" className="text-sm text-primary font-medium flex items-center gap-1 hover:underline shrink-0">
             View all <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
@@ -196,7 +196,7 @@ const FirstHomePage = () => {
         {!categoriesLoading && !categoriesError && (
           <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
             {categories.slice(0, 8).map((cat: GameCategory, i: number) => (
-              <Link key={cat.id} to={`/categories/${cat.id}`}>
+              <Link key={cat.id} to={`/games?category=${cat.id}&page=1`}>
                 <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-violet-500/50 transition-all duration-300 group">
                   <span className="text-3xl group-hover:scale-125 transition-transform">{categoryIcons[i % categoryIcons.length]}</span>
                   <span className="text-[10px] font-semibold whitespace-nowrap text-center">{cat.name}</span>
@@ -219,7 +219,7 @@ const FirstHomePage = () => {
         <section key={title} className="container px-4 pt-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display font-bold text-xl">{title}</h2>
-            <Link to="/games" className="text-sm text-orange-500 flex items-center gap-1 hover:underline font-medium">
+            <Link to="/games?page=1" className="text-sm text-orange-500 flex items-center gap-1 hover:underline font-medium">
               View All <ChevronRight className="h-4 w-4" />
             </Link>
           </div>

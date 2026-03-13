@@ -228,20 +228,20 @@ const PlayerWallet = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Deposit Modal */}
+      {/* Deposit Modal — theme: maitidevi-style (gray-800/700, green CTA) */}
       <Dialog open={depositOpen} onOpenChange={(open) => { setDepositOpen(open); if (!open) setDepositScreenshot(null); }}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] mobile:max-w-2xl theme-card w-full">
+        <DialogContent className="max-w-[calc(100vw-2rem)] mobile:max-w-2xl w-full bg-gray-900 border-gray-700 text-white">
           <DialogHeader>
-            <DialogTitle className="font-gaming text-lg neon-text tracking-wider">DEPOSIT FUNDS</DialogTitle>
+            <DialogTitle className="text-lg font-bold text-white tracking-wider">DEPOSIT FUNDS</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Left: Step 1 + Step 2 (payment method list + pay to account) */}
             <div className="space-y-4">
               <div>
-                <p className="text-xs font-semibold text-muted-foreground mb-2">1. Select Payment Method (Master)</p>
+                <p className="text-xs font-semibold text-gray-300 mb-2">1. Select Payment Method (Master)</p>
                 <div className="space-y-2">
                   {(depositPaymentModes as Record<string, unknown>[]).length === 0 && (
-                    <p className="text-xs text-muted-foreground py-2">No payment methods available. Ask your master to add one.</p>
+                    <p className="text-xs text-gray-400 py-2">No payment methods available. Ask your master to add one.</p>
                   )}
                   {(depositPaymentModes as Record<string, unknown>[]).map((pm) => {
                     const pmName = String(pm.payment_method_name ?? "");
@@ -255,21 +255,21 @@ const PlayerWallet = () => {
                         key={String(pm.id ?? "")}
                         onClick={() => setSelectedPM(String(pm.id ?? ""))}
                         className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
-                          selectedPM === String(pm.id ?? "") ? "border-primary neon-glow-sm bg-primary/5" : "border-border hover:border-primary/30"
+                          selectedPM === String(pm.id ?? "") ? "border-green-500 bg-gray-800" : "border-gray-600 bg-gray-800 hover:border-gray-500"
                         }`}
                       >
-                        <div className="h-9 w-9 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-muted/30 border border-border">
+                        <div className="h-9 w-9 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-gray-700 border border-gray-600">
                           {pmImageUrl ? (
                             <img src={getMediaUrl(pmImageUrl)} alt={pmName} className="h-full w-full object-contain" />
                           ) : (
-                            <span className="gold-gradient flex h-full w-full items-center justify-center text-xs font-bold text-primary-foreground">{(pmName || "P")[0]}</span>
+                            <span className="flex h-full w-full items-center justify-center text-xs font-bold text-white bg-gray-600">{(pmName || "P")[0]}</span>
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">{pmName}</p>
-                          <p className="text-[10px] text-muted-foreground">{pmDetail || "—"}</p>
+                          <p className="text-sm font-medium text-white">{pmName}</p>
+                          <p className="text-[10px] text-gray-400">{pmDetail || "—"}</p>
                         </div>
-                        {selectedPM === String(pm.id ?? "") && <CheckCircle className="h-4 w-4 text-primary" />}
+                        {selectedPM === String(pm.id ?? "") && <CheckCircle className="h-4 w-4 text-green-400" />}
                       </div>
                     );
                   })}
@@ -283,25 +283,25 @@ const PlayerWallet = () => {
                 const hasDetails = details != null && typeof details === "object" && Object.keys(details).length > 0;
                 return (
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-2">2. Pay to this account</p>
-                    <div className="rounded-xl border border-primary/40 bg-primary/5 p-4 space-y-2">
-                      <p className="text-sm font-semibold">{displayName}</p>
+                    <p className="text-xs font-semibold text-gray-300 mb-2">2. Pay to this account</p>
+                    <div className="rounded-xl border border-gray-600 bg-gray-800 p-4 space-y-2">
+                      <p className="text-sm font-semibold text-white">{displayName}</p>
                       {hasDetails ? (
-                        <div className="text-sm space-y-1">
+                        <div className="text-sm space-y-1 text-gray-300">
                           {Object.entries(details).map(([k, v]) => (
-                            <p key={k}>{k.replace(/_/g, " ")}: <span className="font-mono font-medium">{String(v ?? "")}</span></p>
+                            <p key={k}>{k.replace(/_/g, " ")}: <span className="font-mono font-medium text-white">{String(v ?? "")}</span></p>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-muted-foreground">No details</p>
+                        <p className="text-sm text-gray-400">No details</p>
                       )}
                       {selectedMode?.qr_image_url && (
                         <div className="mt-2">
-                          <img src={getMediaUrl(String(selectedMode.qr_image_url))} alt="Payment QR" className="w-28 h-28 object-contain rounded-lg border border-border" />
+                          <img src={getMediaUrl(String(selectedMode.qr_image_url))} alt="Payment QR" className="w-28 h-28 object-contain rounded-lg border border-gray-600 bg-white" />
                         </div>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2">Transfer the amount to the account above. Then enter the amount and upload your payment screenshot in the right column.</p>
+                    <p className="text-xs text-gray-400 mt-2">Transfer the amount to the account above. Then enter the amount and upload your payment screenshot in the right column.</p>
                   </div>
                 );
               })()}
@@ -311,27 +311,27 @@ const PlayerWallet = () => {
             {selectedPM && (
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-2">3. Enter amount you paid</p>
-                  <Input type="number" placeholder="Enter deposit amount" value={amount} onChange={(e) => setAmount(e.target.value)} className="h-12 text-lg font-gaming" />
+                  <p className="text-xs font-semibold text-gray-300 mb-2">3. Enter amount you paid</p>
+                  <Input type="number" placeholder="Enter deposit amount" value={amount} onChange={(e) => setAmount(e.target.value)} className="h-12 text-lg font-gaming bg-gray-700 border-gray-600 text-white placeholder:text-gray-400" />
                   <div className="flex gap-2 mt-2 flex-wrap">
                     {quickAmounts.map((a) => (
-                      <Button key={a} variant="outline" size="sm" onClick={() => setAmount(String(a))} className={`text-xs font-gaming ${amount === String(a) ? "border-primary text-primary" : ""}`}>
+                      <Button key={a} variant="outline" size="sm" onClick={() => setAmount(String(a))} className={`text-xs font-gaming bg-gray-700 border-gray-600 text-white hover:bg-gray-600 hover:text-white ${amount === String(a) ? "border-green-500 text-green-400" : ""}`}>
                         {symbol}{a >= 1000 ? `${a / 1000}K` : a}
                       </Button>
                     ))}
                   </div>
                   {depositBonusEligibility?.is_first_deposit && depositBonusEligibility?.applicable_rule && (
-                    <div className="mt-3 rounded-lg border border-accent/40 bg-accent/5 p-3">
-                      <p className="text-xs font-medium text-accent flex items-center gap-1.5">
+                    <div className="mt-3 rounded-lg border border-gray-600 bg-gray-800 p-3">
+                      <p className="text-xs font-medium text-green-400 flex items-center gap-1.5">
                         <Gift className="h-3.5 w-3.5" />
                         First deposit bonus
                       </p>
                       {depositBonusEligibility.applicable_rule.reward_type === "flat" ? (
-                        <p className="text-sm mt-1">
+                        <p className="text-sm mt-1 text-gray-300">
                           You will get {symbol}{Number(depositBonusEligibility.applicable_rule.reward_amount || 0).toLocaleString()} bonus on first deposit.
                         </p>
                       ) : (
-                        <p className="text-sm mt-1">
+                        <p className="text-sm mt-1 text-gray-300">
                           You will get {symbol}{(Number(amount) || 0) > 0
                             ? ((Number(amount) * Number(depositBonusEligibility.applicable_rule.reward_amount || 0)) / 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
                             : "0"}
@@ -343,19 +343,19 @@ const PlayerWallet = () => {
                 </div>
 
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-2">4. Transaction ID / Reference ID <span className="text-destructive">*</span></p>
+                  <p className="text-xs font-semibold text-gray-300 mb-2">4. Transaction ID / Reference ID <span className="text-red-400">*</span></p>
                   <Input
                     placeholder="Enter transaction ID or reference ID from your payment"
                     value={depositRemarks}
                     onChange={(e) => setDepositRemarks(e.target.value)}
-                    className="text-sm"
+                    className="text-sm bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
                     required
                   />
-                  <p className="text-[10px] text-muted-foreground mt-1">Required. This helps us verify your deposit quickly.</p>
+                  <p className="text-[10px] text-gray-400 mt-1">Required. This helps us verify your deposit quickly.</p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-2">5. Upload payment screenshot</p>
+                  <p className="text-xs font-semibold text-gray-300 mb-2">5. Upload payment screenshot</p>
                   <input
                     ref={screenshotInputRef}
                     type="file"
@@ -368,10 +368,10 @@ const PlayerWallet = () => {
                     tabIndex={0}
                     onClick={() => screenshotInputRef.current?.click()}
                     onKeyDown={(e) => e.key === "Enter" && screenshotInputRef.current?.click()}
-                    className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                    className="border-2 border-dashed border-gray-600 rounded-xl p-6 text-center cursor-pointer hover:border-gray-500 bg-gray-800/50 transition-colors"
                   >
-                    <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-xs text-muted-foreground">
+                    <Upload className="h-6 w-6 mx-auto mb-2 text-gray-400" />
+                    <p className="text-xs text-gray-400">
                       {depositScreenshot ? depositScreenshot.name : "Click to upload payment screenshot"}
                     </p>
                   </div>
@@ -380,9 +380,9 @@ const PlayerWallet = () => {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDepositOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDepositOpen(false)} className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white">Cancel</Button>
             <Button
-              className="gold-gradient text-primary-foreground font-gaming neon-glow-sm"
+              className="bg-green-600 hover:bg-green-700 text-white font-gaming"
               onClick={async () => {
                 const amt = Number(amount) || 0;
                 if (amt <= 0) {

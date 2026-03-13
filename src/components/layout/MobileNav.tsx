@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Gamepad2, Building2, User } from "lucide-react";
+import { Home, Gamepad2, Building2, User, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const MobileNav = () => {
@@ -8,6 +8,7 @@ export const MobileNav = () => {
   const items = [
     { label: "Home", path: "/", icon: Home },
     { label: "Games", path: "/games", icon: Gamepad2 },
+    { label: "Search", path: "/games?page=1&focus=search", icon: Search },
     { label: "Provider", path: "/providers", icon: Building2 },
     { label: "Profile", path: "/player", icon: User },
   ];
@@ -21,7 +22,9 @@ export const MobileNav = () => {
               ? location.pathname.startsWith("/providers")
               : item.path === "/player"
                 ? location.pathname.startsWith("/player")
-                : location.pathname === item.path;
+                : item.path.startsWith("/games?")
+                  ? location.pathname === "/games" && location.search.includes("focus=search")
+                  : location.pathname === item.path;
           const Icon = item.icon;
           return (
             <Link

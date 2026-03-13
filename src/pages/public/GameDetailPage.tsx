@@ -158,143 +158,32 @@ const GameDetailPage = () => {
         Back to Games
       </Link>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Left: Game frame + info */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="relative aspect-video rounded-2xl overflow-hidden glass border border-border">
-            <GameImageWithFallback
-              src={getGameImageUrl(g)}
-              alt={g.name}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center">
-              <div className="text-center">
-                <h2 className="text-3xl font-bold mb-4">{g.name}</h2>
-                <p className="text-muted-foreground mb-6">by {g.provider_name ?? ""}</p>
-                <Button
-                  variant="neon"
-                  size="xl"
-                  className="gap-2"
-                  onClick={() => {
-                    if (!user) {
-                      navigate("/login", { state: { from: `/games/${id}` } });
-                      return;
-                    }
-                    handleStartPlaying();
-                  }}
-                  disabled={isLaunching || (!!user && isPlayer && !canPlay)}
-                >
-                  <Play className="w-6 h-6" />
-                  {!user
-                    ? "Login to Play"
-                    : !isPlayer
-                      ? "Only players can play"
-                      : isLaunching
-                        ? "Redirecting..."
-                        : "Play Now"}
-                </Button>
-                {isPlayer && !canPlay && user && (
-                  <p className="text-sm text-destructive mt-2">Insufficient balance</p>
-                )}
-                <p className="text-sm text-muted-foreground mt-4">
-                  Min Bet: ₹{minBet} | Max Bet: ₹{maxBet.toLocaleString()}
-                </p>
-              </div>
-            </div>
-            <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-background/80 backdrop-blur-sm rounded-full">
-              <span className="w-2 h-2 bg-neon-green rounded-full animate-pulse" />
-              <Users className="w-4 h-4 text-neon-green" />
-              <span className="font-mono text-sm">0 playing</span>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* 1: Image */}
+        <div className="relative aspect-video rounded-2xl overflow-hidden glass border border-border lg:col-start-1 lg:row-start-1">
+          <GameImageWithFallback
+            src={getGameImageUrl(g)}
+            alt={g.name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-background/30 flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">{g.name}</h2>
+              <p className="text-muted-foreground mb-6">by {g.provider_name ?? ""}</p>
+              <p className="text-sm text-muted-foreground">
+                Min Bet: ₹{minBet} | Max Bet: ₹{maxBet.toLocaleString()}
+              </p>
             </div>
           </div>
-
-          <div className="glass rounded-xl p-6">
-            <div className="flex items-center gap-4 mb-6 border-b border-border pb-4">
-              <Button
-                variant={activeTab === "about" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("about")}
-              >
-                About
-              </Button>
-              <Button
-                variant={activeTab === "howToPlay" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("howToPlay")}
-              >
-                How to Play
-              </Button>
-              <Button
-                variant={activeTab === "stats" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("stats")}
-              >
-                Stats
-              </Button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                  <Info className="w-5 h-5 text-primary" />
-                  About {g.name}
-                </h3>
-                <p className="text-muted-foreground">{defaultDescription}</p>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-                <div className="glass rounded-lg p-4 text-center">
-                  <div className="flex items-center justify-center gap-1 text-accent mb-1">
-                    <Star className="w-4 h-4 fill-current" />
-                    <span className="font-bold">{rating}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">Rating</p>
-                </div>
-                <div className="glass rounded-lg p-4 text-center">
-                  <div className="font-bold text-primary mb-1">{rtp}%</div>
-                  <p className="text-xs text-muted-foreground">RTP</p>
-                </div>
-                <div className="glass rounded-lg p-4 text-center">
-                  <div className="font-bold text-neon-green mb-1">₹{minBet}</div>
-                  <p className="text-xs text-muted-foreground">Min Bet</p>
-                </div>
-                <div className="glass rounded-lg p-4 text-center">
-                  <div className="font-bold text-accent mb-1">₹{maxBet.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">Max Bet</p>
-                </div>
-              </div>
-
-              <div className="pt-4">
-                <h4 className="font-semibold mb-3">How to Play</h4>
-                <ol className="space-y-2">
-                  {defaultHowToPlay.map((step, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
-                      <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">
-                        {i + 1}
-                      </span>
-                      {step}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-
-              <div className="flex flex-wrap gap-2 pt-4">
-                {defaultFeatures.map((feature) => (
-                  <span
-                    key={feature}
-                    className="px-3 py-1 bg-muted rounded-full text-xs font-medium"
-                  >
-                    {feature}
-                  </span>
-                ))}
-              </div>
-            </div>
+          <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 bg-background/80 backdrop-blur-sm rounded-full">
+            <span className="w-2 h-2 bg-neon-green rounded-full animate-pulse" />
+            <Users className="w-4 h-4 text-neon-green" />
+            <span className="font-mono text-sm">0 playing</span>
           </div>
         </div>
 
-        {/* Right: Sidebar */}
-        <div className="space-y-6">
-          <div className="glass rounded-xl p-6">
+        {/* 2: Place your bet */}
+        <div className="glass rounded-xl p-6 lg:col-start-2 lg:row-start-1">
             <h3 className="font-semibold mb-4 flex items-center gap-2">
               <Wallet className="w-5 h-5 text-primary" />
               Place Your Bet
@@ -385,20 +274,21 @@ const GameDetailPage = () => {
             )}
           </div>
 
-          <div className="glass rounded-xl p-4 space-y-3">
-            <a
-              href={WALLET_URL}
-              className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
-            >
-              <div className="w-10 h-10 rounded-lg bg-neon-green/20 flex items-center justify-center">
-                <Wallet className="w-5 h-5 text-neon-green" />
-              </div>
-              <div>
-                <p className="font-medium">Deposit Funds</p>
-                <p className="text-xs text-muted-foreground">Add money to play</p>
-              </div>
-            </a>
-            <a
+        {/* 3: Deposit fund */}
+        <div className="glass rounded-xl p-4 space-y-3 lg:col-start-2 lg:row-start-2">
+          <a
+            href={WALLET_URL}
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
+          >
+            <div className="w-10 h-10 rounded-lg bg-neon-green/20 flex items-center justify-center">
+              <Wallet className="w-5 h-5 text-neon-green" />
+            </div>
+            <div>
+              <p className="font-medium">Deposit Funds</p>
+              <p className="text-xs text-muted-foreground">Add money to play</p>
+            </div>
+          </a>
+          <a
               href={WALLET_URL}
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors border border-[#25D366]/30"
             >
@@ -446,12 +336,97 @@ const GameDetailPage = () => {
             )}
           </div>
 
-          <div className="glass rounded-xl p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <Shield className="w-5 h-5 text-neon-green" />
-              <span className="text-sm font-medium">Safe & Secure Gaming</span>
+        {/* 4: About */}
+        <div className="glass rounded-xl p-6 lg:col-start-1 lg:row-start-2">
+          <div className="flex items-center gap-4 mb-6 border-b border-border pb-4">
+            <Button
+              variant={activeTab === "about" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setActiveTab("about")}
+            >
+              About
+            </Button>
+            <Button
+              variant={activeTab === "howToPlay" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setActiveTab("howToPlay")}
+            >
+              How to Play
+            </Button>
+            <Button
+              variant={activeTab === "stats" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setActiveTab("stats")}
+            >
+              Stats
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                <Info className="w-5 h-5 text-primary" />
+                About {g.name}
+              </h3>
+              <p className="text-muted-foreground">{defaultDescription}</p>
             </div>
-            <div className="space-y-2 text-xs text-muted-foreground">
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+              <div className="glass rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center gap-1 text-accent mb-1">
+                  <Star className="w-4 h-4 fill-current" />
+                  <span className="font-bold">{rating}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Rating</p>
+              </div>
+              <div className="glass rounded-lg p-4 text-center">
+                <div className="font-bold text-primary mb-1">{rtp}%</div>
+                <p className="text-xs text-muted-foreground">RTP</p>
+              </div>
+              <div className="glass rounded-lg p-4 text-center">
+                <div className="font-bold text-neon-green mb-1">₹{minBet}</div>
+                <p className="text-xs text-muted-foreground">Min Bet</p>
+              </div>
+              <div className="glass rounded-lg p-4 text-center">
+                <div className="font-bold text-accent mb-1">₹{maxBet.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">Max Bet</p>
+              </div>
+            </div>
+
+            <div className="pt-4">
+              <h4 className="font-semibold mb-3">How to Play</h4>
+              <ol className="space-y-2">
+                {defaultHowToPlay.map((step, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
+                    <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">
+                      {i + 1}
+                    </span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div className="flex flex-wrap gap-2 pt-4">
+              {defaultFeatures.map((feature) => (
+                <span
+                  key={feature}
+                  className="px-3 py-1 bg-muted rounded-full text-xs font-medium"
+                >
+                  {feature}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Safe & Secure - full width */}
+        <div className="glass rounded-xl p-4 lg:col-span-2">
+          <div className="flex items-center gap-3 mb-3">
+            <Shield className="w-5 h-5 text-neon-green" />
+            <span className="text-sm font-medium">Safe & Secure Gaming</span>
+          </div>
+          <div className="space-y-2 text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
                 Instant payouts 24/7
@@ -464,7 +439,6 @@ const GameDetailPage = () => {
                 <Trophy className="w-4 h-4" />
                 Fair & transparent gameplay
               </div>
-            </div>
           </div>
         </div>
       </div>

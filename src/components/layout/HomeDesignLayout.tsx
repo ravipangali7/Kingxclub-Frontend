@@ -1,4 +1,5 @@
 import { ReactNode, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { HomeHeader } from "./HomeHeader";
 import { HomeFooter } from "./HomeFooter";
 import { MobileNav } from "./MobileNav";
@@ -11,6 +12,9 @@ interface HomeDesignLayoutProps {
 }
 
 export function HomeDesignLayout({ children }: HomeDesignLayoutProps) {
+  const { pathname } = useLocation();
+  const isFirstHome = pathname === "/";
+
   useEffect(() => {
     document.body.classList.add(BODY_SCROLLBAR_CLASS);
     return () => {
@@ -21,7 +25,7 @@ export function HomeDesignLayout({ children }: HomeDesignLayoutProps) {
   return (
     <div className="home-design min-h-screen flex flex-col bg-background pb-16 md:pb-0">
       <HomeHeader />
-      <main className="flex-1 pt-[calc(3.5rem+2.25rem)] md:pt-[calc(3.5rem+2.25rem)]">
+      <main className={isFirstHome ? "flex-1 pt-[5px]" : "flex-1 pt-[calc(3.5rem+2.25rem)] md:pt-[calc(3.5rem+2.25rem)]"}>
         {children}
       </main>
       <HomeFooter />
