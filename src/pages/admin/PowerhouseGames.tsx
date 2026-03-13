@@ -8,11 +8,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQuery } from "@tanstack/react-query";
 import {
   getGamesAdmin, getCategoriesAdmin, getProvidersAdmin,
-  createGame, createGameForm, updateGame, updateGameForm,
+  createGame, createGameForm, updateGame, updateGameForm, deleteGame,
 } from "@/api/admin";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { toast } from "@/hooks/use-toast";
 import { getMediaUrl } from "@/lib/api";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type GameRow = Record<string, unknown>;
 
@@ -180,6 +190,8 @@ const PowerhouseGames = () => {
   const [editingGame, setEditingGame] = useState<GameRow | null>(null);
   const [saving, setSaving] = useState(false);
   const [inlineEdit, setInlineEdit] = useState<InlineEditState | null>(null);
+  const [gameToDelete, setGameToDelete] = useState<GameRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [name, setName] = useState("");
   const [gameUid, setGameUid] = useState("");
@@ -422,10 +434,27 @@ const PowerhouseGames = () => {
       accessor: (row: GameRow) => (
         <div className="flex gap-1">
           <Button variant="ghost" size="sm" className="text-xs" onClick={() => openEdit(row)}>Edit</Button>
+          <Button variant="ghost" size="sm" className="text-xs text-destructive hover:text-destructive" onClick={() => setGameToDelete(row)}>Delete</Button>
         </div>
       ),
     },
   ];
+
+  const handleDeleteGame = async () => {
+    if (!gameToDelete?.id) return;
+    setDeleting(true);
+    try {
+      await deleteGame(Number(gameToDelete.id));
+      queryClient.invalidateQueries({ queryKey: ["admin-games"] });
+      toast({ title: "Game deleted." });
+      setGameToDelete(null);
+    } catch (e) {
+      const msg = (e as { detail?: string })?.detail ?? "Failed to delete game";
+      toast({ title: msg, variant: "destructive" });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   // ── Create handler ──
   const buildPayload = () => ({
@@ -718,6 +747,24 @@ const PowerhouseGames = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete game confirmation */}
+      <AlertDialog open={!!gameToDelete} onOpenChange={(open) => { if (!open) setGameToDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete game?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the game &quot;{gameToDelete ? String(gameToDelete.name ?? gameToDelete.id) : ""}&quot;. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteGame} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleting ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

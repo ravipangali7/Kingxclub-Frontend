@@ -12,6 +12,7 @@ import {
   getMasters,
   createMaster,
   updateMaster,
+  deleteMaster,
   directDeposit,
   directWithdraw,
   regeneratePin,
@@ -20,8 +21,18 @@ import {
   type ListParams,
 } from "@/api/admin";
 import { toast } from "@/hooks/use-toast";
-import { ArrowDownCircle, ArrowUpCircle, Key, Eye, Edit, RefreshCw, ArrowRightLeft } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Key, Eye, Edit, RefreshCw, ArrowRightLeft, Trash2 } from "lucide-react";
 import { PinDialog } from "@/components/shared/PinDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ListDateRangeToolbar } from "@/components/shared/ListDateRangeToolbar";
 import { TableBadge } from "@/components/admin/TableBadge";
 
@@ -154,6 +165,8 @@ const AdminMasters = () => {
   const [pendingCellSave, setPendingCellSave] = useState<{ id: number; field: string; value: unknown } | null>(null);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [masterToDelete, setMasterToDelete] = useState<MasterRow | null>(null);
+  const [deletingMaster, setDeletingMaster] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(false);
 
   const listParams: ListParams = {};
@@ -325,10 +338,27 @@ const AdminMasters = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 text-neon" title="Settlement" onClick={() => { setSelectedUser(row); setSettlementOpen(true); }}><ArrowRightLeft className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => { setSelectedUser(row); setViewOpen(true); }}><Eye className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => { setSelectedUser(row); setEditName(String(row.name ?? "")); setEditCommission(String(row.commission_percentage ?? "10")); setEditOpen(true); }}><Edit className="h-3 w-3" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" title="Delete" onClick={() => setMasterToDelete(row)}><Trash2 className="h-3 w-3" /></Button>
         </div>
       ),
     },
   ];
+
+  const handleDeleteMaster = async () => {
+    if (!masterToDelete?.id) return;
+    setDeletingMaster(true);
+    try {
+      await deleteMaster(Number(masterToDelete.id), role);
+      queryClient.invalidateQueries({ queryKey: ["admin-masters", role] });
+      toast({ title: "Master deleted." });
+      setMasterToDelete(null);
+    } catch (e) {
+      const msg = (e as { detail?: string })?.detail ?? "Failed to delete master";
+      toast({ title: msg, variant: "destructive" });
+    } finally {
+      setDeletingMaster(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -712,6 +742,23 @@ const AdminMasters = () => {
         }}
         title="Enter PIN to confirm"
       />
+
+      <AlertDialog open={!!masterToDelete} onOpenChange={(open) => { if (!open) setMasterToDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete master?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the master &quot;{masterToDelete ? String(masterToDelete.username ?? masterToDelete.id) : ""}&quot;. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingMaster}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteMaster} disabled={deletingMaster} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deletingMaster ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

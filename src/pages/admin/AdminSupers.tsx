@@ -10,6 +10,7 @@ import {
   getSupers,
   createSuper,
   updateSuper,
+  deleteSuper,
   directDeposit,
   directWithdraw,
   regeneratePin,
@@ -17,8 +18,18 @@ import {
   type ListParams,
 } from "@/api/admin";
 import { toast } from "@/hooks/use-toast";
-import { ArrowDownCircle, ArrowUpCircle, Key, Eye, Edit, RefreshCw } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Key, Eye, Edit, RefreshCw, Trash2 } from "lucide-react";
 import { PinDialog } from "@/components/shared/PinDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ListDateRangeToolbar } from "@/components/shared/ListDateRangeToolbar";
 import { TableBadge } from "@/components/admin/TableBadge";
 
@@ -132,6 +143,8 @@ const AdminSupers = () => {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [autoRefresh, setAutoRefresh] = useState(false);
+  const [superToDelete, setSuperToDelete] = useState<SuperRow | null>(null);
+  const [deletingSuper, setDeletingSuper] = useState(false);
 
   const listParams: ListParams = {};
   if (dateFrom) listParams.date_from = dateFrom;
@@ -278,10 +291,27 @@ const AdminSupers = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 text-warning" title="Regenerate PIN" onClick={() => { setSelectedUser(row); setPendingAction("regeneratePin"); setPendingPayload({ userId: row.id }); setPinOpen(true); }}><RefreshCw className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => { setSelectedUser(row); setViewOpen(true); }}><Eye className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => { setSelectedUser(row); setEditName(String(row.name ?? "")); setEditCommission(String(row.commission_percentage ?? "10")); setEditOpen(true); }}><Edit className="h-3 w-3" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" title="Delete" onClick={() => setSuperToDelete(row)}><Trash2 className="h-3 w-3" /></Button>
         </div>
       ),
     },
   ];
+
+  const handleDeleteSuper = async () => {
+    if (!superToDelete?.id) return;
+    setDeletingSuper(true);
+    try {
+      await deleteSuper(Number(superToDelete.id));
+      queryClient.invalidateQueries({ queryKey: ["admin-supers"] });
+      toast({ title: "Super deleted." });
+      setSuperToDelete(null);
+    } catch (e) {
+      const msg = (e as { detail?: string })?.detail ?? "Failed to delete super";
+      toast({ title: msg, variant: "destructive" });
+    } finally {
+      setDeletingSuper(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -603,6 +633,23 @@ const AdminSupers = () => {
         }}
         title="Enter PIN to confirm"
       />
+
+      <AlertDialog open={!!superToDelete} onOpenChange={(open) => { if (!open) setSuperToDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete super?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the super &quot;{superToDelete ? String(superToDelete.username ?? superToDelete.id) : ""}&quot;. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingSuper}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteSuper} disabled={deletingSuper} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deletingSuper ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
