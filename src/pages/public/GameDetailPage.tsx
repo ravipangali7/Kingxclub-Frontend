@@ -27,7 +27,7 @@ import {
   Trophy,
 } from "lucide-react";
 
-const WALLET_URL = "https://luckyuser365.com/player/wallet";
+const WALLET_URL = "https://kingxclub.com/player/wallet";
 const quickBets = [50, 100, 500, 1000, 5000];
 const defaultHowToPlay = ["Place your bet", "Start the game and wait for the round", "Collect winnings instantly"];
 const defaultFeatures = ["Live", "Fair", "Secure"];
