@@ -180,7 +180,12 @@ const FirstHomePage = () => {
 
       {/* Explore Game Categories */}
       <section className="container px-4 py-8">
-        <h2 className={sectionTitle}>Explore Game Categories</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-sm text-muted-foreground mb-0">Explore Game Categories</h2>
+          <Link to="/categories" className="text-sm text-primary font-medium flex items-center gap-1 hover:underline shrink-0">
+            View all <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
         {categoriesLoading && <p className="text-sm text-muted-foreground py-4">Loading categories…</p>}
         {categoriesError && (
           <div className="py-4 space-y-2">
