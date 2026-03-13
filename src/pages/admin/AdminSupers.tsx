@@ -33,6 +33,9 @@ import {
 import { ListDateRangeToolbar } from "@/components/shared/ListDateRangeToolbar";
 import { TableBadge } from "@/components/admin/TableBadge";
 
+const fmt = (v: string | number | null | undefined) => (v != null ? `₹${Number(v).toLocaleString()}` : "₹0");
+const fmtPL = (v: string | number | null | undefined) => (v != null ? `₹${Number(v).toLocaleString()}` : "₹0");
+
 type SuperRow = Record<string, unknown> & {
   id?: number; username?: string; name?: string;
   main_balance?: string; pl_balance?: string; bonus_balance?: string;
