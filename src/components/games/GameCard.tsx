@@ -20,9 +20,10 @@ export function GameCardSmall({
   isHot,
   isNew,
   provider,
+  link,
 }: GameCardBaseProps) {
   return (
-    <Link to={`/games/${id}`} className="group">
+    <Link to={link ?? `/games/${id}`} className="group">
       <div className="game-card relative rounded-xl overflow-hidden glass border border-border/50 hover:border-primary/50 hover:glow-cyan transition-all duration-300">
         <div className="relative aspect-[4/3] overflow-hidden">
           <GameImageWithFallback

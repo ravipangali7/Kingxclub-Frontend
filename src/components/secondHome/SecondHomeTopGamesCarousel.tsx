@@ -8,8 +8,6 @@ function sectionIconSrc(value: string): string {
   return value.trim().startsWith("http") ? value.trim() : getMediaUrl(value.trim());
 }
 
-const TOTAL = 16;
-
 interface SecondHomeTopGamesCarouselProps {
   games: GameCardShape[];
   sectionTitle?: string;
@@ -17,7 +15,7 @@ interface SecondHomeTopGamesCarouselProps {
 }
 
 export function SecondHomeTopGamesCarousel({ games, sectionTitle, sectionSvg }: SecondHomeTopGamesCarouselProps) {
-  const list = games.slice(0, TOTAL);
+  const list = games;
   if (list.length === 0) return null;
 
   return (
@@ -44,7 +42,7 @@ export function SecondHomeTopGamesCarousel({ games, sectionTitle, sectionSvg }: 
         {list.map((game, idx) => (
           <Link
             key={game.id}
-            to={`/games/${game.id}`}
+            to={game.link ?? `/games/${game.id}`}
             className="relative flex-shrink-0 snap-start rounded-2xl overflow-hidden group"
             style={{ width: "calc(45vw - 24px)", maxWidth: "200px", minWidth: "150px" }}
           >

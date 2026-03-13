@@ -3,27 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { GameCardSmall } from "@/components/games/GameCard";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { getGames, getGameImageUrl } from "@/api/games";
-import type { Game } from "@/api/games";
+import { getSecondHomeSections } from "@/api/site";
+import { mapSectionGameToCardShape } from "@/hooks/useSecondHomePageData";
 import { Gamepad2 } from "lucide-react";
 
 const PAGE_SIZE = 24;
-
-function gameToCardShape(game: Game) {
-  return {
-    id: String(game.id),
-    name: game.name,
-    image: getGameImageUrl(game),
-    category: game.category_name ?? "",
-    players: 0,
-    minBet: Number(game.min_bet) || 10,
-    maxBet: Number(game.max_bet) || 5000,
-    rating: 4.5,
-    isHot: !!(game.is_popular_game ?? game.is_top_game),
-    isNew: false,
-    provider: game.provider_name ?? "",
-  };
-}
 
 const TopGamesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,14 +20,15 @@ const TopGamesPage = () => {
     setSearchParams(next);
   };
 
-  const { data: gamesData, isLoading, isError, refetch } = useQuery({
-    queryKey: ["games", "top", currentPage],
-    queryFn: () => getGames(undefined, undefined, currentPage, PAGE_SIZE, undefined, { is_top_game: true }),
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["second-home-sections"],
+    queryFn: getSecondHomeSections,
   });
 
-  const results = gamesData?.results ?? [];
-  const totalCount = gamesData?.count ?? 0;
+  const allCards = (data?.top_games?.items ?? []).map((g, i) => mapSectionGameToCardShape(g, i));
+  const totalCount = allCards.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const pageItems = allCards.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="container mx-auto px-4 py-4 md:py-6 min-w-0 max-w-full">
@@ -68,13 +53,13 @@ const TopGamesPage = () => {
 
       {!isLoading && !isError && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {(results as Game[]).map((game) => (
-            <GameCardSmall key={game.id} {...gameToCardShape(game)} />
+          {pageItems.map((card) => (
+            <GameCardSmall key={card.id} {...card} />
           ))}
         </div>
       )}
 
-      {!isLoading && !isError && results.length === 0 && (
+      {!isLoading && !isError && pageItems.length === 0 && (
         <div className="text-center py-16">
           <Gamepad2 className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-xl font-semibold mb-2">No top games found</h3>

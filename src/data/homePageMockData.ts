@@ -23,6 +23,8 @@ export interface GameCardShape {
   isHot?: boolean;
   isNew?: boolean;
   provider?: string;
+  /** When set (e.g. from second-home-sections API), use for card link instead of /games/:id */
+  link?: string;
 }
 
 export interface PromoShape {
