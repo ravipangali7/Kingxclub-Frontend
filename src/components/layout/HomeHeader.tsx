@@ -92,10 +92,25 @@ export const HomeHeader = () => {
     <header className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border">
       <div className="container flex flex-col min-w-0">
         <div className="flex items-center justify-between h-14 px-2 mobile:px-4 gap-2">
-          <Link to="/" className="flex items-center gap-2 min-w-0 flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2 min-w-0 flex-shrink-0 z-10">
             <img src={logoUrl} alt={siteName} className="h-8 rounded-lg object-contain" />
             {/* <span className="font-gaming font-bold text-lg gradient-text tracking-tight hidden sm:inline">{siteName}</span> */}
           </Link>
+
+          {/* Mobile: Deposit in center */}
+          <div className="flex-1 flex justify-center min-w-0 mobile:hidden">
+            <Link
+              to={depositPath}
+              className={cn(
+                "px-4 py-2 rounded-lg text-sm font-semibold transition-colors border shrink-0",
+                location.pathname === "/player/wallet"
+                  ? "bg-primary/20 border-primary text-primary"
+                  : "border-primary/50 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary"
+              )}
+            >
+              Deposit
+            </Link>
+          </div>
 
           <nav className="hidden mobile:flex items-center gap-1">
             {navItems.map((item) => (
