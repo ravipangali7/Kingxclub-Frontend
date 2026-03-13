@@ -84,8 +84,7 @@ export function ComingSoon({ comingSoon: comingSoonProp }: ComingSoonProps) {
             <div key={item.id ?? item.name} className="w-[300px] flex-shrink-0 snap-start">
               <div className="group rounded-2xl overflow-hidden glass border border-border/50 hover:border-secondary/50 transition-all duration-300">
                 <div className="relative aspect-[4/3] overflow-hidden">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
                   <div className="absolute top-3 left-3">
                     <span className="px-3 py-1 bg-secondary/90 text-secondary-foreground text-xs font-bold rounded-full flex items-center gap-1">
                       <Clock className="w-3 h-3" />

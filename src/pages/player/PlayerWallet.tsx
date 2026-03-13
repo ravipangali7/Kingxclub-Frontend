@@ -10,13 +10,22 @@ import { getPlayerWallet, getPaymentModes, getDepositPaymentModes, getDepositBon
 import { getPublicPaymentMethods } from "@/api/site";
 import { getMediaUrl } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
-import { ArrowDownCircle, ArrowUpCircle, Wallet, Upload, CheckCircle, Sparkles, TrendingUp, Gift } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Wallet, Upload, CheckCircle, Sparkles, TrendingUp, Gift, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 
 const quickAmounts = [500, 1000, 2000, 5000, 10000, 25000];
+
+async function copyToClipboard(text: string, label?: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast({ title: label ? `${label} copied` : "Copied to clipboard." });
+  } catch {
+    toast({ title: "Could not copy", variant: "destructive" });
+  }
+}
 
 const PlayerWallet = () => {
   const { user } = useAuth();
@@ -281,23 +290,56 @@ const PlayerWallet = () => {
                 const displayName = String(selectedMode?.payment_method_name ?? "");
                 const details = selectedMode?.details as Record<string, unknown> | null | undefined;
                 const hasDetails = details != null && typeof details === "object" && Object.keys(details).length > 0;
+                const qrUrl = selectedMode?.qr_image_url ? getMediaUrl(String(selectedMode.qr_image_url)) : "";
                 return (
                   <div>
                     <p className="text-xs font-semibold text-gray-300 mb-2">2. Pay to this account</p>
                     <div className="rounded-xl border border-gray-600 bg-gray-800 p-4 space-y-2">
-                      <p className="text-sm font-semibold text-white">{displayName}</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-white">{displayName}</p>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(displayName, "Payment method")}
+                          className="p-1.5 rounded-md hover:bg-gray-700 text-gray-400 hover:text-white transition-colors touch-manipulation"
+                          aria-label="Copy payment method name"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                       {hasDetails ? (
-                        <div className="text-sm space-y-1 text-gray-300">
-                          {Object.entries(details).map(([k, v]) => (
-                            <p key={k}>{k.replace(/_/g, " ")}: <span className="font-mono font-medium text-white">{String(v ?? "")}</span></p>
-                          ))}
+                        <div className="text-sm space-y-1.5 text-gray-300">
+                          {Object.entries(details).map(([k, v]) => {
+                            const label = k.replace(/_/g, " ");
+                            const value = String(v ?? "");
+                            return (
+                              <div key={k} className="flex items-center justify-between gap-2 group">
+                                <p><span className="text-gray-400">{label}:</span> <span className="font-mono font-medium text-white">{value}</span></p>
+                                <button
+                                  type="button"
+                                  onClick={() => copyToClipboard(value, label)}
+                                  className="p-1.5 rounded-md hover:bg-gray-700 text-gray-400 hover:text-white touch-manipulation shrink-0"
+                                  aria-label={`Copy ${label}`}
+                                >
+                                  <Copy className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            );
+                          })}
                         </div>
                       ) : (
                         <p className="text-sm text-gray-400">No details</p>
                       )}
                       {selectedMode?.qr_image_url && (
-                        <div className="mt-2">
-                          <img src={getMediaUrl(String(selectedMode.qr_image_url))} alt="Payment QR" className="w-28 h-28 object-contain rounded-lg border border-gray-600 bg-white" />
+                        <div className="mt-2 flex flex-col gap-1.5">
+                          <img src={qrUrl} alt="Payment QR" className="w-28 h-28 object-contain rounded-lg border border-gray-600 bg-white" />
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(qrUrl, "QR link")}
+                            className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white text-xs transition-colors touch-manipulation w-fit"
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                            Copy QR link
+                          </button>
                         </div>
                       )}
                     </div>

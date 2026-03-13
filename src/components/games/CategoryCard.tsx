@@ -42,12 +42,13 @@ function slugToHref(slug: string): string {
   return "/games?page=1";
 }
 
-export function CategoryCard({ slug, label, count, id }: CategoryShape) {
+export function CategoryCard({ slug, label, count, id, icon }: CategoryShape) {
   const href = id != null ? `/games?category=${id}&page=1` : slugToHref(slug);
   const Icon = SLUG_ICON[slug] ?? Gamepad2;
   const color = SLUG_COLOR[slug] ?? "purple";
   const displayLabel = label ?? slug;
   const gameCount = count != null ? count : 0;
+  const hasImage = icon?.trim();
 
   return (
     <Link to={href} className="group">
@@ -59,9 +60,15 @@ export function CategoryCard({ slug, label, count, id }: CategoryShape) {
         />
         <div className="relative p-6 flex flex-col items-center text-center">
           <div
-            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform overflow-hidden ${
+              hasImage ? "bg-transparent" : `bg-gradient-to-br ${colorClasses[color]}`
+            }`}
           >
-            <Icon className={`w-8 h-8 ${iconColorClasses[color]}`} />
+            {hasImage ? (
+              <img src={icon!} alt={displayLabel} className="w-full h-full object-contain" />
+            ) : (
+              <Icon className={`w-8 h-8 ${iconColorClasses[color]}`} />
+            )}
           </div>
           <h3 className="text-lg font-bold text-foreground mb-1">{displayLabel}</h3>
           <p className="text-sm text-muted-foreground">{gameCount}+ Games</p>

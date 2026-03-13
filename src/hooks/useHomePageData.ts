@@ -260,8 +260,12 @@ export function useHomePageData(): {
       ? (categories as GameCategory[]).map((c) => {
           const slug = slugFromCategoryName(c.name);
           categoryIdToSlug[c.id] = slug;
-          const count = games.filter((g: Game) => g.category === c.id).length;
-          return { slug, label: c.name, count, id: c.id };
+          const count = typeof (c as GameCategory).games_count === "number"
+            ? (c as GameCategory).games_count
+            : games.filter((g: Game) => g.category === c.id).length;
+          const iconPath = c.icon?.trim() || c.svg?.trim();
+          const icon = iconPath ? getMediaUrl(iconPath) : undefined;
+          return { slug, label: c.name, count, id: c.id, icon };
         })
       : defaultCategories;
 

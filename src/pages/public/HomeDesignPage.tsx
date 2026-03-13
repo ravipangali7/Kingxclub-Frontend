@@ -25,6 +25,7 @@ import { Testimonials } from "@/components/home/Testimonials";
 import { ActivePopups } from "@/components/home/ActivePopups";
 import { useHomePageData, useHomePageStaticData, buildHeroFromSiteSetting } from "@/hooks/useHomePageData";
 import { HOME_PAGE_VARIANT } from "@/config";
+import { getMediaUrl } from "@/lib/api";
 
 function HomePageContent({
   data,
@@ -152,8 +153,10 @@ export default function HomeDesignPage() {
           const name = cat?.name ?? sec?.section_title ?? "";
           const slug = slugFromCategoryName(name);
           const label = (sec?.section_title?.trim() || cat?.name?.trim() || name) || String(id);
-          const count = sec?.games?.length ?? 0;
-          return { slug, label, count, id };
+          const count = typeof cat?.games_count === "number" ? cat.games_count : (sec?.games?.length ?? 0);
+          const iconPath = cat?.icon?.trim() || cat?.svg?.trim();
+          const icon = iconPath ? getMediaUrl(iconPath) : undefined;
+          return { slug, label, count, id, icon };
         })
         .filter((c) => c.slug);
       if (builtCategories.length > 0) {
@@ -174,11 +177,15 @@ export default function HomeDesignPage() {
         if (baseSlug) usedSlugs.add(baseSlug);
         usedSlugs.add(slug);
         const label = (sec.section_title?.trim() || cat?.name?.trim() || "") || String(sec.category_id);
+        const iconPath = cat?.icon?.trim() || cat?.svg?.trim();
+        const icon = iconPath ? getMediaUrl(iconPath) : undefined;
+        const count = typeof cat?.games_count === "number" ? cat.games_count : (sec.games?.length ?? 0);
         categoriesForAllSections.push({
           slug,
           label,
-          count: sec.games?.length ?? 0,
+          count,
           id: sec.category_id,
+          icon,
         });
         gamesByCategoryFromApi[slug] = (sec.games ?? []).map((g, i) => mapTopGameToCardShape(g, i));
         categorySectionOverrides[sec.category_id] = {

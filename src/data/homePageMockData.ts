@@ -44,6 +44,8 @@ export interface CategoryShape {
   count?: number;
   /** Category id from API; when set, View All links to /games?category=id */
   id?: number;
+  /** Resolved icon/image URL for category (from API icon or svg). */
+  icon?: string;
 }
 
 export interface ProviderShape {

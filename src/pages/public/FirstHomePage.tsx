@@ -85,8 +85,9 @@ const FirstHomePage = () => {
     ? site.promo_banners
     : defaultPromoBanners) as { title: string; subtitle: string; cta_label: string; cta_link: string; icon?: string }[];
 
-  const getCountByCategory = (categoryId: number) =>
-    games.filter((g: Game) => g.category === categoryId).length;
+  /** Use API games_count when present, else count from loaded games list. */
+  const getCountByCategory = (cat: GameCategory) =>
+    typeof cat.games_count === "number" ? cat.games_count : games.filter((g: Game) => g.category === cat.id).length;
 
   const maxPerSection = 10;
   const topPicks = games.slice(0, maxPerSection);
@@ -195,15 +196,28 @@ const FirstHomePage = () => {
         )}
         {!categoriesLoading && !categoriesError && (
           <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
-            {categories.slice(0, 8).map((cat: GameCategory, i: number) => (
-              <Link key={cat.id} to={`/games?category=${cat.id}&page=1`}>
-                <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-violet-500/50 transition-all duration-300 group">
-                  <span className="text-3xl group-hover:scale-125 transition-transform">{categoryIcons[i % categoryIcons.length]}</span>
-                  <span className="text-[10px] font-semibold whitespace-nowrap text-center">{cat.name}</span>
-                  <span className="text-[10px] text-muted-foreground">{getCountByCategory(cat.id)}+ Games</span>
-                </div>
-              </Link>
-            ))}
+            {categories.slice(0, 8).map((cat: GameCategory, i: number) => {
+              const iconOrSvg = cat.icon?.trim() || cat.svg?.trim();
+              return (
+                <Link key={cat.id} to={`/games?category=${cat.id}&page=1`}>
+                  <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-violet-500/50 transition-all duration-300 group">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden bg-muted/50 group-hover:scale-110 transition-transform">
+                      {iconOrSvg ? (
+                        <img
+                          src={getMediaUrl(iconOrSvg)}
+                          alt={cat.name}
+                          className="w-8 h-8 object-contain"
+                        />
+                      ) : (
+                        <span className="text-3xl">{categoryIcons[i % categoryIcons.length]}</span>
+                      )}
+                    </div>
+                    <span className="text-[10px] font-semibold whitespace-nowrap text-center">{cat.name}</span>
+                    <span className="text-[10px] text-muted-foreground">{getCountByCategory(cat)}+ Games</span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>
@@ -216,7 +230,7 @@ const FirstHomePage = () => {
         { title: "Trending Games", list: trending },
         { title: "New Releases", list: newReleases },
       ].map(({ title, list }) => (
-        <section key={title} className="container px-4 pt-6">
+        <section style={{paddingTop: "0px !important"}} key={title} className="container px-4 pt-2 pb-1">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display font-bold text-xl">{title}</h2>
             <Link to="/games?page=1" className="text-sm text-orange-500 flex items-center gap-1 hover:underline font-medium">

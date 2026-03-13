@@ -8,6 +8,8 @@ export interface GameCategory {
   icon?: string;
   svg?: string;
   is_active?: boolean;
+  /** Number of active games in this category (from API). */
+  games_count?: number;
 }
 
 export interface GameProvider {
