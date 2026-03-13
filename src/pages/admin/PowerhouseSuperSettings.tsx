@@ -10,7 +10,6 @@ import { toast } from "@/hooks/use-toast";
 const PowerhouseSuperSettings = () => {
   const queryClient = useQueryClient();
   const { data: superSettings } = useQuery({ queryKey: ["admin-super-settings"], queryFn: getSuperSettings });
-  const [ggrCoin, setGgrCoin] = useState("");
   const [minDeposit, setMinDeposit] = useState("");
   const [maxDeposit, setMaxDeposit] = useState("");
   const [minWithdraw, setMinWithdraw] = useState("");
@@ -23,7 +22,6 @@ const PowerhouseSuperSettings = () => {
 
   useEffect(() => {
     const s = (superSettings ?? {}) as Record<string, unknown>;
-    setGgrCoin(String(s.ggr_coin ?? ""));
     setMinDeposit(String(s.min_deposit ?? ""));
     setMaxDeposit(String(s.max_deposit ?? ""));
     setMinWithdraw(String(s.min_withdraw ?? ""));
@@ -38,7 +36,6 @@ const PowerhouseSuperSettings = () => {
     setSaving(true);
     try {
       await saveSuperSettings({
-        ggr_coin: ggrCoin || "0",
         min_deposit: minDeposit || "0",
         max_deposit: maxDeposit || "0",
         min_withdraw: minWithdraw || "0",
@@ -64,7 +61,6 @@ const PowerhouseSuperSettings = () => {
       <Card>
         <CardHeader className="p-4 pb-2"><CardTitle className="text-sm font-display">Financial Settings</CardTitle></CardHeader>
         <CardContent className="p-4 pt-2 space-y-3">
-          <div><label className="text-xs text-muted-foreground">GGR Coin</label><Input type="number" value={ggrCoin} onChange={(e) => setGgrCoin(e.target.value)} /></div>
           <div className="grid grid-cols-2 gap-3">
             <div><label className="text-xs text-muted-foreground">Deposit Min</label><Input type="number" value={minDeposit} onChange={(e) => setMinDeposit(e.target.value)} /></div>
             <div><label className="text-xs text-muted-foreground">Deposit Max</label><Input type="number" value={maxDeposit} onChange={(e) => setMaxDeposit(e.target.value)} /></div>

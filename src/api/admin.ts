@@ -37,7 +37,10 @@ export type AdminRole = "powerhouse" | "super" | "master";
 export async function getProfile(role: AdminRole) {
   return apiGet<Record<string, unknown>>(`${prefix(role)}/profile/`);
 }
-export async function updateProfile(role: AdminRole, data: { name?: string; phone?: string; email?: string; whatsapp_number?: string }) {
+export async function updateProfile(
+  role: AdminRole,
+  data: { name?: string; phone?: string; email?: string; whatsapp_number?: string; main_balance?: string }
+) {
   return apiPatch(`${prefix(role)}/profile/update/`, data);
 }
 export async function changePassword(role: AdminRole, body: { old_password: string; new_password: string }) {

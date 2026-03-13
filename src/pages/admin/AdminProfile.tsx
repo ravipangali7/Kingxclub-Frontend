@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Phone, Mail, Edit } from "lucide-react";
+import { User, Phone, Mail, Edit, Wallet } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { getProfile, updateProfile, type AdminRole } from "@/api/admin";
@@ -23,6 +23,7 @@ export default function AdminProfile() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [mainBalance, setMainBalance] = useState("");
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["admin-profile", role],
@@ -35,11 +36,12 @@ export default function AdminProfile() {
       setPhone(String(profile.phone ?? ""));
       setEmail(String(profile.email ?? ""));
       setWhatsapp(String(profile.whatsapp_number ?? ""));
+      setMainBalance(profile.main_balance != null ? String(profile.main_balance) : "");
     }
   }, [profile]);
 
   const updateMutation = useMutation({
-    mutationFn: (data: { name?: string; phone?: string; email?: string; whatsapp_number?: string }) =>
+    mutationFn: (data: { name?: string; phone?: string; email?: string; whatsapp_number?: string; main_balance?: string }) =>
       updateProfile(role, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-profile", role] });
@@ -52,7 +54,14 @@ export default function AdminProfile() {
   });
 
   const handleSave = () => {
-    updateMutation.mutate({ name, phone, email, whatsapp_number: whatsapp || undefined });
+    const payload: { name?: string; phone?: string; email?: string; whatsapp_number?: string; main_balance?: string } = {
+      name,
+      phone,
+      email,
+      whatsapp_number: whatsapp || undefined,
+    };
+    if (role === "powerhouse" && mainBalance !== "") payload.main_balance = mainBalance;
+    updateMutation.mutate(payload);
   };
 
   if (isLoading) {
@@ -117,6 +126,21 @@ export default function AdminProfile() {
               className={!editing ? "border-transparent bg-transparent" : ""}
             />
           </div>
+          {role === "powerhouse" && (
+            <div className="flex items-center gap-3">
+              <Wallet className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <Input
+                placeholder="Main balance"
+                type="number"
+                min="0"
+                step="0.01"
+                value={mainBalance}
+                onChange={(e) => setMainBalance(e.target.value)}
+                readOnly={!editing}
+                className={!editing ? "border-transparent bg-transparent" : ""}
+              />
+            </div>
+          )}
           {editing && (
             <Button onClick={handleSave} disabled={updateMutation.isPending} className="w-full">
               Save changes
