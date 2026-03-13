@@ -42,8 +42,8 @@ function slugToHref(slug: string): string {
   return `/games?category=${slug}`;
 }
 
-export function CategoryCard({ slug, label, count }: CategoryShape) {
-  const href = slugToHref(slug);
+export function CategoryCard({ slug, label, count, id }: CategoryShape) {
+  const href = id != null ? `/categories/${id}` : slugToHref(slug);
   const Icon = SLUG_ICON[slug] ?? Gamepad2;
   const color = SLUG_COLOR[slug] ?? "purple";
   const displayLabel = label ?? slug;

@@ -65,7 +65,7 @@ export function AllGameCategories({ gamesByCategory: gamesByCategoryProp, catego
       {categories.map((cat) => {
         const games = gamesByCategory[cat.slug];
         if (!games?.length) return null;
-        const href = cat.slug === "sports" ? "/sports" : "/games";
+        const href = cat.id != null ? `/categories/${cat.id}` : (cat.slug === "sports" ? "/sports" : "/games");
         const colorClass = SLUG_COLOR_CLASS[cat.slug] ?? "bg-muted text-muted-foreground";
         const overrides = cat.id != null ? categorySectionOverrides?.[cat.id] : undefined;
         const sectionTitle = (overrides?.section_title?.trim() || cat.label) ?? cat.slug;
