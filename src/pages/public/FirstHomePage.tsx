@@ -191,7 +191,7 @@ const FirstHomePage = () => {
         {!categoriesLoading && !categoriesError && (
           <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
             {categories.slice(0, 8).map((cat: GameCategory, i: number) => (
-              <Link key={cat.id} to={`/games?category=${cat.id}`}>
+              <Link key={cat.id} to={`/categories/${cat.id}`}>
                 <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-violet-500/50 transition-all duration-300 group">
                   <span className="text-3xl group-hover:scale-125 transition-transform">{categoryIcons[i % categoryIcons.length]}</span>
                   <span className="text-[10px] font-semibold whitespace-nowrap text-center">{cat.name}</span>

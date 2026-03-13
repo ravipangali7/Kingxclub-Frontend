@@ -14,7 +14,7 @@ export function SecondGameCategoryBar({ categories }: SecondGameCategoryBarProps
           {categories.map((cat) => (
             <Link
               key={cat.id}
-              to={`/games?category=${cat.id}`}
+              to={`/categories/${cat.id}`}
               className="flex-shrink-0 px-4 py-2.5 rounded-lg glass border border-white/10 text-sm font-medium text-foreground hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-colors"
             >
               {cat.name}

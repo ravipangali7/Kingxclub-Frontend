@@ -58,12 +58,17 @@ export function SecondHomeSidebar({ categories = [] }: SecondHomeSidebarProps) {
       </div>
       {categories.length > 0 && (
         <div className="rounded-lg glass border border-white/10 p-4">
-          <h3 className="font-display font-semibold text-sm text-foreground mb-3">Browse by category</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-display font-semibold text-sm text-foreground">Browse by category</h3>
+            <Link to="/categories" className="text-xs text-primary font-medium hover:underline">
+              View all
+            </Link>
+          </div>
           <ul className="space-y-2">
             {categories.slice(0, 6).map((cat) => (
               <li key={cat.id}>
                 <Link
-                  to={`/games?category=${cat.id}`}
+                  to={`/categories/${cat.id}`}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   {cat.name}

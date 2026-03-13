@@ -190,7 +190,7 @@ const HomePage = () => {
         {!categoriesLoading && !categoriesError && (
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
             {categories.map((cat: { id: number; name: string }) => (
-              <Link key={cat.id} to={`/games?category=${cat.id}`}>
+              <Link key={cat.id} to={`/categories/${cat.id}`}>
                 <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border hover:border-primary/50 hover:neon-glow-sm transition-all duration-300 group cyber-border">
                   <span className="text-3xl group-hover:scale-125 transition-transform duration-300">🎮</span>
                   <span className="text-[10px] font-semibold whitespace-nowrap">{cat.name}</span>
@@ -211,7 +211,7 @@ const HomePage = () => {
               <h2 className="font-display font-bold text-xl flex items-center gap-2">
                 <span className="text-xl">🎮</span> {cat.name}
               </h2>
-              <Link to={`/games?category=${cat.id}`} className="text-xs text-primary flex items-center gap-1 hover:underline font-medium">More <ChevronRight className="h-3 w-3" /></Link>
+              <Link to={`/categories/${cat.id}`} className="text-xs text-primary flex items-center gap-1 hover:underline font-medium">More <ChevronRight className="h-3 w-3" /></Link>
             </div>
             <div className="flex gap-3 overflow-x-auto pb-2 snap-x scrollbar-hide">
               {catGames.map((game: { id: number; image?: string; name: string; category_name?: string; min_bet: string; max_bet: string }) => (

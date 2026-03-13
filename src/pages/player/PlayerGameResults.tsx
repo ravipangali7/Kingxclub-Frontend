@@ -73,7 +73,7 @@ const PlayerGameResults = () => {
             </div>
             <div>
               <p className="text-[10px] text-muted-foreground">Total</p>
-              <p className="font-gaming font-bold text-lg gold-gradient bg-clip-text text-transparent">{symbol}{totalBalance.toLocaleString()}</p>
+              <p className="font-gaming font-bold text-lg text-primary">{symbol}{totalBalance.toLocaleString()}</p>
             </div>
           </div>
         </CardContent>

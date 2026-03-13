@@ -61,7 +61,7 @@ export const PublicFooter = () => {
             <ul className="space-y-2">
               {(categories as { id: number; name: string }[]).slice(0, 5).map((c) => (
                 <li key={c.id}>
-                  <Link to={`/games?category=${c.id}`} className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                  <Link to={`/categories/${c.id}`} className="text-xs text-muted-foreground hover:text-primary transition-colors">
                     {c.name}
                   </Link>
                 </li>
