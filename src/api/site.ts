@@ -79,20 +79,63 @@ export type SiteSettingRecord = Record<string, unknown> & {
   phones?: string[];
 };
 
+/** User shape with optional parent_whatsapp_number (from /auth/me/ for players). */
+export type UserWithParentWhatsApp = { role?: string; parent_whatsapp_number?: string | null } | null | undefined;
+
+/**
+ * Resolve the WhatsApp number to use for contact/support/deposit/withdraw links.
+ * - Logged-in player: use parent (master) whatsapp_number; if empty, use site setting whatsapp_number.
+ * - Not logged in or non-player: use site setting whatsapp_number (with phones fallback).
+ */
+export function getResolvedWhatsAppNumber(
+  siteSetting: SiteSettingRecord | undefined | null,
+  user: UserWithParentWhatsApp
+): string {
+  if (user?.role === "player" && user.parent_whatsapp_number && String(user.parent_whatsapp_number).trim()) {
+    return String(user.parent_whatsapp_number).trim();
+  }
+  if (!siteSetting) return "";
+  const raw =
+    (siteSetting.whatsapp_number && String(siteSetting.whatsapp_number).trim()) ||
+    (Array.isArray(siteSetting.phones) && siteSetting.phones[0] ? String(siteSetting.phones[0]).trim() : null);
+  return raw || "";
+}
+
+/**
+ * Build WhatsApp chat link from a resolved number (digits only or with formatting).
+ * Normalizes: 9–10 digits get 977 prefix.
+ */
+export function getWhatsAppLinkFromNumber(number: string): string | null {
+  const raw = (number || "").trim();
+  if (!raw) return null;
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length < 9) return null;
+  const full = digits.length <= 10 ? "977" + digits : digits;
+  return `https://wa.me/${full}`;
+}
+
 /**
  * Build WhatsApp chat link from site setting.
  * Uses whatsapp_number if set, else first entry in phones. Normalizes to digits; 9–10 digits get 977 prefix.
  */
 export function getWhatsAppLink(siteSetting: SiteSettingRecord | undefined | null): string | null {
-  if (!siteSetting) return null;
-  const raw =
-    (siteSetting.whatsapp_number && String(siteSetting.whatsapp_number).trim()) ||
-    (Array.isArray(siteSetting.phones) && siteSetting.phones[0] ? String(siteSetting.phones[0]).trim() : null);
-  if (!raw) return null;
-  const digits = raw.replace(/\D/g, "");
-  if (digits.length < 9) return null;
-  const number = digits.length <= 10 ? "977" + digits : digits;
-  return `https://wa.me/${number}`;
+  const num = getResolvedWhatsAppNumber(siteSetting, null);
+  return num ? getWhatsAppLinkFromNumber(num) : null;
+}
+
+/**
+ * Build WhatsApp link for contact/support/deposit/withdraw: uses master's number for logged-in players, else site setting.
+ */
+export function getWhatsAppLinkWithUser(
+  siteSetting: SiteSettingRecord | undefined | null,
+  user: UserWithParentWhatsApp,
+  text?: string
+): string | null {
+  const num = getResolvedWhatsAppNumber(siteSetting, user);
+  const url = num ? getWhatsAppLinkFromNumber(num) : null;
+  if (!url) return null;
+  if (text) return `${url}?text=${encodeURIComponent(text)}`;
+  return url;
 }
 
 export async function getCmsFooterPages() {

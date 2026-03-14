@@ -1,4 +1,5 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { HelmetProvider, Helmet } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -137,6 +138,27 @@ function SiteFavicon() {
   return null;
 }
 
+function SiteOgMeta() {
+  const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
+  const s = siteSetting as { name?: string; logo?: string; hero_title?: string } | undefined;
+  const ogTitle = (s?.name || "KarnaliX").trim();
+  const ogImage = s?.logo?.trim() ? getMediaUrl(s.logo.trim()) : null;
+  const ogDescription = (s?.hero_title || ogTitle).trim();
+  const ogUrl = typeof window !== "undefined" ? window.location.origin + "/" : "";
+  return (
+    <Helmet>
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content={ogTitle} />
+      <meta property="og:url" content={ogUrl} />
+      {ogDescription ? <meta property="og:description" content={ogDescription} /> : null}
+      {ogImage ? <meta property="og:image" content={ogImage} /> : null}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={ogTitle} />
+      {ogImage ? <meta name="twitter:image" content={ogImage} /> : null}
+    </Helmet>
+  );
+}
+
 function HomePageSwitch() {
   if (HOME_PAGE_VARIANT === "second") {
     return (
@@ -154,6 +176,7 @@ function HomePageSwitch() {
 
 const App = () => {
   const content = (
+  <HelmetProvider>
   <ThemeProvider>
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
@@ -164,6 +187,7 @@ const App = () => {
             <PlayerNotificationProvider>
               <ScrollToTop />
               <SiteFavicon />
+              <SiteOgMeta />
               <SiteThemeApplier />
               <GlobalMessageFab />
               <Routes>
@@ -305,6 +329,7 @@ const App = () => {
       </QueryClientProvider>
     </AuthProvider>
   </ThemeProvider>
+  </HelmetProvider>
   );
   return googleClientId ? (
     <GoogleOAuthProvider clientId={googleClientId}>{content}</GoogleOAuthProvider>

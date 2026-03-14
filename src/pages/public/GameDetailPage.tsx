@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GameImageWithFallback } from "@/components/shared/GameImageWithFallback";
 import { getGame, getGameImageUrl } from "@/api/games";
-import { getSiteSetting } from "@/api/site";
+import { getSiteSetting, getResolvedWhatsAppNumber, getWhatsAppLinkWithUser } from "@/api/site";
 import { getPlayerWallet, launchGameByMode } from "@/api/player";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Game } from "@/api/games";
@@ -33,15 +33,6 @@ const defaultHowToPlay = ["Place your bet", "Start the game and wait for the rou
 const defaultFeatures = ["Live", "Fair", "Secure"];
 const defaultDescription = "A thrilling game. Place your bet and play.";
 
-function buildWhatsAppLinks(whatsappNumber: string) {
-  const num = String(whatsappNumber || "").replace(/[^0-9]/g, "") || "918000825980";
-  const prefix = num.length <= 10 ? "91" : "";
-  const full = prefix ? prefix + num : num;
-  return {
-    deposit: `https://wa.me/${full}?text=${encodeURIComponent("Hi! I want to deposit funds to my account.")}`,
-    withdraw: `https://wa.me/${full}?text=${encodeURIComponent("Hi! I want to withdraw funds from my account.")}`,
-  };
-}
 
 const GameDetailPage = () => {
   const { id } = useParams();
@@ -123,10 +114,12 @@ const GameDetailPage = () => {
   const canPlay = totalBalance >= betAmount;
   const rating = 4.5;
   const rtp = 96;
-  const whatsapp = (siteSetting as { whatsapp_number?: string })?.whatsapp_number ?? "";
-  const phones = (siteSetting as { phones?: string[] })?.phones;
-  const phoneNumber = whatsapp || (Array.isArray(phones) && phones[0] ? phones[0] : "");
-  const whatsAppLinks = buildWhatsAppLinks(whatsapp || phoneNumber);
+  const siteSettingRecord = siteSetting as { whatsapp_number?: string; phones?: string[] } | undefined;
+  const resolvedNumber = getResolvedWhatsAppNumber(siteSettingRecord, user);
+  const whatsAppDepositLink = getWhatsAppLinkWithUser(siteSettingRecord, user, "Hi! I want to deposit funds to my account.");
+  const whatsAppWithdrawLink = getWhatsAppLinkWithUser(siteSettingRecord, user, "Hi! I want to withdraw funds from my account.");
+  const phones = siteSettingRecord?.phones;
+  const phoneNumber = resolvedNumber || (Array.isArray(phones) && phones[0] ? phones[0] : "");
 
   const handleBetChange = (value: number) => {
     setBetAmount(Math.max(minBet, Math.min(maxBet, value)));
@@ -289,7 +282,9 @@ const GameDetailPage = () => {
             </div>
           </a>
           <a
-              href={WALLET_URL}
+              href={whatsAppDepositLink || WALLET_URL}
+              target={whatsAppDepositLink ? "_blank" : undefined}
+              rel={whatsAppDepositLink ? "noopener noreferrer" : undefined}
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors border border-[#25D366]/30"
             >
               <div className="w-10 h-10 rounded-lg bg-[#25D366]/20 flex items-center justify-center">
@@ -304,7 +299,7 @@ const GameDetailPage = () => {
               </div>
             </a>
             <a
-              href={whatsAppLinks.withdraw}
+              href={whatsAppWithdrawLink || "#"}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"

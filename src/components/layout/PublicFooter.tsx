@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getSiteSetting, getCmsFooterPages } from "@/api/site";
+import { useAuth } from "@/contexts/AuthContext";
+import { getSiteSetting, getCmsFooterPages, getResolvedWhatsAppNumber, getWhatsAppLinkWithUser } from "@/api/site";
 import { getCategories } from "@/api/games";
 import { getMediaUrl } from "@/lib/api";
 
 export const PublicFooter = () => {
+  const { user } = useAuth();
   const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
   const { data: cmsPages = [] } = useQuery({ queryKey: ["cmsFooter"], queryFn: getCmsFooterPages });
   const { data: categories = [] } = useQuery({ queryKey: ["categories"], queryFn: getCategories });
@@ -12,7 +14,8 @@ export const PublicFooter = () => {
   const logoUrl = s?.logo ? getMediaUrl(s.logo) : "/karnali-logo.png";
   const email = Array.isArray(s?.emails) ? s.emails[0] : "";
   const phone = Array.isArray(s?.phones) ? s.phones[0] : "";
-  const whatsapp = s?.whatsapp_number ?? "";
+  const whatsapp = getResolvedWhatsAppNumber(s, user) || s?.whatsapp_number ?? "";
+  const waUrl = getWhatsAppLinkWithUser(s, user);
 
   return (
     <footer className="bg-card text-foreground mt-auto border-t border-border">
@@ -30,7 +33,11 @@ export const PublicFooter = () => {
             <div className="mt-3 text-xs text-muted-foreground space-y-1">
               <p>{email}</p>
               <p>{phone}</p>
-              <p>WhatsApp: {whatsapp}</p>
+              {waUrl ? (
+                <a href={waUrl} target="_blank" rel="noopener noreferrer" className="block hover:text-primary">WhatsApp: {whatsapp}</a>
+              ) : (
+                <p>WhatsApp: {whatsapp}</p>
+              )}
             </div>
           </div>
 

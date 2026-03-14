@@ -22,6 +22,7 @@ export interface User {
   kyc_status?: string;
   parent?: number | null;
   whatsapp_number?: string;
+  parent_whatsapp_number?: string | null;
   country_code?: string;
   currency_symbol?: string;
   last_login?: string | null;

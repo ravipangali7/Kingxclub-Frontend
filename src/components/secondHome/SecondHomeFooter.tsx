@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
-import { getSiteSetting, getCmsFooterPages, getPublicPaymentMethods } from "@/api/site";
+import { getSiteSetting, getCmsFooterPages, getPublicPaymentMethods, getResolvedWhatsAppNumber, getWhatsAppLinkWithUser } from "@/api/site";
 import { getMediaUrl } from "@/lib/api";
 import { Phone, Mail, MessageCircle, Shield, Award, Headphones } from "lucide-react";
 import {
@@ -34,9 +34,9 @@ export function SecondHomeFooter() {
   const siteName = s?.name?.trim() || "KarnaliX";
   const phone = Array.isArray(s?.phones) && s.phones.length > 0 ? String(s.phones[0]) : defaultFooterContact.phone;
   const email = Array.isArray(s?.emails) && s.emails.length > 0 ? String(s.emails[0]) : defaultFooterContact.email;
-  const whatsapp = (s?.whatsapp_number as string)?.trim() || defaultFooterContact.whatsapp;
+  const whatsapp = getResolvedWhatsAppNumber(s, user) || defaultFooterContact.whatsapp;
   const tagline = (s?.footer_description as string)?.trim() || defaultFooterContact.tagline;
-  const waUrl = `https://wa.me/${whatsapp.replace(/[^0-9]/g, "")}`;
+  const waUrl = getWhatsAppLinkWithUser(s, user) || `https://wa.me/${String(whatsapp).replace(/[^0-9]/g, "")}`;
 
   const cmsItems = cmsPages as { id?: number; title?: string; slug?: string }[];
   const legalLinks =
