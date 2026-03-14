@@ -614,6 +614,10 @@ export async function getSuperSettings() {
 export async function saveSuperSettings(body: unknown) {
   return apiPost(`${prefix("powerhouse")}/super-settings/save/`, body);
 }
+/** Set default master in Super Settings; requires PIN. Allowed for powerhouse and super. */
+export async function setDefaultMaster(masterId: number, pin: string, role: "powerhouse" | "super") {
+  return apiPost(`${prefix(role)}/super-settings/set-default-master/`, { master_id: masterId, pin });
+}
 
 export async function getSiteSettingsAdmin() {
   return apiGet(`${prefix("powerhouse")}/site-settings/`);
