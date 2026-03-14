@@ -58,8 +58,8 @@ export default function AdminProfile() {
       name,
       phone,
       email,
-      whatsapp_number: whatsapp || undefined,
     };
+    if (role !== "master") payload.whatsapp_number = whatsapp || undefined;
     if (role === "powerhouse" && mainBalance !== "") payload.main_balance = mainBalance;
     updateMutation.mutate(payload);
   };
@@ -122,8 +122,9 @@ export default function AdminProfile() {
               placeholder="WhatsApp number"
               value={whatsapp}
               onChange={(e) => setWhatsapp(e.target.value)}
-              readOnly={!editing}
-              className={!editing ? "border-transparent bg-transparent" : ""}
+              readOnly={!editing || role === "master"}
+              className={!editing || role === "master" ? "border-transparent bg-transparent" : ""}
+              title={role === "master" ? "Editable only by Super/Powerhouse from List of Masters" : undefined}
             />
           </div>
           {role === "powerhouse" && (

@@ -48,6 +48,7 @@ type MasterRow = Record<string, unknown> & {
   total_balance?: string; total_win_loss?: string;
   status?: string; created_at?: string; pin?: string;
   commission_percentage?: string;
+  whatsapp_number?: string | null;
   is_default_master?: boolean;
 };
 
@@ -165,6 +166,7 @@ const AdminMasters = () => {
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [editName, setEditName] = useState("");
   const [editCommission, setEditCommission] = useState("10");
+  const [editWhatsApp, setEditWhatsApp] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [inlineEdit, setInlineEdit] = useState<InlineEditState | null>(null);
   const [pendingCellSave, setPendingCellSave] = useState<{ id: number; field: string; value: unknown } | null>(null);
@@ -365,7 +367,7 @@ const AdminMasters = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 text-warning" title="Regenerate PIN" onClick={() => { setSelectedUser(row); setPendingAction("regeneratePin"); setPendingPayload({ userId: row.id }); setPinOpen(true); }}><RefreshCw className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 text-neon" title="Settlement" onClick={() => { setSelectedUser(row); setSettlementOpen(true); }}><ArrowRightLeft className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => { setSelectedUser(row); setViewOpen(true); }}><Eye className="h-3 w-3" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => { setSelectedUser(row); setEditName(String(row.name ?? "")); setEditCommission(String(row.commission_percentage ?? "10")); setEditOpen(true); }}><Edit className="h-3 w-3" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => { setSelectedUser(row); setEditName(String(row.name ?? "")); setEditCommission(String(row.commission_percentage ?? "10")); setEditWhatsApp(String(row.whatsapp_number ?? "")); setEditOpen(true); }}><Edit className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" title="Delete" onClick={() => setMasterToDelete(row)}><Trash2 className="h-3 w-3" /></Button>
         </div>
       ),
@@ -514,6 +516,7 @@ const AdminMasters = () => {
                 {[
                   { label: "Username", val: String(selectedUser.username ?? "") },
                   { label: "Name", val: String(selectedUser.name ?? "") },
+                  { label: "WhatsApp", val: String(selectedUser.whatsapp_number ?? "") },
                   { label: "Balance", val: fmt(selectedUser.main_balance) },
                   { label: "P/L", val: fmtPL(selectedUser.pl_balance) },
                   { label: "Bonus Bal", val: fmt(selectedUser.bonus_balance) },
@@ -554,6 +557,10 @@ const AdminMasters = () => {
                   <label className="text-xs text-muted-foreground block mb-1">Commission %</label>
                   <Input type="number" placeholder="Commission %" value={editCommission} onChange={(e) => setEditCommission(e.target.value)} />
                 </div>
+                <div className="sm:col-span-2">
+                  <label className="text-xs text-muted-foreground block mb-1">WhatsApp Number</label>
+                  <Input value={editWhatsApp} onChange={(e) => setEditWhatsApp(e.target.value)} placeholder="WhatsApp" />
+                </div>
               </div>
             </div>
           )}
@@ -566,7 +573,12 @@ const AdminMasters = () => {
                 if (!selectedUser?.id) return;
                 setEditSaving(true);
                 try {
-                  await updateMaster(selectedUser.id as number, { name: editName.trim(), commission_percentage: editCommission || "10" }, role);
+                  const payload: { name: string; commission_percentage: string; whatsapp_number?: string } = {
+                    name: editName.trim(),
+                    commission_percentage: editCommission || "10",
+                    whatsapp_number: editWhatsApp.trim(),
+                  };
+                  await updateMaster(selectedUser.id as number, payload, role);
                   queryClient.invalidateQueries({ queryKey: ["admin-masters", role] });
                   toast({ title: "Master updated successfully." });
                   setEditOpen(false);
