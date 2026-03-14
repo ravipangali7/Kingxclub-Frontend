@@ -39,13 +39,13 @@ type BonusRequestRow = Record<string, unknown> & {
 };
 
 const AdminBonusRequests = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const role = (user?.role === "powerhouse" || user?.role === "super" || user?.role === "master") ? user.role : "master";
   const queryClient = useQueryClient();
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const listParams: ListParams = {};
   if (dateFrom) listParams.date_from = dateFrom;
   if (dateTo) listParams.date_to = dateTo;
@@ -63,6 +63,13 @@ const AdminBonusRequests = () => {
   const [editAmount, setEditAmount] = useState("");
   const [savingAmount, setSavingAmount] = useState(false);
   const rows = bonusRequests as BonusRequestRow[];
+
+  useEffect(() => {
+    if (!autoRefresh || !refreshUser) return;
+    const id = setInterval(() => refreshUser(), 10000);
+    return () => clearInterval(id);
+  }, [autoRefresh, refreshUser]);
+
   useEffect(() => {
     setEditAmount("");
   }, [selected?.id]);

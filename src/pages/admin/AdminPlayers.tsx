@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,12 +31,12 @@ import { ListDateRangeToolbar } from "@/components/shared/ListDateRangeToolbar";
 import { Switch } from "@/components/ui/switch";
 import { TableBadge } from "@/components/admin/TableBadge";
 
-type PlayerRow = Record<string, unknown> & { id?: number; username?: string; name?: string; main_balance?: string; bonus_balance?: string; exposure_balance?: string; exposure_limit?: string; is_active?: boolean; status?: string; created_at?: string; phone?: string; whatsapp_number?: string; parent_username?: string; no_activity_7_days?: boolean; total_balance?: string | number; total_win_loss?: string | number };
+type PlayerRow = Record<string, unknown> & { id?: number; username?: string; name?: string; main_balance?: string; bonus_balance?: string; exposure_balance?: string; exposure_limit?: string; is_active?: boolean; status?: string; created_at?: string; phone?: string; whatsapp_number?: string; parent_username?: string; no_activity_7_days?: boolean; total_balance?: string | number; total_win_loss?: string | number; total_bet?: string | number };
 
 type PendingAction = "deposit" | "withdraw" | "resetPassword" | null;
 
 const AdminPlayers = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const role = (user?.role === "powerhouse" || user?.role === "super" || user?.role === "master") ? user.role : "master";
   const queryClient = useQueryClient();
@@ -74,7 +74,7 @@ const AdminPlayers = () => {
   const [pendingCellSave, setPendingCellSave] = useState<{ id: number; field: string; value: string } | null>(null);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const [masterIdFilter, setMasterIdFilter] = useState<string>("");
   const [playerToDelete, setPlayerToDelete] = useState<PlayerRow | null>(null);
   const [deletingPlayer, setDeletingPlayer] = useState(false);
@@ -89,6 +89,12 @@ const AdminPlayers = () => {
   });
   const { data: mastersList = [] } = useQuery({ queryKey: ["admin-masters", role], queryFn: () => getMasters(role), enabled: role === "powerhouse" || role === "super" });
   const rows = players as PlayerRow[];
+
+  useEffect(() => {
+    if (!autoRefresh || !refreshUser) return;
+    const id = setInterval(() => refreshUser(), 10000);
+    return () => clearInterval(id);
+  }, [autoRefresh, refreshUser]);
 
   const openCell = (row: PlayerRow, field: string, label: string, value: unknown, editable: boolean) => {
     setCellEdit({ row, field, label, value, editable });
@@ -193,6 +199,13 @@ const AdminPlayers = () => {
           </TableBadge>
         );
       },
+    },
+    {
+      header: "Bet amount",
+      sortKey: "total_bet",
+      accessor: (row: PlayerRow) => (
+        <span className="text-muted-foreground">₹{Number(row.total_bet ?? 0).toLocaleString()}</span>
+      ),
     },
     {
       header: "Exp Limit",

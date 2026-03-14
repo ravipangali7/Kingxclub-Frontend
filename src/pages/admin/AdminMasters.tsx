@@ -132,7 +132,7 @@ function InlineEditModal({
 // ── Main Component ────────────────────────────────────────────────────────────
 
 const AdminMasters = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const role = user?.role === "powerhouse" || user?.role === "super" ? user.role : "super";
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
@@ -170,7 +170,7 @@ const AdminMasters = () => {
   const [dateTo, setDateTo] = useState("");
   const [masterToDelete, setMasterToDelete] = useState<MasterRow | null>(null);
   const [deletingMaster, setDeletingMaster] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
   const listParams: ListParams = {};
   if (dateFrom) listParams.date_from = dateFrom;
@@ -183,6 +183,12 @@ const AdminMasters = () => {
   const { data: supersListRaw } = useQuery({ queryKey: ["admin-supers"], queryFn: () => getSupers(), enabled: role === "powerhouse" && createOpen });
   const rows = (Array.isArray(mastersRaw) ? mastersRaw : []) as MasterRow[];
   const supersList = Array.isArray(supersListRaw) ? supersListRaw : [];
+
+  useEffect(() => {
+    if (!autoRefresh || !refreshUser) return;
+    const id = setInterval(() => refreshUser(), 10000);
+    return () => clearInterval(id);
+  }, [autoRefresh, refreshUser]);
 
   const EDITABLE_CELLS: Record<string, string> = {
     name: "Name",

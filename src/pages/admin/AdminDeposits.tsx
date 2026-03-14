@@ -1,4 +1,4 @@
-import { useState, type ReactNode, type MouseEvent } from "react";
+import { useState, useEffect, type ReactNode, type MouseEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { DataTable } from "@/components/shared/DataTable";
@@ -20,13 +20,13 @@ type PaymentModeDetail = Record<string, unknown> & { payment_method?: number; pa
 type DepositRow = Record<string, unknown> & { id?: number; user_username?: string; user_name?: string; user_phone?: string; user_email?: string; user_whatsapp_number?: string; amount?: string; payment_mode?: string; payment_mode_name?: string; payment_mode_qr_image?: string; payment_mode_detail?: PaymentModeDetail | null; status?: string; created_at?: string; screenshot?: string; remarks?: string; reference_id?: string };
 
 const AdminDeposits = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const role = (user?.role === "powerhouse" || user?.role === "super" || user?.role === "master") ? user.role : "master";
   const queryClient = useQueryClient();
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const listParams: ListParams = {};
   if (dateFrom) listParams.date_from = dateFrom;
   if (dateTo) listParams.date_to = dateTo;
@@ -56,6 +56,12 @@ const AdminDeposits = () => {
     {} as Record<number, string>
   );
   const rows = deposits as DepositRow[];
+
+  useEffect(() => {
+    if (!autoRefresh || !refreshUser) return;
+    const id = setInterval(() => refreshUser(), 10000);
+    return () => clearInterval(id);
+  }, [autoRefresh, refreshUser]);
 
   const openCell = (label: string, value: ReactNode) => (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation();
