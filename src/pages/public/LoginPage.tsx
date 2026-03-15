@@ -5,10 +5,8 @@ import { GoogleLogin } from "@react-oauth/google";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
-import { getSiteSetting, getWhatsAppLink, getPublicCountries } from "@/api/site";
-import { COUNTRY_CODES } from "@/constants/countryCodes";
+import { getSiteSetting, getWhatsAppLink } from "@/api/site";
 import { Eye, EyeOff, Gamepad2 } from "lucide-react";
 
 const googleClientId = "386184793784-njlhdvqjh0698tnc5tffi79m5pjqpig4.apps.googleusercontent.com";
@@ -22,7 +20,6 @@ const roleRedirect: Record<string, string> = {
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [countryCode, setCountryCode] = useState<string>("977");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -37,8 +34,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
-  const { data: countryOptions } = useQuery({ queryKey: ["public-countries"], queryFn: getPublicCountries });
-  const countries = (countryOptions && countryOptions.length > 0) ? countryOptions : COUNTRY_CODES.map((c) => ({ value: c.value, label: c.label }));
   const whatsAppLink = getWhatsAppLink(siteSetting as import("@/api/site").SiteSettingRecord | undefined);
 
   const handleGoogleSuccess = async (credential: string) => {
@@ -103,7 +98,7 @@ const LoginPage = () => {
     setError("");
     setLoading(true);
     try {
-      const user = await login(username, password, countryCode);
+      const user = await login(username, password);
       const nextParam = searchParams.get("next") ?? "";
       const isSafeNext = nextParam.startsWith("/") && !nextParam.startsWith("//");
       const to = isSafeNext ? nextParam : (roleRedirect[user.role] || "/");
@@ -185,21 +180,6 @@ const LoginPage = () => {
             <>
               <form onSubmit={handleSubmit} className="space-y-4">
                 {error && <p className="text-xs text-destructive">{error}</p>}
-                <div>
-                  <label className="text-xs text-muted-foreground block mb-1">Country code</label>
-                  <Select value={countryCode} onValueChange={setCountryCode}>
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countries.map((c) => (
-                        <SelectItem key={c.value} value={c.value}>
-                          {c.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
                 <Input placeholder="Username" className="h-11" value={username} onChange={(e) => setUsername(e.target.value)} required />
                 <div className="relative">
                   <Input type={showPassword ? "text" : "password"} placeholder="Password" className="h-11" value={password} onChange={(e) => setPassword(e.target.value)} required />
