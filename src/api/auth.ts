@@ -22,7 +22,10 @@ export async function forgotPasswordSearch(payload: ForgotSearchPayload): Promis
   return res as unknown as ForgotSearchResult;
 }
 
-export async function forgotPasswordSendOtp(userId: number, channel: "phone" | "email"): Promise<void> {
+export async function forgotPasswordSendOtp(
+  userId: number,
+  channel: "phone" | "email" | "whatsapp"
+): Promise<void> {
   await apiPost("/public/auth/forgot-password/send-otp/", { user_id: userId, channel });
 }
 
