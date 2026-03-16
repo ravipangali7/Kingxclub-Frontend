@@ -97,7 +97,7 @@ import PowerhouseSiteHomeTopGames from "@/pages/admin/PowerhouseSiteHomeTopGames
 import PowerhouseSiteHomeProvider from "@/pages/admin/PowerhouseSiteHomeProvider";
 import PowerhouseSiteHomeCategoryGame from "@/pages/admin/PowerhouseSiteHomeCategoryGame";
 import PowerhouseSiteHomePopularGame from "@/pages/admin/PowerhouseSiteHomePopularGame";
-import PowerhouseSiteHomeComingSoon from "@/pages/admin/PowerhouseSiteHomeComingSoon";
+import PowerhouseComingSoon from "@/pages/admin/PowerhouseComingSoon";
 import PowerhouseSiteHomeReferBonus from "@/pages/admin/PowerhouseSiteHomeReferBonus";
 import PowerhouseSiteHomePaymentAccepted from "@/pages/admin/PowerhouseSiteHomePaymentAccepted";
 import PowerhouseSiteTheme from "@/pages/admin/PowerhouseSiteTheme";
@@ -309,7 +309,7 @@ const App = () => {
               <Route path="/powerhouse/site-home-provider" element={<PowerhouseSiteHomeProvider />} />
               <Route path="/powerhouse/site-home-category-game" element={<PowerhouseSiteHomeCategoryGame />} />
               <Route path="/powerhouse/site-home-popular-game" element={<PowerhouseSiteHomePopularGame />} />
-              <Route path="/powerhouse/site-home-coming-soon" element={<PowerhouseSiteHomeComingSoon />} />
+              <Route path="/powerhouse/coming-soon" element={<PowerhouseComingSoon />} />
               <Route path="/powerhouse/site-home-refer-bonus" element={<PowerhouseSiteHomeReferBonus />} />
               <Route path="/powerhouse/site-home-payment-accepted" element={<PowerhouseSiteHomePaymentAccepted />} />
               <Route path="/powerhouse/site-theme" element={<PowerhouseSiteTheme />} />

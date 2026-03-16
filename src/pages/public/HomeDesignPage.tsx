@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSiteSetting, getSecondHomeSections, type SecondHomeSectionGame, type SecondHomeSectionProvider } from "@/api/site";
-import { getCategories, getComingSoonGames, type GameCategory } from "@/api/games";
+import { getCategories, type GameCategory } from "@/api/games";
+import { getComingSoon } from "@/api/site";
 import type { GameCardShape, CategoryShape, ProviderShape } from "@/data/homePageMockData";
 import { slugFromCategoryName } from "@/hooks/useHomePageData";
 
@@ -81,8 +82,8 @@ export default function HomeDesignPage() {
     enabled: isFirstVariant,
   });
   const { data: comingSoonApi = [] } = useQuery({
-    queryKey: ["comingSoonGames"],
-    queryFn: getComingSoonGames,
+    queryKey: ["comingSoon"],
+    queryFn: getComingSoon,
     enabled: isFirstVariant,
   });
   const categoriesList = (categoriesApi as GameCategory[]) ?? [];

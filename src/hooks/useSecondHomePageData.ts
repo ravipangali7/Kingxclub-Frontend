@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSiteSetting, getSliderSlides, getLiveBettingSections, getTestimonials, getPublicPaymentMethods, getSecondHomeSections, type LiveBettingSectionApi, type PublicPaymentMethod, type SecondHomeSectionGame } from "@/api/site";
-import { getCategories, getGameImageUrl, getComingSoonGames, type Game, type GameCategory } from "@/api/games";
+import { getCategories, getGameImageUrl, type Game, type GameCategory } from "@/api/games";
+import { getComingSoon } from "@/api/site";
 import { getBonusRules, mapBonusRulesToPromoShapes } from "@/api/bonus";
 import { getMediaUrl } from "@/lib/api";
 import type { ProviderShape, GameCardShape, PromoShape, TestimonialShape, ComingSoonShape } from "@/data/homePageMockData";
@@ -254,8 +255,8 @@ export function useSecondHomePageData(): {
     queryFn: getTestimonials,
   });
   const { data: comingSoonApi } = useQuery({
-    queryKey: ["comingSoonGames"],
-    queryFn: getComingSoonGames,
+    queryKey: ["comingSoon"],
+    queryFn: getComingSoon,
   });
   const { data: bonusRules = [] } = useQuery({
     queryKey: ["bonusRules"],
@@ -448,7 +449,7 @@ export function useSecondHomePageData(): {
     promosGrid,
     tournamentPromo,
     cashbackPromo,
-    comingSoon: Array.isArray(comingSoonApi) && comingSoonApi.length > 0 ? comingSoonApi : defaultComingSoon,
+    comingSoon: Array.isArray(comingSoonApi) && comingSoonApi.length > 0 ? (comingSoonApi as ComingSoonShape[]) : defaultComingSoon,
     testimonials: testimonialsMapped,
     paymentMethods,
     sectionMeta: {

@@ -169,21 +169,9 @@ function formatLaunchDate(value: string | null | undefined): string | undefined 
   }
 }
 
-/** Fetch coming-soon games from backend; returns shape expected by ComingSoon component. */
+/** @deprecated Use getComingSoon() from @/api/site for the new Coming Soon model. Legacy endpoint returns empty. */
 export async function getComingSoonGames(): Promise<ComingSoonShape[]> {
-  try {
-    const res = await apiGet<ComingSoonGameApi[]>("/public/coming-soon-games/");
-    const list = unwrapList<ComingSoonGameApi>(res as unknown);
-    return list.map((item) => ({
-      id: String(item.id),
-      name: item.name,
-      image: getGameImageUrl(item as unknown as Game),
-      launchDate: formatLaunchDate(item.coming_soon_launch_date ?? undefined),
-      description: item.coming_soon_description ?? undefined,
-    }));
-  } catch {
-    return [];
-  }
+  return [];
 }
 
 /** Enroll current user for a coming-soon game (requires auth). Idempotent. */

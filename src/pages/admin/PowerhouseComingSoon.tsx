@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,53 +18,54 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useQuery } from "@tanstack/react-query";
 import {
-  getPromotionsAdmin,
-  createPromotion,
-  createPromotionForm,
-  updatePromotion,
-  updatePromotionForm,
-  deletePromotion,
+  getComingSoonAdmin,
+  createComingSoon,
+  createComingSoonForm,
+  updateComingSoon,
+  updateComingSoonForm,
+  deleteComingSoon,
 } from "@/api/admin";
 import { toast } from "@/hooks/use-toast";
 import { Trash2 } from "lucide-react";
-import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
-export interface PromotionRow {
+export interface ComingSoonRow {
   id: number;
-  title: string;
+  name: string;
   description?: string;
   image?: string | null;
   image_url?: string | null;
-  cta_link?: string | null;
-  cta_label?: string | null;
+  coming_date?: string | null;
   is_active: boolean;
-  order: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
-const PowerhousePromotions = () => {
+const PowerhouseComingSoon = () => {
   const queryClient = useQueryClient();
-  const { data: promotionsApi = [] } = useQuery({
-    queryKey: ["admin-promotions"],
-    queryFn: getPromotionsAdmin,
+  const { data: listApi = [] } = useQuery({
+    queryKey: ["admin-coming-soon"],
+    queryFn: getComingSoonAdmin,
   });
-  const promotions = (promotionsApi as PromotionRow[]).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const items = (listApi as ComingSoonRow[]).sort((a, b) => {
+    const da = a.coming_date || "";
+    const db = b.coming_date || "";
+    return da.localeCompare(db) || (a.id - b.id);
+  });
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [title, setTitle] = useState("");
+  const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [ctaLink, setCtaLink] = useState("");
-  const [ctaLabel, setCtaLabel] = useState("");
+  const [comingDate, setComingDate] = useState("");
   const [isActive, setIsActive] = useState(true);
-  const [order, setOrder] = useState(0);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const [editOpen, setEditOpen] = useState(false);
-  const [editingPromotion, setEditingPromotion] = useState<PromotionRow | null>(null);
+  const [editingItem, setEditingItem] = useState<ComingSoonRow | null>(null);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [promotionToDelete, setPromotionToDelete] = useState<PromotionRow | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<ComingSoonRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -77,62 +79,54 @@ const PowerhousePromotions = () => {
   }, [imageFile]);
 
   const resetForm = () => {
-    setTitle("");
+    setName("");
     setDescription("");
-    setCtaLink("");
-    setCtaLabel("");
+    setComingDate("");
     setIsActive(true);
-    setOrder(promotions.length);
     setImageFile(null);
-    setEditingPromotion(null);
+    setEditingItem(null);
   };
 
-  const openEdit = (row: PromotionRow) => {
-    setEditingPromotion(row);
-    setTitle(row.title ?? "");
+  const openEdit = (row: ComingSoonRow) => {
+    setEditingItem(row);
+    setName(row.name ?? "");
     setDescription(row.description ?? "");
-    setCtaLink(row.cta_link ?? "");
-    setCtaLabel(row.cta_label ?? "");
+    setComingDate(row.coming_date ?? "");
     setIsActive(row.is_active ?? true);
-    setOrder(row.order ?? 0);
     setImageFile(null);
     setEditOpen(true);
   };
 
   const handleSave = async () => {
-    const t = title.trim();
-    if (!t) {
-      toast({ title: "Title is required", variant: "destructive" });
+    const n = name.trim();
+    if (!n) {
+      toast({ title: "Name is required", variant: "destructive" });
       return;
     }
     setSaving(true);
     try {
       if (imageFile) {
         const formData = new FormData();
-        formData.append("title", t);
+        formData.append("name", n);
         formData.append("description", description.trim());
-        formData.append("cta_link", ctaLink.trim());
-        formData.append("cta_label", ctaLabel.trim());
+        formData.append("coming_date", comingDate.trim() || "");
         formData.append("is_active", String(isActive));
-        formData.append("order", String(promotions.length));
         formData.append("image", imageFile);
-        await createPromotionForm(formData);
+        await createComingSoonForm(formData);
       } else {
-        await createPromotion({
-          title: t,
+        await createComingSoon({
+          name: n,
           description: description.trim() || undefined,
-          cta_link: ctaLink.trim() || undefined,
-          cta_label: ctaLabel.trim() || undefined,
+          coming_date: comingDate.trim() || null,
           is_active: isActive,
-          order: promotions.length,
         });
       }
-      queryClient.invalidateQueries({ queryKey: ["admin-promotions"] });
-      toast({ title: "Promotion created successfully." });
+      queryClient.invalidateQueries({ queryKey: ["admin-coming-soon"] });
+      toast({ title: "Coming Soon created successfully." });
       resetForm();
       setCreateOpen(false);
     } catch (e) {
-      const msg = (e as { detail?: string })?.detail ?? "Failed to create promotion";
+      const msg = (e as { detail?: string })?.detail ?? "Failed to create";
       toast({ title: msg, variant: "destructive" });
     } finally {
       setSaving(false);
@@ -140,76 +134,71 @@ const PowerhousePromotions = () => {
   };
 
   const handleSaveEdit = async () => {
-    if (!editingPromotion?.id) return;
-    const t = title.trim();
-    if (!t) {
-      toast({ title: "Title is required", variant: "destructive" });
+    if (!editingItem?.id) return;
+    const n = name.trim();
+    if (!n) {
+      toast({ title: "Name is required", variant: "destructive" });
       return;
     }
-    const id = editingPromotion.id;
+    const id = editingItem.id;
     setSaving(true);
     try {
       if (imageFile) {
         const formData = new FormData();
-        formData.append("title", t);
+        formData.append("name", n);
         formData.append("description", description.trim());
-        formData.append("cta_link", ctaLink.trim());
-        formData.append("cta_label", ctaLabel.trim());
+        formData.append("coming_date", comingDate.trim() || "");
         formData.append("is_active", String(isActive));
-        formData.append("order", String(order));
         formData.append("image", imageFile);
-        await updatePromotionForm(id, formData);
+        await updateComingSoonForm(id, formData);
       } else {
-        await updatePromotion(id, {
-          title: t,
+        await updateComingSoon(id, {
+          name: n,
           description: description.trim(),
-          cta_link: ctaLink.trim() || undefined,
-          cta_label: ctaLabel.trim() || undefined,
+          coming_date: comingDate.trim() || null,
           is_active: isActive,
-          order,
         });
       }
-      queryClient.invalidateQueries({ queryKey: ["admin-promotions"] });
-      toast({ title: "Promotion updated successfully." });
+      queryClient.invalidateQueries({ queryKey: ["admin-coming-soon"] });
+      toast({ title: "Coming Soon updated successfully." });
       resetForm();
       setEditOpen(false);
     } catch (e) {
-      const msg = (e as { detail?: string })?.detail ?? "Failed to update promotion";
+      const msg = (e as { detail?: string })?.detail ?? "Failed to update";
       toast({ title: msg, variant: "destructive" });
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDeleteClick = (row: PromotionRow) => {
-    setPromotionToDelete(row);
+  const handleDeleteClick = (row: ComingSoonRow) => {
+    setItemToDelete(row);
     setDeleteOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    if (!promotionToDelete?.id) return;
+    if (!itemToDelete?.id) return;
     setDeleting(true);
     try {
-      await deletePromotion(promotionToDelete.id);
-      queryClient.invalidateQueries({ queryKey: ["admin-promotions"] });
-      toast({ title: "Promotion deleted." });
+      await deleteComingSoon(itemToDelete.id);
+      queryClient.invalidateQueries({ queryKey: ["admin-coming-soon"] });
+      toast({ title: "Coming Soon deleted." });
       setDeleteOpen(false);
-      setPromotionToDelete(null);
+      setItemToDelete(null);
     } catch (e) {
-      const msg = (e as { detail?: string })?.detail ?? "Failed to delete promotion";
+      const msg = (e as { detail?: string })?.detail ?? "Failed to delete";
       toast({ title: msg, variant: "destructive" });
     } finally {
       setDeleting(false);
     }
   };
 
-  const tableData = promotions.map((p) => ({ ...p, id: String(p.id) })) as (PromotionRow & { id: string })[];
-  const imageUrl = (row: PromotionRow & { id: string }) => row.image_url ?? row.image ?? null;
+  const tableData = items.map((p) => ({ ...p, id: String(p.id) })) as (ComingSoonRow & { id: string })[];
+  const imageUrl = (row: ComingSoonRow & { id: string }) => row.image_url ?? row.image ?? null;
   const columns = [
-    { header: "Order", accessor: (row: PromotionRow & { id: string }) => row.order },
     {
       header: "Image",
-      accessor: (row: PromotionRow & { id: string }) => {
+      accessor: (row: ComingSoonRow & { id: string }) => {
         const url = imageUrl(row);
         return url ? (
           <img src={url} alt="" className="h-10 w-16 object-cover rounded border border-border" />
@@ -218,11 +207,12 @@ const PowerhousePromotions = () => {
         );
       },
     },
-    { header: "Title", accessor: (row: PromotionRow & { id: string }) => String(row.title ?? "").slice(0, 40) },
-    { header: "Active", accessor: (row: PromotionRow & { id: string }) => (row.is_active ? "Yes" : "No") },
+    { header: "Name", accessor: (row: ComingSoonRow & { id: string }) => String(row.name ?? "").slice(0, 40) },
+    { header: "Coming date", accessor: (row: ComingSoonRow & { id: string }) => row.coming_date ?? "—" },
+    { header: "Active", accessor: (row: ComingSoonRow & { id: string }) => (row.is_active ? "Yes" : "No") },
     {
       header: "Actions",
-      accessor: (row: PromotionRow & { id: string }) => (
+      accessor: (row: ComingSoonRow & { id: string }) => (
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="sm" className="text-xs" onClick={() => openEdit(row)}>
             Edit
@@ -243,26 +233,16 @@ const PowerhousePromotions = () => {
   const formFields = (
     <>
       <div>
-        <Label className="text-xs">Title</Label>
-        <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <Label className="text-xs">Name</Label>
+        <Input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
       </div>
       <div>
-        <Label className="text-xs">Description</Label>
-        <RichTextEditor
-          value={description}
-          onChange={setDescription}
-          placeholder="Promotion description..."
-          minHeight="140px"
-          className="mt-1"
-        />
+        <Label className="text-xs">Description (optional)</Label>
+        <Textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="resize-none" />
       </div>
       <div>
-        <Label className="text-xs">CTA Link (optional)</Label>
-        <Input placeholder="https:// or /path" value={ctaLink} onChange={(e) => setCtaLink(e.target.value)} />
-      </div>
-      <div>
-        <Label className="text-xs">CTA Label (optional, show button only when both link and label are set)</Label>
-        <Input placeholder="e.g. Play Now" value={ctaLabel} onChange={(e) => setCtaLabel(e.target.value)} />
+        <Label className="text-xs">Coming date (optional)</Label>
+        <Input type="date" value={comingDate} onChange={(e) => setComingDate(e.target.value)} />
       </div>
       <div>
         <Label className="text-xs">Image (optional)</Label>
@@ -276,35 +256,30 @@ const PowerhousePromotions = () => {
       <div className="flex items-center gap-2">
         <input
           type="checkbox"
-          id="promo-is-active"
+          id="coming-soon-is-active"
           checked={isActive}
           onChange={(e) => setIsActive(e.target.checked)}
           className="rounded border-input"
         />
-        <Label htmlFor="promo-is-active" className="text-xs">Active</Label>
-      </div>
-      <div>
-        <Label className="text-xs">Order</Label>
-        <Input type="number" placeholder="Order" value={order} onChange={(e) => setOrder(Number(e.target.value) || 0)} />
+        <Label htmlFor="coming-soon-is-active" className="text-xs">Active</Label>
       </div>
     </>
   );
 
   return (
     <div className="space-y-4">
-      <h2 className="font-display font-bold text-xl">Promotions</h2>
-      <p className="text-sm text-muted-foreground">Manage promotional offers shown on the public promotions page. Title, image, description (HTML), and active state.</p>
+      <h2 className="font-display font-bold text-xl">Coming Soon</h2>
+      <p className="text-sm text-muted-foreground">Manage coming soon items shown on the home page.</p>
       <DataTable
         data={tableData}
         columns={columns}
-        searchKey="title"
-        searchPlaceholder="Search by title..."
+        searchKey="name"
+        searchPlaceholder="Search by name..."
         onAdd={() => {
           resetForm();
-          setOrder(promotions.length);
           setCreateOpen(true);
         }}
-        addLabel="Add Promotion"
+        addLabel="Add Coming Soon"
         pageSize={10}
       />
 
@@ -317,7 +292,7 @@ const PowerhousePromotions = () => {
       >
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display">Add Promotion</DialogTitle>
+            <DialogTitle className="font-display">Add Coming Soon</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             {formFields}
@@ -347,14 +322,14 @@ const PowerhousePromotions = () => {
       >
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display">Edit Promotion</DialogTitle>
+            <DialogTitle className="font-display">Edit Coming Soon</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             {formFields}
-            {(imagePreviewUrl || (editingPromotion && imageUrl(editingPromotion as PromotionRow & { id: string }))) && (
+            {(imagePreviewUrl || (editingItem && imageUrl(editingItem as ComingSoonRow & { id: string }))) && (
               <div className="rounded-lg border border-border overflow-hidden bg-muted/30 w-32 h-20">
                 <img
-                  src={imagePreviewUrl ?? imageUrl(editingPromotion as PromotionRow & { id: string }) ?? ""}
+                  src={imagePreviewUrl ?? imageUrl(editingItem as ComingSoonRow & { id: string }) ?? ""}
                   alt="Preview"
                   className="w-full h-full object-cover"
                 />
@@ -375,9 +350,9 @@ const PowerhousePromotions = () => {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete promotion?</AlertDialogTitle>
+            <AlertDialogTitle>Delete coming soon item?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove &quot;{promotionToDelete?.title ?? ""}&quot;. This action cannot be undone.
+              This will remove &quot;{itemToDelete?.name ?? ""}&quot;. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -392,4 +367,4 @@ const PowerhousePromotions = () => {
   );
 };
 
-export default PowerhousePromotions;
+export default PowerhouseComingSoon;

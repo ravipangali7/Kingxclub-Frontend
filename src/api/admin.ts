@@ -687,10 +687,10 @@ export async function getPromotionsAdmin() {
   const res = await apiGet(`${prefix("powerhouse")}/promotions/`);
   return (res as unknown as Record<string, unknown>[]) ?? [];
 }
-export async function createPromotion(body: { title: string; description?: string; is_active?: boolean; order?: number }) {
+export async function createPromotion(body: { title: string; description?: string; cta_link?: string; cta_label?: string; is_active?: boolean; order?: number }) {
   return apiPost(`${prefix("powerhouse")}/promotions/`, body);
 }
-export async function updatePromotion(id: number, body: Partial<{ title: string; description: string; is_active: boolean; order: number }>) {
+export async function updatePromotion(id: number, body: Partial<{ title: string; description: string; cta_link: string; cta_label: string; is_active: boolean; order: number }>) {
   return apiPatch(`${prefix("powerhouse")}/promotions/${id}/`, body);
 }
 export async function deletePromotion(id: number) {
@@ -701,6 +701,27 @@ export async function createPromotionForm(formData: FormData) {
 }
 export async function updatePromotionForm(id: number, formData: FormData) {
   return apiPatchForm(`${prefix("powerhouse")}/promotions/${id}/`, formData);
+}
+
+// --- Coming Soon (powerhouse CRUD) ---
+export async function getComingSoonAdmin() {
+  const res = await apiGet(`${prefix("powerhouse")}/coming-soon/`);
+  return (res as unknown as Record<string, unknown>[]) ?? [];
+}
+export async function createComingSoon(body: { name: string; description?: string; coming_date?: string | null; is_active?: boolean }) {
+  return apiPost(`${prefix("powerhouse")}/coming-soon/`, body);
+}
+export async function updateComingSoon(id: number, body: Partial<{ name: string; description: string; coming_date: string | null; is_active: boolean }>) {
+  return apiPatch(`${prefix("powerhouse")}/coming-soon/${id}/`, body);
+}
+export async function deleteComingSoon(id: number) {
+  return apiDelete(`${prefix("powerhouse")}/coming-soon/${id}/`);
+}
+export async function createComingSoonForm(formData: FormData) {
+  return apiPostForm(`${prefix("powerhouse")}/coming-soon/`, formData);
+}
+export async function updateComingSoonForm(id: number, formData: FormData) {
+  return apiPatchForm(`${prefix("powerhouse")}/coming-soon/${id}/`, formData);
 }
 
 // --- Coming Soon Enrollments (powerhouse view only) ---

@@ -1,16 +1,23 @@
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { Zap, ChevronLeft, ChevronRight, Bell } from "lucide-react";
+import { Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { comingSoon as defaultComingSoon } from "@/data/homePageMockData";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
-import { enrollComingSoon } from "@/api/games";
-import { toast } from "@/hooks/use-toast";
 import type { ComingSoonShape } from "@/data/homePageMockData";
 import { getMediaUrl } from "@/lib/api";
 
 function sectionIconSrc(value: string): string {
   return value.trim().startsWith("http") ? value.trim() : getMediaUrl(value.trim());
+}
+
+function getImageUrl(item: ComingSoonShape): string {
+  const url = item.image ?? item.image_url;
+  if (typeof url === "string" && url.startsWith("http")) return url;
+  if (typeof url === "string" && url) return getMediaUrl(url);
+  return "";
+}
+
+function getDateLabel(item: ComingSoonShape): string {
+  const d = item.coming_date ?? item.launchDate;
+  return d || "Soon";
 }
 
 interface SecondHomeComingSoonProps {
@@ -21,30 +28,9 @@ interface SecondHomeComingSoonProps {
 
 export function SecondHomeComingSoon({ comingSoon: comingSoonProp, sectionTitle, sectionSvg }: SecondHomeComingSoonProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const comingSoon = comingSoonProp && comingSoonProp.length > 0 ? comingSoonProp : defaultComingSoon;
 
   if (!comingSoon || comingSoon.length === 0) return null;
-
-  const handleNotifyMe = async (item: ComingSoonShape) => {
-    const gameId = item.id != null ? Number(item.id) : NaN;
-    if (!Number.isInteger(gameId) || gameId <= 0) {
-      toast({ title: "This game cannot be subscribed yet.", variant: "destructive" });
-      return;
-    }
-    if (!user) {
-      navigate("/login");
-      toast({ title: "Please log in to get notified when this game launches." });
-      return;
-    }
-    try {
-      await enrollComingSoon(gameId);
-      toast({ title: "You're on the list! We'll notify you when this game is available." });
-    } catch {
-      toast({ title: "Could not subscribe. Try again later.", variant: "destructive" });
-    }
-  };
 
   const scroll = (dir: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -96,7 +82,7 @@ export function SecondHomeComingSoon({ comingSoon: comingSoonProp, sectionTitle,
             {/* Thumbnail */}
             <div className="relative aspect-[3/2] overflow-hidden">
               <img
-                src={item.image}
+                src={getImageUrl(item)}
                 alt={item.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"
@@ -106,7 +92,7 @@ export function SecondHomeComingSoon({ comingSoon: comingSoonProp, sectionTitle,
               <div className="absolute top-2 left-2">
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500 text-black text-[10px] font-bold">
                   <Zap className="h-3 w-3" />
-                  {item.launchDate ?? "Soon"}
+                  {getDateLabel(item)}
                 </span>
               </div>
             </div>
@@ -117,15 +103,6 @@ export function SecondHomeComingSoon({ comingSoon: comingSoonProp, sectionTitle,
               {item.description && (
                 <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{item.description}</p>
               )}
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-1 w-full gap-1.5 border-white/10 hover:bg-primary/10 hover:border-primary/30 text-xs"
-                onClick={() => handleNotifyMe(item)}
-              >
-                <Bell className="h-3.5 w-3.5" />
-                Notify Me
-              </Button>
             </div>
           </div>
         ))}

@@ -64,11 +64,14 @@ export interface ProviderShape {
 }
 
 export interface ComingSoonShape {
-  id?: string;
+  id?: string | number;
   name: string;
   image: string;
+  /** Display date label (from API coming_date or mock launchDate) */
   launchDate?: string;
+  coming_date?: string;
   description?: string;
+  image_url?: string;
 }
 
 export interface TestimonialShape {

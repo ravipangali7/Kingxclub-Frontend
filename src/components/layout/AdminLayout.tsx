@@ -83,7 +83,7 @@ const getNavItems = (role: string): NavItem[] => {
           { label: "Home Provider", path: "/site-home-provider", icon: Box },
           { label: "Home Category Game", path: "/site-home-category-game", icon: LayoutGrid },
           { label: "Home Popular Game", path: "/site-home-popular-game", icon: Star },
-          { label: "Home Coming Soon", path: "/site-home-coming-soon", icon: Clock },
+          { label: "Coming Soon", path: "/coming-soon", icon: Clock },
           { label: "Home Refer Bonus", path: "/site-home-refer-bonus", icon: Gift },
           { label: "Home Payment Accepted", path: "/site-home-payment-accepted", icon: CreditCard },
           { label: "Site Theme", path: "/site-theme", icon: Palette },

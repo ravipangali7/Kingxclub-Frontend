@@ -71,7 +71,7 @@ function InlineEditModal({
 
   const renderField = () => {
     const f = state.field;
-    if (["is_active", "is_coming_soon", "is_lobby", "is_top_game", "is_popular_game"].includes(f)) {
+    if (["is_active", "is_lobby", "is_top_game", "is_popular_game"].includes(f)) {
       return (
         <label className="flex items-center gap-2 text-sm">
           <input
@@ -108,31 +108,12 @@ function InlineEditModal({
         </select>
       );
     }
-    if (f === "coming_soon_launch_date") {
-      return (
-        <Input
-          type="date"
-          value={value ? String(value).slice(0, 10) : ""}
-          onChange={(e) => setValue(e.target.value || null)}
-        />
-      );
-    }
     if (f === "min_bet" || f === "max_bet") {
       return (
         <Input
           type="number"
           value={String(value ?? "")}
           onChange={(e) => setValue(e.target.value)}
-        />
-      );
-    }
-    if (f === "coming_soon_description") {
-      return (
-        <Textarea
-          value={String(value ?? "")}
-          onChange={(e) => setValue(e.target.value)}
-          rows={3}
-          className="resize-none"
         />
       );
     }
@@ -201,15 +182,10 @@ const PowerhouseGames = () => {
   const [maxBet, setMaxBet] = useState("5000");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
-  const [comingSoonImageFile, setComingSoonImageFile] = useState<File | null>(null);
-  const [comingSoonImagePreviewUrl, setComingSoonImagePreviewUrl] = useState<string | null>(null);
   const [isActive, setIsActive] = useState(true);
-  const [isComingSoon, setIsComingSoon] = useState(false);
   const [isLobby, setIsLobby] = useState(false);
   const [isTopGame, setIsTopGame] = useState(false);
   const [isPopularGame, setIsPopularGame] = useState(false);
-  const [comingSoonLaunchDate, setComingSoonLaunchDate] = useState("");
-  const [comingSoonDescription, setComingSoonDescription] = useState("");
 
   useEffect(() => {
     if (!imageFile) { setImagePreviewUrl(null); return; }
@@ -218,20 +194,12 @@ const PowerhouseGames = () => {
     return () => URL.revokeObjectURL(url);
   }, [imageFile]);
 
-  useEffect(() => {
-    if (!comingSoonImageFile) { setComingSoonImagePreviewUrl(null); return; }
-    const url = URL.createObjectURL(comingSoonImageFile);
-    setComingSoonImagePreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [comingSoonImageFile]);
-
   const resetForm = () => {
     setName(""); setGameUid(""); setCategoryId(""); setProviderId("");
     setMinBet("10"); setMaxBet("5000"); setImageFile(null);
-    setComingSoonImageFile(null); setComingSoonImagePreviewUrl(null);
-    setIsActive(true); setIsComingSoon(false); setIsLobby(false);
+    setIsActive(true); setIsLobby(false);
     setIsTopGame(false); setIsPopularGame(false);
-    setComingSoonLaunchDate(""); setComingSoonDescription(""); setEditingGame(null);
+    setEditingGame(null);
   };
 
   const openEdit = (row: GameRow) => {
@@ -243,16 +211,10 @@ const PowerhouseGames = () => {
     setMinBet(String(row.min_bet ?? "10"));
     setMaxBet(String(row.max_bet ?? "5000"));
     setIsActive(Boolean(row.is_active));
-    setIsComingSoon(Boolean(row.is_coming_soon));
     setIsLobby(Boolean(row.is_lobby));
     setIsTopGame(Boolean(row.is_top_game));
     setIsPopularGame(Boolean(row.is_popular_game));
-    const launchDate = row.coming_soon_launch_date;
-    setComingSoonLaunchDate(launchDate ? String(launchDate).slice(0, 10) : "");
-    setComingSoonDescription(String(row.coming_soon_description ?? ""));
     setImageFile(null);
-    setComingSoonImageFile(null);
-    setComingSoonImagePreviewUrl(row.coming_soon_image && String(row.coming_soon_image).trim() ? getMediaUrl(String(row.coming_soon_image).trim()) : null);
     setEditOpen(true);
   };
 
@@ -265,12 +227,9 @@ const PowerhouseGames = () => {
     min_bet: "Min Bet",
     max_bet: "Max Bet",
     is_active: "Active",
-    is_coming_soon: "Coming Soon",
     is_lobby: "Lobby",
     is_top_game: "Top Game",
     is_popular_game: "Popular Game",
-    coming_soon_launch_date: "Launch Date",
-    coming_soon_description: "Coming Soon Description",
   };
 
   const handleCellClick = (row: GameRow, field: string) => {
@@ -397,15 +356,15 @@ const PowerhouseGames = () => {
               Lobby
             </span>
           )}
-          {row.is_coming_soon && (
+          {false && (
             <span
               className="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-600 dark:text-orange-400 border border-orange-500/30 cursor-pointer"
-              onClick={() => handleCellClick(row, "is_coming_soon")}
+              onClick={() => handleCellClick(row, "is_active")}
             >
               Soon
             </span>
           )}
-          {!row.is_top_game && !row.is_popular_game && !row.is_lobby && !row.is_coming_soon && (
+          {!row.is_top_game && !row.is_popular_game && !row.is_lobby && (
             <span className="text-[10px] text-muted-foreground">—</span>
           )}
         </div>
@@ -465,12 +424,9 @@ const PowerhouseGames = () => {
     min_bet: minBet || "0",
     max_bet: maxBet || "0",
     is_active: isActive,
-    is_coming_soon: isComingSoon,
     is_lobby: isLobby,
     is_top_game: isTopGame,
     is_popular_game: isPopularGame,
-    coming_soon_launch_date: comingSoonLaunchDate.trim() || null,
-    coming_soon_description: comingSoonDescription.trim() || "",
   });
 
   const buildFormData = () => {
@@ -483,14 +439,10 @@ const PowerhouseGames = () => {
     fd.append("min_bet", p.min_bet);
     fd.append("max_bet", p.max_bet);
     fd.append("is_active", String(p.is_active));
-    fd.append("is_coming_soon", String(p.is_coming_soon));
     fd.append("is_lobby", String(p.is_lobby));
     fd.append("is_top_game", String(p.is_top_game));
     fd.append("is_popular_game", String(p.is_popular_game));
-    if (p.coming_soon_launch_date) fd.append("coming_soon_launch_date", p.coming_soon_launch_date);
-    fd.append("coming_soon_description", p.coming_soon_description);
     if (imageFile) fd.append("image", imageFile);
-    if (comingSoonImageFile) fd.append("coming_soon_image", comingSoonImageFile);
     return fd;
   };
 
@@ -643,44 +595,6 @@ const PowerhouseGames = () => {
           </div>
         </div>
 
-        {/* Coming soon */}
-        <div className="sm:col-span-2 border-t border-border pt-3 space-y-2">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Coming Soon</p>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={isComingSoon} onChange={(e) => setIsComingSoon(e.target.checked)} className="rounded border-border" />
-            Mark as coming soon
-          </label>
-            {isComingSoon && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <div>
-                <label className="text-xs text-muted-foreground block mb-1">Launch date (optional)</label>
-                <Input type="date" value={comingSoonLaunchDate} onChange={(e) => setComingSoonLaunchDate(e.target.value)} />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="text-xs text-muted-foreground block mb-1">Description (optional)</label>
-                <Textarea placeholder="Short description for the card" value={comingSoonDescription} onChange={(e) => setComingSoonDescription(e.target.value)} rows={2} className="resize-none" />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="text-xs text-muted-foreground block mb-1">Coming soon image {isEdit ? "(leave empty to keep current)" : "(optional)"}</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="w-full text-sm file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-muted file:text-sm"
-                  onChange={(e) => setComingSoonImageFile(e.target.files?.[0] ?? null)}
-                />
-                {(comingSoonImagePreviewUrl || (isEdit && editingGame?.coming_soon_image && typeof editingGame.coming_soon_image === "string" && editingGame.coming_soon_image.trim())) && (
-                  <div className="mt-2 rounded-lg border border-border overflow-hidden bg-muted/30 w-20 h-20">
-                    <img
-                      src={comingSoonImagePreviewUrl ?? getMediaUrl((editingGame?.coming_soon_image as string).trim())}
-                      alt="Coming soon preview"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

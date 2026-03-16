@@ -33,6 +33,16 @@ function getImageUrl(p: PromotionApi): string | null {
   return null;
 }
 
+function hasCta(p: PromotionApi): boolean {
+  const link = p.cta_link?.trim();
+  const label = p.cta_label?.trim();
+  return Boolean(link && label);
+}
+
+function isInternalCtaLink(link: string): boolean {
+  return link.startsWith("/") && !link.startsWith("//");
+}
+
 const PromotionPage = () => {
   const { user } = useAuth();
   const [selectedPromotion, setSelectedPromotion] = useState<PromotionApi | null>(null);
@@ -76,16 +86,28 @@ const PromotionPage = () => {
                   <p className="text-muted-foreground text-sm line-clamp-3 flex-1">
                     {descriptionPreview(promo.description)}
                   </p>
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex gap-2 mt-4 flex-wrap">
+                    {hasCta(promo) &&
+                      (isInternalCtaLink(promo.cta_link!) ? (
+                        <Button size="sm" className="flex-1 min-w-0 bg-primary hover:bg-primary/90" asChild>
+                          <Link to={promo.cta_link!}>{promo.cta_label}</Link>
+                        </Button>
+                      ) : (
+                        <Button size="sm" className="flex-1 min-w-0 bg-primary hover:bg-primary/90" asChild>
+                          <a href={promo.cta_link!} target="_blank" rel="noopener noreferrer">
+                            {promo.cta_label}
+                          </a>
+                        </Button>
+                      ))}
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 min-w-0"
                       onClick={() => setSelectedPromotion(promo)}
                     >
                       Read More
                     </Button>
-                    <Button size="sm" className="flex-1 bg-primary hover:bg-primary/90" asChild>
+                    <Button size="sm" className="flex-1 min-w-0 bg-primary hover:bg-primary/90" asChild>
                       <Link to={depositHref}>Deposit</Link>
                     </Button>
                   </div>
@@ -129,6 +151,18 @@ const PromotionPage = () => {
                 <Button variant="outline" onClick={() => setSelectedPromotion(null)}>
                   Close
                 </Button>
+                {hasCta(selectedPromotion) &&
+                  (isInternalCtaLink(selectedPromotion.cta_link!) ? (
+                    <Button asChild className="bg-primary hover:bg-primary/90">
+                      <Link to={selectedPromotion.cta_link!}>{selectedPromotion.cta_label}</Link>
+                    </Button>
+                  ) : (
+                    <Button asChild className="bg-primary hover:bg-primary/90">
+                      <a href={selectedPromotion.cta_link!} target="_blank" rel="noopener noreferrer">
+                        {selectedPromotion.cta_label}
+                      </a>
+                    </Button>
+                  ))}
                 <Button asChild className="bg-primary hover:bg-primary/90">
                   <Link to={depositHref}>Deposit</Link>
                 </Button>

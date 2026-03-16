@@ -35,11 +35,12 @@ export function ActivePopups() {
     queryFn: getActivePopups,
   });
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [seenVersion, setSeenVersion] = useState(0);
 
   const unseen = useMemo(() => {
     const seen = getSeenIds();
     return (popups as PopupApi[]).filter((p) => !seen.includes(p.id));
-  }, [popups]);
+  }, [popups, seenVersion]);
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -51,6 +52,7 @@ export function ActivePopups() {
   const handleClose = () => {
     if (current) {
       markSeen(current.id);
+      setSeenVersion((v) => v + 1);
       setCurrentIndex(0);
     }
   };
