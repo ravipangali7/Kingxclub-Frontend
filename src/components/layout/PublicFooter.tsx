@@ -10,7 +10,8 @@ export const PublicFooter = () => {
   const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
   const { data: cmsPages = [] } = useQuery({ queryKey: ["cmsFooter"], queryFn: getCmsFooterPages });
   const { data: categories = [] } = useQuery({ queryKey: ["categories"], queryFn: getCategories });
-  const s = siteSetting as { logo?: string; emails?: string[]; phones?: string[]; whatsapp_number?: string; footer_description?: string } | undefined;
+  const s = siteSetting as { name?: string; logo?: string; emails?: string[]; phones?: string[]; whatsapp_number?: string; footer_description?: string } | undefined;
+  const siteName = s?.name?.trim() || "Karnali X";
   const logoUrl = s?.logo ? getMediaUrl(s.logo) : "/karnali-logo.png";
   const email = Array.isArray(s?.emails) ? s.emails[0] : "";
   const phone = Array.isArray(s?.phones) ? s.phones[0] : "";
@@ -24,8 +25,8 @@ export const PublicFooter = () => {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-3">
-              <img src={logoUrl} alt="Karnali X" className="h-8 w-8 rounded" />
-              <span className="font-gaming font-bold text-sm neon-text tracking-wider">KARNALI X</span>
+              <img src={logoUrl} alt={siteName} className="h-8 w-8 rounded" />
+              <span className="font-gaming font-bold text-sm neon-text tracking-wider">{siteName.toUpperCase()}</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Nepal's Premier Online Gaming Platform. Play responsibly.

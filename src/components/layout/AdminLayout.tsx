@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDashboard, getUnreadMessageCount } from "@/api/admin";
+import { getSiteSetting } from "@/api/site";
 import { Badge } from "@/components/ui/badge";
 
 interface AdminLayoutProps {
@@ -192,6 +193,8 @@ export const AdminLayout = ({ role }: AdminLayoutProps) => {
   const navItems = getNavItems(role);
   const balances = getBalanceHeaders(role, user);
 
+  const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
+  const siteName = (siteSetting as { name?: string } | undefined)?.name?.trim() || "Karnali X";
   const { data: dashboard } = useQuery({
     queryKey: ["admin-dashboard", role],
     queryFn: () => getDashboard(role),
@@ -223,7 +226,7 @@ export const AdminLayout = ({ role }: AdminLayoutProps) => {
       {/* Desktop Sidebar */}
       <aside className={`hidden md:flex flex-col border-r border-border bg-sidebar transition-all duration-300 ${collapsed ? "w-16" : "w-60"}`}>
         <div className="h-14 flex items-center px-3 gap-2 border-b border-sidebar-border">
-          <img src={"/karnali-logo.png"} alt="Karnali X" className="h-8 w-8 rounded flex-shrink-0" />
+          <img src={"/karnali-logo.png"} alt={siteName} className="h-8 w-8 rounded flex-shrink-0" />
           {!collapsed && <span className="font-gaming font-bold text-xs neon-text tracking-wider truncate">{roleLabel}</span>}
         </div>
 
@@ -327,7 +330,7 @@ export const AdminLayout = ({ role }: AdminLayoutProps) => {
           <aside className="absolute left-0 top-0 bottom-0 w-64 bg-sidebar flex flex-col animate-slide-up">
             <div className="h-14 flex items-center justify-between px-4 border-b border-sidebar-border">
               <div className="flex items-center gap-2">
-                <img src={"/karnali-logo.png"} alt="" className="h-7 w-7 rounded" />
+                <img src={"/karnali-logo.png"} alt={siteName} className="h-7 w-7 rounded" />
                 <span className="font-gaming font-bold text-xs neon-text tracking-wider">{roleLabel}</span>
               </div>
               <button onClick={() => setMobileOpen(false)}><X className="h-5 w-5 text-sidebar-foreground" /></button>

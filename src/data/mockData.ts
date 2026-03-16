@@ -189,21 +189,21 @@ export const testimonials = [
 
 // ============ SITE SETTINGS ============
 export const siteSettings = {
-  siteName: "Karnali X",
+  siteName: "Site",
   logo: "/karnali-logo.png",
   phone1: "+977-9800000001",
   phone2: "+977-9800000002",
-  email: "support@karnalix.com",
+  email: "support@example.com",
   whatsapp: "+977-9800000001",
   heroTitle: "Play. Win. Dominate.",
-  heroSubtitle: "Nepal's Premier Online Gaming Platform",
-  footerText: "© 2025 Karnali X. All rights reserved.",
+  heroSubtitle: "Premier Online Gaming Platform",
+  footerText: "© 2025 Our Platform. All rights reserved.",
 };
 
 // ============ CMS PAGES ============
 export const cmsPages = [
-  { id: "cms-1", title: "About Us", slug: "about-us", content: "Karnali X is Nepal's leading online gaming platform...", showInHeader: false, showInFooter: true, active: true },
-  { id: "cms-2", title: "Terms & Conditions", slug: "terms", content: "By using Karnali X, you agree to...", showInHeader: false, showInFooter: true, active: true },
+  { id: "cms-1", title: "About Us", slug: "about-us", content: "Our platform is a leading online gaming destination...", showInHeader: false, showInFooter: true, active: true },
+  { id: "cms-2", title: "Terms & Conditions", slug: "terms", content: "By using this platform, you agree to...", showInHeader: false, showInFooter: true, active: true },
   { id: "cms-3", title: "Privacy Policy", slug: "privacy", content: "We value your privacy...", showInHeader: false, showInFooter: true, active: true },
   { id: "cms-4", title: "Responsible Gaming", slug: "responsible-gaming", content: "We promote responsible gaming...", showInHeader: false, showInFooter: true, active: true },
 ];

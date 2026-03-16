@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
-import { COUNTRY_CODES } from "@/constants/countryCodes";
-import { getSiteSetting, getPublicCountries } from "@/api/site";
+import { REGISTER_COUNTRY_OPTIONS } from "@/constants/countryCodes";
+import { getSiteSetting } from "@/api/site";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { signupCheckPhone, signupSendOtp, signupVerifyOtp } from "@/api/auth";
@@ -47,11 +47,7 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const [otpChannel, setOtpChannel] = useState<"sms" | "whatsapp">("sms");
   useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
-  const { data: countryOptions } = useQuery({
-    queryKey: ["public-countries"],
-    queryFn: getPublicCountries,
-  });
-  const countries = (countryOptions && countryOptions.length > 0) ? countryOptions : COUNTRY_CODES.map((c) => ({ value: c.value, label: c.label }));
+  const countries = REGISTER_COUNTRY_OPTIONS.map((c) => ({ value: c.value, label: c.label }));
 
   const handleGoogleSuccess = async (credential: string) => {
     setError("");

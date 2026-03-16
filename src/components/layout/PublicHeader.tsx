@@ -55,6 +55,7 @@ export const PublicHeader = () => {
     user?.total_balance != null ? `${symbol}${Number(user.total_balance).toLocaleString()}` : `${symbol}0`;
 
   const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
+  const siteName = (siteSetting as { name?: string } | undefined)?.name?.trim() || "Karnali X";
   const logo = (siteSetting as { logo?: string } | undefined)?.logo;
   const logoUrl = logo ? getMediaUrl(logo) : "/karnali-logo.png";
 
@@ -68,8 +69,8 @@ export const PublicHeader = () => {
     <header className="sticky top-0 z-50 glass-card border-b border-border/50">
       <div className="container flex items-center justify-between h-14 px-4">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logoUrl} alt="Karnali X" className="h-8 w-8 rounded" />
-          <span className="font-gaming font-bold text-sm neon-text hidden sm:block tracking-wider">KARNALI X</span>
+          <img src={logoUrl} alt={siteName} className="h-8 w-8 rounded" />
+          <span className="font-gaming font-bold text-sm neon-text hidden sm:block tracking-wider">{siteName.toUpperCase()}</span>
         </Link>
 
         {/* Desktop nav */}

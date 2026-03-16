@@ -34,6 +34,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
+  const siteName = (siteSetting as { name?: string })?.name?.trim() || "Karnali X";
   const whatsAppLink = getWhatsAppLink(siteSetting as import("@/api/site").SiteSettingRecord | undefined);
 
   const handleGoogleSuccess = async (credential: string) => {
@@ -121,7 +122,7 @@ const LoginPage = () => {
             <Gamepad2 className="h-8 w-8 text-primary-foreground" />
           </div>
           <CardTitle className="font-gaming text-xl neon-text tracking-wide">WELCOME BACK</CardTitle>
-          <p className="text-xs text-muted-foreground">Sign in to your Karnali X account</p>
+          <p className="text-xs text-muted-foreground">Sign in to your {siteName} account</p>
         </CardHeader>
         <CardContent className="space-y-4">
           {showGoogleUsernameStep ? (
