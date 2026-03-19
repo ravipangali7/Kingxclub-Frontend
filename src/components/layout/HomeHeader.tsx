@@ -81,6 +81,8 @@ export const HomeHeader = () => {
     ? getMediaUrl((siteSetting as { logo: string }).logo.trim())
     : "/karnali-logo.png";
   const siteName = (siteSetting as { name?: string } | undefined)?.name?.trim() || "KarnaliX";
+  const scrollingText = String((siteSetting as { scrolling_text?: string } | undefined)?.scrolling_text ?? "");
+  const hasScrollingText = scrollingText !== "";
 
   const handleLogout = () => {
     logout();
@@ -232,20 +234,27 @@ export const HomeHeader = () => {
         {/* Live odds ticker */}
         <div className="h-9 border-t border-white/10 overflow-hidden bg-card/40">
           <div className="flex animate-ticker w-max py-1.5">
-            {[...tickerRows, ...tickerRows].map((row, i) => (
-              <div key={i} className="flex items-center gap-4 px-6 shrink-0 text-xs text-muted-foreground">
-                {row.live && (
-                  <span className="flex items-center gap-1 text-green-400 font-medium">
-                    <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" /> LIVE
-                  </span>
-                )}
-                <span className="text-foreground/90">{row.home}</span>
-                <span>vs</span>
-                <span className="text-foreground/90">{row.away}</span>
-                <span className="font-roboto-mono text-primary">{row.odds1}</span>
-                <span className="font-roboto-mono">{row.odds2}</span>
-              </div>
-            ))}
+            {hasScrollingText ? (
+              <>
+                <span className="px-6 shrink-0 text-xs text-foreground/90 whitespace-pre">{scrollingText}</span>
+                <span className="px-6 shrink-0 text-xs text-foreground/90 whitespace-pre">{scrollingText}</span>
+              </>
+            ) : (
+              [...tickerRows, ...tickerRows].map((row, i) => (
+                <div key={i} className="flex items-center gap-4 px-6 shrink-0 text-xs text-muted-foreground">
+                  {row.live && (
+                    <span className="flex items-center gap-1 text-green-400 font-medium">
+                      <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" /> LIVE
+                    </span>
+                  )}
+                  <span className="text-foreground/90">{row.home}</span>
+                  <span>vs</span>
+                  <span className="text-foreground/90">{row.away}</span>
+                  <span className="font-roboto-mono text-primary">{row.odds1}</span>
+                  <span className="font-roboto-mono">{row.odds2}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

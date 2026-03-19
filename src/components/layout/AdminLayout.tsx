@@ -111,6 +111,7 @@ const getNavItems = (role: string): NavItem[] => {
         children: [
           { label: "Deposit", path: "/deposits", icon: ArrowDownCircle },
           { label: "Withdrawal", path: "/withdrawals", icon: ArrowUpCircle },
+          { label: "Bonus Request", path: "/bonus-requests", icon: Gift },
           { label: "Total D/W", path: "/client-request/total-dw", icon: Clock },
           { label: "Super Master D/W", path: "/client-request/super-master-dw", icon: Users },
           { label: "Super D/W State", path: "/client-request/super-dw-state", icon: Calculator },
@@ -134,6 +135,7 @@ const getNavItems = (role: string): NavItem[] => {
         children: [
           { label: "Deposit", path: "/deposits", icon: ArrowDownCircle },
           { label: "Withdrawal", path: "/withdrawals", icon: ArrowUpCircle },
+          { label: "Bonus Request", path: "/bonus-requests", icon: Gift },
           { label: "Total D/W", path: "/client-request/total-dw", icon: Clock },
         ],
       },

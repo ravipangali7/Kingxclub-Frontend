@@ -241,6 +241,7 @@ const App = () => {
               <Route path="/master/bonus-statement" element={<AdminBonusStatement />} />
               <Route path="/master/deposits" element={<AdminDeposits />} />
               <Route path="/master/withdrawals" element={<AdminWithdrawals />} />
+              <Route path="/master/bonus-requests" element={<AdminBonusRequests />} />
               <Route path="/master/client-request/total-dw" element={<AdminTotalDW />} />
               <Route path="/master/payment-modes" element={<MasterPaymentModes />} />
               <Route path="/master/payment-mode-verification" element={<AdminPaymentModeVerification />} />
@@ -260,6 +261,7 @@ const App = () => {
               <Route path="/super/bonus-statement" element={<AdminBonusStatement />} />
               <Route path="/super/deposits" element={<AdminDeposits />} />
               <Route path="/super/withdrawals" element={<AdminWithdrawals />} />
+              <Route path="/super/bonus-requests" element={<AdminBonusRequests />} />
               <Route path="/super/client-request/total-dw" element={<AdminTotalDW />} />
               <Route path="/super/client-request/super-master-dw" element={<AdminSuperMasterDW />} />
               <Route path="/super/client-request/super-dw-state" element={<AdminSuperDWState />} />

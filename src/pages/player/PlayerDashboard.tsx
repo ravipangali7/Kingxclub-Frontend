@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCurrencySymbol } from "@/utils/currency";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatCard } from "@/components/shared/StatCard";
 import { Wallet, TrendingUp, Eye, Gamepad2, ArrowDownCircle, ArrowUpCircle, Shield, Send, Trophy, Clock, Flame, Radio } from "lucide-react";
-import { getPlayerDashboard, getPlayerTransactions } from "@/api/player";
+import { getPlayerDashboard, getPlayerTransactions, transfer } from "@/api/player";
 import { getGames, getGameImageUrl } from "@/api/games";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -13,9 +13,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { GameCard } from "@/components/shared/GameCard";
 import { motion } from "framer-motion";
+import { toast } from "@/hooks/use-toast";
 
 const PlayerDashboard = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const queryClient = useQueryClient();
   const symbol = getCurrencySymbol(user);
   const { data: dashboard = {} } = useQuery({ queryKey: ["player-dashboard"], queryFn: getPlayerDashboard });
   const { data: transactions = [] } = useQuery({ queryKey: ["player-transactions"], queryFn: getPlayerTransactions });
@@ -24,10 +26,47 @@ const PlayerDashboard = () => {
   const recent = (transactions as Record<string, unknown>[]).slice(0, 5);
   const topGames = (games as { id: number; name: string; image?: string; category_name?: string; min_bet: string; max_bet: string }[]).slice(0, 6);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [transferUsername, setTransferUsername] = useState("");
+  const [transferAmount, setTransferAmount] = useState("");
+  const [transferPassword, setTransferPassword] = useState("");
+  const [transferSubmitting, setTransferSubmitting] = useState(false);
   const d = dashboard as Record<string, unknown>;
   const mainBalance = String(d.main_balance ?? user?.main_balance ?? "0");
   const bonusBalance = String(d.bonus_balance ?? user?.bonus_balance ?? "0");
   const exposureBalance = String(d.exposure_balance ?? "0");
+
+  const resetTransferForm = () => {
+    setTransferUsername("");
+    setTransferAmount("");
+    setTransferPassword("");
+  };
+
+  const handleTransferSubmit = async () => {
+    const username = transferUsername.trim();
+    const amount = transferAmount.trim();
+    const password = transferPassword;
+    if (!username || !amount || !password) {
+      toast({ title: "Recipient, amount and password are required.", variant: "destructive" });
+      return;
+    }
+    setTransferSubmitting(true);
+    try {
+      await transfer({ username, amount, password });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["player-dashboard"] }),
+        queryClient.invalidateQueries({ queryKey: ["player-transactions"] }),
+        refreshUser(),
+      ]);
+      toast({ title: "Transfer completed successfully." });
+      resetTransferForm();
+      setTransferOpen(false);
+    } catch (e) {
+      const msg = (e as { detail?: string })?.detail ?? "Transfer failed.";
+      toast({ title: msg, variant: "destructive" });
+    } finally {
+      setTransferSubmitting(false);
+    }
+  };
 
   return (
     <div className="p-2 mobile:p-4 md:p-6 space-y-4 mobile:space-y-5 max-w-5xl mx-auto min-w-0">
@@ -143,20 +182,48 @@ const PlayerDashboard = () => {
           <div className="space-y-3">
             <div>
               <label className="text-xs text-muted-foreground">Recipient Username</label>
-              <Input placeholder="Enter username" />
+              <Input
+                placeholder="Enter username"
+                value={transferUsername}
+                onChange={(e) => setTransferUsername(e.target.value)}
+                disabled={transferSubmitting}
+              />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Amount</label>
-              <Input type="number" placeholder={`${symbol}0`} />
+              <Input
+                type="number"
+                placeholder={`${symbol}0`}
+                value={transferAmount}
+                onChange={(e) => setTransferAmount(e.target.value)}
+                disabled={transferSubmitting}
+              />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Your Password (to confirm)</label>
-              <Input type="password" placeholder="Enter password" />
+              <Input
+                type="password"
+                placeholder="Enter password"
+                value={transferPassword}
+                onChange={(e) => setTransferPassword(e.target.value)}
+                disabled={transferSubmitting}
+              />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setTransferOpen(false)}>Cancel</Button>
-            <Button className="gold-gradient text-primary-foreground font-gaming" onClick={() => setTransferOpen(false)}>Transfer</Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setTransferOpen(false);
+                resetTransferForm();
+              }}
+              disabled={transferSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button className="gold-gradient text-primary-foreground font-gaming" onClick={handleTransferSubmit} disabled={transferSubmitting}>
+              {transferSubmitting ? "Transferring..." : "Transfer"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

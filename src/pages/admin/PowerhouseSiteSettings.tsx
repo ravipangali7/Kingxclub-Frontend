@@ -96,6 +96,7 @@ const PowerhouseSiteSettings = () => {
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [heroTitle, setHeroTitle] = useState("");
   const [heroSubtitle, setHeroSubtitle] = useState("");
+  const [scrollingText, setScrollingText] = useState("");
   const [activePlayers, setActivePlayers] = useState("");
   const [gamesAvailable, setGamesAvailable] = useState("");
   const [totalWinnings, setTotalWinnings] = useState("");
@@ -173,6 +174,7 @@ const PowerhouseSiteSettings = () => {
     setWhatsappNumber(String(s.whatsapp_number ?? ""));
     setHeroTitle(String(s.hero_title ?? ""));
     setHeroSubtitle(String(s.hero_subtitle ?? ""));
+    setScrollingText(String(s.scrolling_text ?? ""));
     setActivePlayers(s.active_players != null ? String(s.active_players) : "");
     setGamesAvailable(s.games_available != null ? String(s.games_available) : "");
     setTotalWinnings(s.total_winnings != null ? String(s.total_winnings) : "");
@@ -212,6 +214,7 @@ const PowerhouseSiteSettings = () => {
       whatsapp_number: whatsappNumber.trim(),
       hero_title: heroTitle.trim(),
       hero_subtitle: heroSubtitle.trim(),
+      scrolling_text: scrollingText,
       active_players: a ? parseInt(a, 10) : 0,
       games_available: g ? parseInt(g, 10) : 0,
       total_winnings: t ? t : "0",
@@ -244,6 +247,7 @@ const PowerhouseSiteSettings = () => {
         formData.set("whatsapp_number", whatsappNumber.trim());
         formData.set("hero_title", heroTitle.trim());
         formData.set("hero_subtitle", heroSubtitle.trim());
+        formData.set("scrolling_text", scrollingText);
         formData.set("footer_description", footerDescription.trim());
         formData.set("promo_banners", JSON.stringify(promoBanners));
         formData.set("active_players", activePlayers.trim());
@@ -472,6 +476,15 @@ const PowerhouseSiteSettings = () => {
             <div>
               <label className="text-sm font-medium mb-1.5 block">Hero subtitle</label>
               <Input value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Supporting line" />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Scrolling text (header ticker)</label>
+              <Textarea
+                value={scrollingText}
+                onChange={(e) => setScrollingText(e.target.value)}
+                rows={3}
+                placeholder="This text scrolls below the header exactly as entered."
+              />
             </div>
           </CardContent>
         </Card>
