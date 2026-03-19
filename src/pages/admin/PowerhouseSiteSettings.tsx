@@ -102,6 +102,10 @@ const PowerhouseSiteSettings = () => {
   const [totalWinnings, setTotalWinnings] = useState("");
   const [instantPayouts, setInstantPayouts] = useState("");
   const [footerDescription, setFooterDescription] = useState("");
+  const [googleAuthEnabled, setGoogleAuthEnabled] = useState(false);
+  const [googleClientId, setGoogleClientId] = useState("");
+  const [googleClientSecret, setGoogleClientSecret] = useState("");
+  const [googleRedirectUri, setGoogleRedirectUri] = useState("");
   const [promoBanners, setPromoBanners] = useState<PromoBannerSlide[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -180,6 +184,10 @@ const PowerhouseSiteSettings = () => {
     setTotalWinnings(s.total_winnings != null ? String(s.total_winnings) : "");
     setInstantPayouts(s.instant_payouts != null ? String(s.instant_payouts) : "");
     setFooterDescription(String(s.footer_description ?? ""));
+    setGoogleAuthEnabled(Boolean(s.google_auth_enabled));
+    setGoogleClientId(String(s.google_client_id ?? ""));
+    setGoogleClientSecret(String(s.google_client_secret ?? ""));
+    setGoogleRedirectUri(String(s.google_redirect_uri ?? ""));
     const banners = s.promo_banners as PromoBannerSlide[] | undefined;
     setPromoBanners(Array.isArray(banners) ? banners.map((b) => ({ ...b })) : []);
     // Load new JSON section fields
@@ -200,6 +208,10 @@ const PowerhouseSiteSettings = () => {
         ? filterAllowedTheme(theme as Record<string, unknown>)
         : {}
     );
+    setGoogleAuthEnabled(Boolean(s.google_auth_enabled));
+    setGoogleClientId(String(s.google_client_id ?? ""));
+    setGoogleClientSecret(String(s.google_client_secret ?? ""));
+    setGoogleRedirectUri(String(s.google_redirect_uri ?? ""));
   }, [siteSettings]);
 
   const buildPayload = () => {
@@ -220,6 +232,10 @@ const PowerhouseSiteSettings = () => {
       total_winnings: t ? t : "0",
       instant_payouts: i ? parseInt(i, 10) : 0,
       footer_description: footerDescription.trim(),
+      google_auth_enabled: googleAuthEnabled,
+      google_client_id: googleClientId.trim(),
+      google_client_secret: googleClientSecret.trim(),
+      google_redirect_uri: googleRedirectUri.trim(),
       promo_banners: promoBanners,
       site_categories_json: siteCategoriesJson,
       site_top_games_json: siteTopGamesJson,
@@ -254,6 +270,10 @@ const PowerhouseSiteSettings = () => {
         formData.set("games_available", gamesAvailable.trim());
         formData.set("total_winnings", totalWinnings.trim());
         formData.set("instant_payouts", instantPayouts.trim());
+        formData.set("google_auth_enabled", googleAuthEnabled ? "true" : "false");
+        formData.set("google_client_id", googleClientId.trim());
+        formData.set("google_client_secret", googleClientSecret.trim());
+        formData.set("google_redirect_uri", googleRedirectUri.trim());
         formData.set("site_categories_json", JSON.stringify(siteCategoriesJson));
         formData.set("site_top_games_json", JSON.stringify(siteTopGamesJson));
         formData.set("site_providers_json", JSON.stringify(siteProvidersJson));
@@ -524,6 +544,48 @@ const PowerhouseSiteSettings = () => {
         <CardContent>
           <label className="text-sm font-medium mb-1.5 block">Footer description / tagline</label>
           <Textarea value={footerDescription} onChange={(e) => setFooterDescription(e.target.value)} rows={2} placeholder="Short tagline under logo" />
+        </CardContent>
+      </Card>
+
+      {/* Google Auth */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-display">Google Auth</CardTitle>
+          <p className="text-xs text-muted-foreground">Used by Login/Register pages and backend Google token validation.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <label className="flex items-center gap-2 text-sm font-medium">
+            <input
+              type="checkbox"
+              checked={googleAuthEnabled}
+              onChange={(e) => setGoogleAuthEnabled(e.target.checked)}
+            />
+            Enable Google sign-in
+          </label>
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">Google Client ID</label>
+            <Input
+              value={googleClientId}
+              onChange={(e) => setGoogleClientId(e.target.value)}
+              placeholder="xxxx.apps.googleusercontent.com"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">Google Client Secret</label>
+            <Input
+              value={googleClientSecret}
+              onChange={(e) => setGoogleClientSecret(e.target.value)}
+              placeholder="Client secret"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">Google Redirect URI</label>
+            <Input
+              value={googleRedirectUri}
+              onChange={(e) => setGoogleRedirectUri(e.target.value)}
+              placeholder="https://your-domain.com/auth/google/callback"
+            />
+          </div>
         </CardContent>
       </Card>
 

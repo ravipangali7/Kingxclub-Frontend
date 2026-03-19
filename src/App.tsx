@@ -12,7 +12,6 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PlayerNotificationProvider } from "@/contexts/PlayerNotificationContext";
 
-const googleClientId = "386184793784-njlhdvqjh0698tnc5tffi79m5pjqpig4.apps.googleusercontent.com";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SiteThemeApplier } from "@/components/SiteThemeApplier";
 
@@ -174,23 +173,19 @@ function HomePageSwitch() {
   );
 }
 
-const App = () => {
+function AppShell() {
+  const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
+  const googleAuthEnabled = Boolean((siteSetting as { google_auth_enabled?: boolean } | undefined)?.google_auth_enabled);
+  const googleClientId = ((siteSetting as { google_client_id?: string } | undefined)?.google_client_id ?? "").trim();
   const content = (
-  <HelmetProvider>
-  <ThemeProvider>
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <PlayerNotificationProvider>
-              <ScrollToTop />
-              <SiteFavicon />
-              <SiteOgMeta />
-              <SiteThemeApplier />
-              <GlobalMessageFab />
-              <Routes>
+    <BrowserRouter>
+      <PlayerNotificationProvider>
+        <ScrollToTop />
+        <SiteFavicon />
+        <SiteOgMeta />
+        <SiteThemeApplier />
+        <GlobalMessageFab />
+        <Routes>
             {/* Public Website */}
             <Route path="/" element={<HomePageSwitch />} />
             <Route element={<PublicLayout />}>
@@ -324,19 +319,32 @@ const App = () => {
             </Route>
 
             <Route path="*" element={<NotFound />} />
-              </Routes>
-            </PlayerNotificationProvider>
-          </BrowserRouter>
+        </Routes>
+      </PlayerNotificationProvider>
+    </BrowserRouter>
+  );
+  return googleAuthEnabled && googleClientId ? (
+    <GoogleOAuthProvider clientId={googleClientId}>{content}</GoogleOAuthProvider>
+  ) : (
+    content
+  );
+}
+
+const App = () => {
+  return (
+  <HelmetProvider>
+  <ThemeProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AppShell />
         </TooltipProvider>
       </QueryClientProvider>
     </AuthProvider>
   </ThemeProvider>
   </HelmetProvider>
-  );
-  return googleClientId ? (
-    <GoogleOAuthProvider clientId={googleClientId}>{content}</GoogleOAuthProvider>
-  ) : (
-    content
   );
 };
 

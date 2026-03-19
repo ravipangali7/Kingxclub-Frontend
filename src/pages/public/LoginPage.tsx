@@ -9,8 +9,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getSiteSetting, getWhatsAppLink } from "@/api/site";
 import { Eye, EyeOff, Gamepad2 } from "lucide-react";
 
-const googleClientId = "386184793784-njlhdvqjh0698tnc5tffi79m5pjqpig4.apps.googleusercontent.com";
-
 const roleRedirect: Record<string, string> = {
   powerhouse: "/powerhouse/players",
   super: "/super/masters",
@@ -36,6 +34,8 @@ const LoginPage = () => {
   const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
   const siteName = (siteSetting as { name?: string })?.name?.trim() || "Karnali X";
   const whatsAppLink = getWhatsAppLink(siteSetting as import("@/api/site").SiteSettingRecord | undefined);
+  const googleAuthEnabled = Boolean((siteSetting as { google_auth_enabled?: boolean } | undefined)?.google_auth_enabled);
+  const googleClientId = ((siteSetting as { google_client_id?: string } | undefined)?.google_client_id ?? "").trim();
 
   const handleGoogleSuccess = async (credential: string) => {
     setError("");
@@ -197,7 +197,7 @@ const LoginPage = () => {
                 <div className="h-px bg-border" />
               </div>
               <div className="flex flex-col gap-2">
-                {googleClientId && (
+                {googleAuthEnabled && googleClientId && (
                   <div className="flex justify-center [&_iframe]:!min-h-[44px]">
                     <GoogleLogin
                       onSuccess={(res) => res.credential && handleGoogleSuccess(res.credential)}

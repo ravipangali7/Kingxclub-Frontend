@@ -13,8 +13,6 @@ import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { signupCheckPhone, signupSendOtp, signupVerifyOtp } from "@/api/auth";
 
-const googleClientId = "386184793784-njlhdvqjh0698tnc5tffi79m5pjqpig4.apps.googleusercontent.com";
-
 type Step = "phone" | "otp" | "name" | "password";
 
 function maskPhone(phone: string): string {
@@ -46,7 +44,9 @@ const RegisterPage = () => {
   const { register, loginWithGoogle, googleComplete } = useAuth();
   const navigate = useNavigate();
   const [otpChannel, setOtpChannel] = useState<"sms" | "whatsapp">("sms");
-  useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
+  const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
+  const googleAuthEnabled = Boolean((siteSetting as { google_auth_enabled?: boolean } | undefined)?.google_auth_enabled);
+  const googleClientId = ((siteSetting as { google_client_id?: string } | undefined)?.google_client_id ?? "").trim();
   const countries = REGISTER_COUNTRY_OPTIONS.map((c) => ({ value: c.value, label: c.label }));
 
   const handleGoogleSuccess = async (credential: string) => {
@@ -380,9 +380,9 @@ const RegisterPage = () => {
             <span className="bg-card px-2 text-xs text-muted-foreground absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">Or</span>
             <div className="h-px bg-border" />
           </div>
-          <div className="flex flex-col gap-2">
-                {googleClientId && (
-                  <div className="flex justify-center [&_iframe]:!min-h-[44px]">
+          <div className="flex flex-col gap-2 relative z-10">
+                {googleAuthEnabled && googleClientId && (
+                  <div className="flex justify-center mb-1 [&_iframe]:!min-h-[44px]">
                     <GoogleLogin
                       onSuccess={(res) => res.credential && handleGoogleSuccess(res.credential)}
                       onError={() => setError("Google sign-in was cancelled or failed.")}
@@ -396,9 +396,9 @@ const RegisterPage = () => {
                 )}
               </div>
 
-          <p className="text-center text-xs text-muted-foreground">
+          <p className="text-center text-xs text-muted-foreground relative z-20">
             Already have an account?{" "}
-            <Link to="/login" className="text-primary hover:underline font-medium">Sign In</Link>
+            <Link to="/login" className="text-primary hover:underline font-medium inline-block relative z-20">Sign In</Link>
           </p>
           <p className="text-center pt-2">
             <Link to="/" className="text-xs text-muted-foreground hover:text-primary font-medium transition-colors">
