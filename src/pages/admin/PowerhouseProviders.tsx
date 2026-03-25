@@ -190,7 +190,7 @@ const PowerhouseProviders = () => {
       accessor: (row: Record<string, unknown>) => {
         const img = row.image;
         if (img && typeof img === "string" && img.trim()) {
-          return <img src={getMediaUrl(img.trim())} alt="" className="h-8 w-8 rounded object-cover bg-muted" />;
+          return <img src={getMediaUrl(img.trim())} alt="" className="h-8 w-8 rounded object-fill bg-muted" />;
         }
         return <span className="h-8 w-8 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground">—</span>;
       },
@@ -200,7 +200,7 @@ const PowerhouseProviders = () => {
       accessor: (row: Record<string, unknown>) => {
         const banner = row.banner;
         if (banner && typeof banner === "string" && banner.trim()) {
-          return <img src={getMediaUrl(banner.trim())} alt="" className="h-8 w-20 rounded object-cover bg-muted" />;
+          return <img src={getMediaUrl(banner.trim())} alt="" className="h-8 w-20 rounded object-fill bg-muted" />;
         }
         return <span className="h-8 w-20 rounded bg-muted flex items-center justify-center text-xs text-muted-foreground">—</span>;
       },
@@ -379,7 +379,7 @@ const PowerhouseProviders = () => {
               {imageFile && <p className="text-xs text-muted-foreground mt-1">{imageFile.name}</p>}
               {imagePreviewUrl && (
                 <div className="mt-2 rounded-lg border border-border overflow-hidden bg-muted/30 w-16 h-16">
-                  <img src={imagePreviewUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={imagePreviewUrl} alt="Preview" className="w-full h-full object-fill" />
                 </div>
               )}
             </div>
@@ -394,7 +394,7 @@ const PowerhouseProviders = () => {
               {bannerFile && <p className="text-xs text-muted-foreground mt-1">{bannerFile.name}</p>}
               {bannerPreviewUrl && (
                 <div className="mt-2 rounded-lg border border-border overflow-hidden bg-muted/30 w-full max-h-24">
-                  <img src={bannerPreviewUrl} alt="Banner preview" className="w-full h-full object-cover" />
+                  <img src={bannerPreviewUrl} alt="Banner preview" className="w-full h-full object-fill" />
                 </div>
               )}
             </div>
@@ -467,7 +467,7 @@ const PowerhouseProviders = () => {
                   <img
                     src={imagePreviewUrl ?? getMediaUrl((editingProvider?.image as string).trim())}
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-fill"
                   />
                 </div>
               )}
@@ -485,7 +485,7 @@ const PowerhouseProviders = () => {
                   <img
                     src={bannerPreviewUrl ?? getMediaUrl((editingProvider?.banner as string).trim())}
                     alt="Banner preview"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-fill"
                   />
                 </div>
               )}

@@ -42,7 +42,7 @@ export function SecondHomeComingSoon({ comingSoon: comingSoonProp, sectionTitle,
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          {sectionSvg?.trim() ? <img src={sectionIconSrc(sectionSvg)} alt="" className="h-5 w-5 object-contain" /> : <Zap className="h-5 w-5 text-amber-400" />}
+          {sectionSvg?.trim() ? <img src={sectionIconSrc(sectionSvg)} alt="" className="h-5 w-5 object-fill" /> : <Zap className="h-5 w-5 text-amber-400" />}
           <h2 className="font-display font-bold text-lg text-foreground">{sectionTitle || "Coming Soon"}</h2>
           <span className="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 border border-amber-500/30 text-amber-400">
             New
@@ -84,7 +84,7 @@ export function SecondHomeComingSoon({ comingSoon: comingSoonProp, sectionTitle,
               <img
                 src={getImageUrl(item)}
                 alt={item.name}
-                className="w-full h-full object-contain object-center group-hover:scale-[1.02] transition-transform duration-500"
+                className="w-full h-full object-fill group-hover:scale-[1.02] transition-transform duration-500"
                 loading="lazy"
               />
 

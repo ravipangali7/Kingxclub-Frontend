@@ -47,7 +47,7 @@ export function SecondHomeSlider({ slides, hideTitle }: SecondHomeSliderProps) {
               <div className="relative flex min-h-[200px] md:min-h-[280px] w-full items-center justify-between gap-6 px-4 py-8 md:px-8 md:py-12 rounded-none">
                 {slide.image && (
                   <div className="absolute inset-0 overflow-hidden rounded-none">
-                    <img src={slide.image} alt="" className="h-full w-full object-cover" />
+                    <img src={slide.image} alt="" className="h-full w-full object-fill" />
                   </div>
                 )}
                 <div className="relative z-10 flex flex-1 flex-col md:flex-row md:items-center md:justify-between gap-6 container">

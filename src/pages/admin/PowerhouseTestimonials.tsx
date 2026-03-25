@@ -76,7 +76,7 @@ const PowerhouseTestimonials = () => {
       accessor: (row: Record<string, unknown>) => {
         const img = row.image;
         if (img && typeof img === "string" && img.trim()) {
-          return <img src={getMediaUrl(img.trim())} alt="" className="h-8 w-8 rounded-full object-cover" />;
+          return <img src={getMediaUrl(img.trim())} alt="" className="h-8 w-8 rounded-full object-fill" />;
         }
         return <span className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs">{(String(row.name ?? ""))[0] || "?"}</span>;
       },
@@ -211,7 +211,7 @@ const PowerhouseTestimonials = () => {
               />
               {imagePreviewUrl && (
                 <div className="mt-2 rounded-full border border-border overflow-hidden bg-muted/30 w-14 h-14">
-                  <img src={imagePreviewUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={imagePreviewUrl} alt="Preview" className="w-full h-full object-fill" />
                 </div>
               )}
             </div>
@@ -254,7 +254,7 @@ const PowerhouseTestimonials = () => {
                   <img
                     src={imagePreviewUrl ?? getMediaUrl((editingTestimonial?.image as string).trim())}
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-fill"
                   />
                 </div>
               )}

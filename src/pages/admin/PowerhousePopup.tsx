@@ -208,7 +208,7 @@ const PowerhousePopup = () => {
       header: "Image",
       accessor: (row: PopupRow & { id: string }) =>
         row.image ? (
-          <img src={row.image} alt="" className="h-10 w-16 object-cover rounded border border-border" />
+          <img src={row.image} alt="" className="h-10 w-16 object-fill rounded border border-border" />
         ) : (
           <span className="text-xs text-muted-foreground">—</span>
         ),
@@ -317,7 +317,7 @@ const PowerhousePopup = () => {
             {formFields}
             {imagePreviewUrl && (
               <div className="rounded-lg border border-border overflow-hidden bg-muted/30 w-32 h-20">
-                <img src={imagePreviewUrl} alt="Preview" className="w-full h-full object-cover" />
+                <img src={imagePreviewUrl} alt="Preview" className="w-full h-full object-fill" />
               </div>
             )}
           </div>
@@ -350,7 +350,7 @@ const PowerhousePopup = () => {
                 <img
                   src={imagePreviewUrl ?? editingPopup?.image ?? ""}
                   alt="Preview"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-fill"
                 />
               </div>
             )}

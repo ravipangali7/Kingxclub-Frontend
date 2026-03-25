@@ -187,7 +187,7 @@ const PowerhouseCMS = () => {
               />
               {imagePreviewUrl && (
                 <div className="mt-2 rounded-lg border border-border overflow-hidden bg-muted/30 w-24 h-24">
-                  <img src={imagePreviewUrl} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={imagePreviewUrl} alt="Preview" className="w-full h-full object-fill" />
                 </div>
               )}
             </div>
@@ -236,7 +236,7 @@ const PowerhouseCMS = () => {
                   <img
                     src={imagePreviewUrl ?? getMediaUrl((editingPage?.image as string).trim())}
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-fill"
                   />
                 </div>
               )}

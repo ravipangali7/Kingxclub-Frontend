@@ -188,12 +188,12 @@ const PowerhousePaymentMethods = () => {
         />
         {imagePreviewUrl && (
           <div className="mt-2 rounded-lg border overflow-hidden bg-muted/30 w-24 h-16">
-            <img src={imagePreviewUrl} alt="Preview" className="w-full h-full object-contain" />
+            <img src={imagePreviewUrl} alt="Preview" className="w-full h-full object-fill" />
           </div>
         )}
         {!imagePreviewUrl && editingItem?.image_url && (
           <div className="mt-2 rounded-lg border overflow-hidden bg-muted/30 w-24 h-16">
-            <img src={getMediaUrl(editingItem.image_url)} alt={editingItem.name} className="w-full h-full object-contain" />
+            <img src={getMediaUrl(editingItem.image_url)} alt={editingItem.name} className="w-full h-full object-fill" />
           </div>
         )}
       </div>
@@ -271,7 +271,7 @@ const PowerhousePaymentMethods = () => {
                 >
                   <div className="w-14 h-10 rounded border bg-muted/30 overflow-hidden shrink-0 flex items-center justify-center">
                     {pm.image_url ? (
-                      <img src={getMediaUrl(pm.image_url)} alt={pm.name} className="w-full h-full object-contain" />
+                      <img src={getMediaUrl(pm.image_url)} alt={pm.name} className="w-full h-full object-fill" />
                     ) : (
                       <span className="text-xs text-muted-foreground">No img</span>
                     )}

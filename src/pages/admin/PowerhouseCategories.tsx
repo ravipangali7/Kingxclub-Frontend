@@ -71,7 +71,7 @@ const PowerhouseCategories = () => {
       header: "Icon",
       accessor: (row: Record<string, unknown>) => {
         const src = categoryIconUrl(row);
-        if (src) return <img src={src} alt="" className="h-6 w-6 object-contain" />;
+        if (src) return <img src={src} alt="" className="h-6 w-6 object-fill" />;
         return <span className="h-6 w-6 rounded bg-muted flex items-center justify-center text-[10px] text-muted-foreground">—</span>;
       },
     },
@@ -151,7 +151,7 @@ const PowerhouseCategories = () => {
               value={undefined}
               onChange={(file) => setIconFile(file)}
               label="Icon (image)"
-              previewClassName="h-16 w-16 object-contain border rounded bg-muted/30"
+              previewClassName="h-16 w-16 object-fill border rounded bg-muted/30"
             />
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="rounded border-border" />
@@ -179,7 +179,7 @@ const PowerhouseCategories = () => {
               value={editingCategory ? (categoryIconUrl(editingCategory) ?? undefined) : undefined}
               onChange={(file) => setIconFile(file)}
               label="Icon (image — leave empty to keep current)"
-              previewClassName="h-16 w-16 object-contain border rounded bg-muted/30"
+              previewClassName="h-16 w-16 object-fill border rounded bg-muted/30"
             />
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="rounded border-border" />

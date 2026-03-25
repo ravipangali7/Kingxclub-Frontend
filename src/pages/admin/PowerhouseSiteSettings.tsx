@@ -437,7 +437,7 @@ const PowerhouseSiteSettings = () => {
               />
               {(logoPreviewUrl || (logo && logo.trim())) && (
                 <div className="mt-2 rounded-lg border overflow-hidden bg-muted/30 w-24 h-24">
-                  <img src={logoPreviewUrl ?? getMediaUrl(logo.trim())} alt="Logo" className="w-full h-full object-contain" />
+                  <img src={logoPreviewUrl ?? getMediaUrl(logo.trim())} alt="Logo" className="w-full h-full object-fill" />
                 </div>
               )}
             </div>
@@ -451,7 +451,7 @@ const PowerhouseSiteSettings = () => {
               />
               {(faviconPreviewUrl || (favicon && favicon.trim())) && (
                 <div className="mt-2 rounded-lg border overflow-hidden bg-muted/30 w-12 h-12">
-                  <img src={faviconPreviewUrl ?? getMediaUrl(favicon.trim())} alt="Favicon" className="w-full h-full object-contain" />
+                  <img src={faviconPreviewUrl ?? getMediaUrl(favicon.trim())} alt="Favicon" className="w-full h-full object-fill" />
                 </div>
               )}
             </div>
