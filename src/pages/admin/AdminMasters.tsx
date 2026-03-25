@@ -54,7 +54,15 @@ type MasterRow = Record<string, unknown> & {
   is_default_master?: boolean;
 };
 
-type PendingAction = "deposit" | "withdraw" | "resetPassword" | "regeneratePin" | "settlement" | "setDefaultMaster" | null;
+type PendingAction =
+  | "deposit"
+  | "withdraw"
+  | "resetPassword"
+  | "regeneratePin"
+  | "settlement"
+  | "setDefaultMaster"
+  | "editMaster"
+  | null;
 
 interface InlineEditState {
   row: MasterRow;
@@ -591,17 +599,24 @@ const AdminMasters = () => {
               disabled={editSaving}
               onClick={async () => {
                 if (!selectedUser?.id) return;
+                const payload: Record<string, string> = {
+                  name: editName.trim(),
+                  commission_percentage: editCommission || "10",
+                  whatsapp_number: editWhatsApp.trim(),
+                };
+                if (role === "super") {
+                  payload.whatsapp_deposit = editWhatsappDeposit.trim();
+                  payload.whatsapp_withdraw = editWhatsappWithdraw.trim();
+                }
+                if (role === "super") {
+                  setPendingAction("editMaster");
+                  setPendingPayload({ userId: selectedUser.id, ...payload });
+                  setEditOpen(false);
+                  setPinOpen(true);
+                  return;
+                }
                 setEditSaving(true);
                 try {
-                  const payload: Record<string, string> = {
-                    name: editName.trim(),
-                    commission_percentage: editCommission || "10",
-                    whatsapp_number: editWhatsApp.trim(),
-                  };
-                  if (role === "super") {
-                    payload.whatsapp_deposit = editWhatsappDeposit.trim();
-                    payload.whatsapp_withdraw = editWhatsappWithdraw.trim();
-                  }
                   await updateMaster(selectedUser.id as number, payload, role);
                   queryClient.invalidateQueries({ queryKey: ["admin-masters", role] });
                   toast({ title: "Master updated successfully." });
@@ -809,7 +824,13 @@ const AdminMasters = () => {
               setPinOpen(false);
               return;
             }
-            if (pendingAction === "deposit") {
+            if (pendingAction === "editMaster") {
+              const userId = pendingPayload.userId as number;
+              const { userId: _uid, ...rest } = pendingPayload as Record<string, unknown>;
+              await updateMaster(userId, { ...rest, pin }, role);
+              queryClient.invalidateQueries({ queryKey: ["admin-masters", role] });
+              toast({ title: "Master updated successfully." });
+            } else if (pendingAction === "deposit") {
               const userId = pendingPayload.userId as number;
               const amount = pendingPayload.amount as string;
               const remarks = (pendingPayload.remarks as string) ?? "";
