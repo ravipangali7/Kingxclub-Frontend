@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Play, Trophy, Gift, ArrowRight } from "lucide-react";
 import { hero as defaultHero, heroStats as defaultHeroStats } from "@/data/homePageMockData";
 import type { HeroData } from "@/data/homePageMockData";
+import { useAuth } from "@/contexts/AuthContext";
 
 const statIconMap: Record<string, string> = {
   users: "👥",
@@ -19,10 +20,12 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ hero: heroProp, heroStats: heroStatsProp, welcomeFloaterValue }: HeroSectionProps) {
+  const { user } = useAuth();
   const hero = heroProp ?? defaultHero;
   const heroStats = heroStatsProp && heroStatsProp.length > 0 ? heroStatsProp : defaultHeroStats;
 
   const h = hero && (hero.title || hero.subtitle) ? { ...defaultHero, ...hero } : defaultHero;
+  const startPlayingHref = user ? "/providers" : "/register";
 
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-32 pb-16">
@@ -65,7 +68,7 @@ export function HeroSection({ hero: heroProp, heroStats: heroStatsProp, welcomeF
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            <Link to="/register">
+            <Link to={startPlayingHref}>
               <Button variant="neon" size="xl" className="gap-2 w-full sm:w-auto">
                 <Play className="w-5 h-5" />
                 {h.ctaText ?? "Start Playing"}
