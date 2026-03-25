@@ -27,16 +27,19 @@ import { ActivePopups } from "@/components/home/ActivePopups";
 import { useHomePageData, useHomePageStaticData, buildHeroFromSiteSetting } from "@/hooks/useHomePageData";
 import { HOME_PAGE_VARIANT } from "@/config";
 import { getMediaUrl } from "@/lib/api";
+import { getBonusRules, mapBonusRulesToPromoShapes, formatWelcomeHeroFloater } from "@/api/bonus";
 
 function HomePageContent({
   data,
+  welcomeFloaterValue,
 }: {
   data: ReturnType<typeof useHomePageStaticData>["data"];
+  welcomeFloaterValue?: string | null;
 }) {
   return (
     <>
       <ActivePopups />
-      <HeroSection hero={data.hero} heroStats={data.heroStats} />
+      <HeroSection hero={data.hero} heroStats={data.heroStats} welcomeFloaterValue={welcomeFloaterValue} />
       <FeaturedGames
         games={data.featuredGames}
         sectionTitle={data.featuredGamesSectionTitle}
@@ -84,6 +87,11 @@ export default function HomeDesignPage() {
   const { data: comingSoonApi = [] } = useQuery({
     queryKey: ["comingSoon"],
     queryFn: getComingSoon,
+    enabled: isFirstVariant,
+  });
+  const { data: bonusRules = [] } = useQuery({
+    queryKey: ["bonusRules"],
+    queryFn: getBonusRules,
     enabled: isFirstVariant,
   });
   const categoriesList = (categoriesApi as GameCategory[]) ?? [];
@@ -205,6 +213,15 @@ export default function HomeDesignPage() {
     }
   }
 
+  let welcomeFloaterValue: string | null | undefined = undefined;
+  if (isFirstVariant && Array.isArray(bonusRules) && bonusRules.length > 0) {
+    data = { ...data, promosGrid: mapBonusRulesToPromoShapes(bonusRules) };
+    const welcome = bonusRules.find((r) => (r.bonus_type || "").toLowerCase() === "welcome");
+    if (welcome) {
+      welcomeFloaterValue = formatWelcomeHeroFloater(welcome);
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="container flex min-h-[60vh] items-center justify-center px-4 py-20">
@@ -233,5 +250,5 @@ export default function HomeDesignPage() {
     );
   }
 
-  return <HomePageContent data={data} />;
+  return <HomePageContent data={data} welcomeFloaterValue={welcomeFloaterValue} />;
 }

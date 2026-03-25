@@ -14,9 +14,11 @@ const statIconMap: Record<string, string> = {
 interface HeroSectionProps {
   hero?: HeroData | null;
   heroStats?: { label: string; value: string; icon: string }[] | null;
+  /** When set, overrides the welcome floater value line (from bonus rules). */
+  welcomeFloaterValue?: string | null;
 }
 
-export function HeroSection({ hero: heroProp, heroStats: heroStatsProp }: HeroSectionProps) {
+export function HeroSection({ hero: heroProp, heroStats: heroStatsProp, welcomeFloaterValue }: HeroSectionProps) {
   const hero = heroProp ?? defaultHero;
   const heroStats = heroStatsProp && heroStatsProp.length > 0 ? heroStatsProp : defaultHeroStats;
 
@@ -63,7 +65,7 @@ export function HeroSection({ hero: heroProp, heroStats: heroStatsProp }: HeroSe
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            <Link to={h.ctaHref ?? "/register"}>
+            <Link to="/register">
               <Button variant="neon" size="xl" className="gap-2 w-full sm:w-auto">
                 <Play className="w-5 h-5" />
                 {h.ctaText ?? "Start Playing"}
@@ -98,7 +100,7 @@ export function HeroSection({ hero: heroProp, heroStats: heroStatsProp }: HeroSe
           <PromoCard
             icon={<Gift className="w-6 h-6 text-neon-green" />}
             title="Welcome Bonus"
-            value="200% Up to ₹50,000"
+            value={welcomeFloaterValue?.trim() || "200% Up to ₹50,000"}
           />
         </div>
       </div>

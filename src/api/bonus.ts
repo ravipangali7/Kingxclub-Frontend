@@ -20,19 +20,29 @@ export async function getBonusRules(): Promise<BonusRule[]> {
   return (res as unknown as BonusRule[]) ?? [];
 }
 
-const BONUS_TYPE_BADGES: Record<string, string> = {
-  welcome: "New Players",
-  deposit: "Reload",
-  referral: "Earn",
-};
-
-function rewardDisplay(rule: BonusRule): string {
-  const val = rule.reward_amount ?? rule.reward_value ?? "0";
-  const type = rule.reward_type === "percentage" ? "%" : " Fixed";
-  return `${val}${type}`;
+function numericReward(rule: BonusRule): number {
+  const raw = rule.reward_amount ?? rule.reward_value ?? "0";
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : 0;
 }
 
-function metaLine(rule: BonusRule): string {
+/** Whole numbers without .00; otherwise up to 2 decimal places. */
+export function formatBonusAmountDisplay(rule: BonusRule): string {
+  const n = numericReward(rule);
+  if (!Number.isFinite(n)) return "0";
+  if (Number.isInteger(n)) return String(n);
+  return n.toLocaleString("en-IN", { maximumFractionDigits: 2 });
+}
+
+/** Single-line reward for cards and bonus page: `200%` or `₹5,000`. */
+export function rewardDisplay(rule: BonusRule): string {
+  const isPct = (rule.reward_type || "").toLowerCase() === "percentage";
+  const val = formatBonusAmountDisplay(rule);
+  if (isPct) return `${val}%`;
+  return `₹${Number(numericReward(rule)).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+}
+
+export function bonusRuleMetaLine(rule: BonusRule): string {
   const parts: string[] = [];
   if (rule.roll_required != null && Number(rule.roll_required) > 0) {
     parts.push(`Roll x${rule.roll_required}`);
@@ -43,7 +53,78 @@ function metaLine(rule: BonusRule): string {
   return parts.join(" · ");
 }
 
-/** Map bonus rules to PromoShape[] for home page promo grids. Order: referral (full-width), welcome, deposit (two columns below). */
+/** Right-hand hero floater line from welcome rule (best-effort from model fields). */
+export function formatWelcomeHeroFloater(rule: BonusRule): string {
+  const isPct = (rule.reward_type || "").toLowerCase() === "percentage";
+  const roll =
+    rule.roll_required != null && Number(rule.roll_required) > 0 ? ` · Roll x${rule.roll_required}` : "";
+  if (isPct) {
+    return `${formatBonusAmountDisplay(rule)}%${roll}`.trim();
+  }
+  const rupee = Number(numericReward(rule)).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+  return `Up to ₹${rupee}${roll}`;
+}
+
+function welcomePromoFromRule(rule: BonusRule): PromoShape {
+  const isPct = (rule.reward_type || "").toLowerCase() === "percentage";
+  const meta = bonusRuleMetaLine(rule);
+  const title = rule.name?.trim() || "Welcome Bonus";
+  if (isPct) {
+    return {
+      variant: "welcome",
+      badge: "🎁 LIMITED OFFER",
+      title,
+      highlight: `${formatBonusAmountDisplay(rule)}%`,
+      subtitle: meta || undefined,
+      description: undefined,
+      cta: "Claim Now",
+      href: "/bonus",
+    };
+  }
+  const rupee = Number(numericReward(rule)).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+  return {
+    variant: "welcome",
+    badge: "🎁 LIMITED OFFER",
+    title,
+    highlight: `₹${rupee}`,
+    subtitle: meta || undefined,
+    description: undefined,
+    cta: "Claim Now",
+    href: "/bonus",
+  };
+}
+
+function referralPromoFromRule(rule: BonusRule): PromoShape {
+  const rupee = Number(numericReward(rule)).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+  const meta = bonusRuleMetaLine(rule);
+  return {
+    variant: "referral",
+    badge: "👥 REFER & EARN",
+    title: rule.name?.trim() || "Invite Friends",
+    highlight: `₹${rupee}`,
+    subtitle: meta || "Per Referral",
+    description: undefined,
+    cta: "Get Your Link",
+    href: "/bonus",
+  };
+}
+
+function depositPromoFromRule(rule: BonusRule): PromoShape {
+  const isPct = (rule.reward_type || "").toLowerCase() === "percentage";
+  const meta = bonusRuleMetaLine(rule);
+  return {
+    variant: "deposit",
+    badge: "💰 DEPOSIT BONUS",
+    title: rule.name?.trim() || "Deposit Bonus",
+    highlight: isPct ? `${formatBonusAmountDisplay(rule)}%` : rewardDisplay(rule),
+    subtitle: meta || undefined,
+    description: undefined,
+    cta: "Claim Now",
+    href: "/bonus",
+  };
+}
+
+/** Map bonus rules to PromoShape[] for home page. Order: referral, welcome, deposit (grid picks by variant). */
 export function mapBonusRulesToPromoShapes(rules: BonusRule[]): PromoShape[] {
   const byType: Record<string, BonusRule> = {};
   for (const r of rules) {
@@ -57,17 +138,9 @@ export function mapBonusRulesToPromoShapes(rules: BonusRule[]): PromoShape[] {
   for (const t of order) {
     const rule = byType[t];
     if (!rule) continue;
-    const variant = t as "welcome" | "deposit" | "referral";
-    promos.push({
-      variant,
-      badge: BONUS_TYPE_BADGES[t] ?? rule.name,
-      title: rule.name,
-      highlight: rewardDisplay(rule),
-      subtitle: metaLine(rule) || undefined,
-      description: undefined,
-      cta: "Claim Now",
-      href: "/bonus",
-    });
+    if (t === "welcome") promos.push(welcomePromoFromRule(rule));
+    else if (t === "referral") promos.push(referralPromoFromRule(rule));
+    else promos.push(depositPromoFromRule(rule));
   }
   return promos;
 }

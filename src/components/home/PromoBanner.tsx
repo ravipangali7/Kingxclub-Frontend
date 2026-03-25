@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { PromoShape } from "@/data/homePageMockData";
 import { promosGrid as defaultPromos } from "@/data/homePageMockData";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 const GRADIENTS: Record<string, string> = {
   welcome: "from-primary via-secondary to-primary",
@@ -77,10 +78,18 @@ export function PromoBanner({ promo, className, fullWidth }: PromoBannerProps) {
   return content;
 }
 
+function withReferralHref(promo: PromoShape, user: { username?: string } | null): PromoShape {
+  if ((promo.variant || "").toLowerCase() !== "referral") return promo;
+  const referPageHref = user ? "/player/referral" : "/login?next=/player/referral";
+  return { ...promo, href: referPageHref };
+}
+
 export function PromoBannerGrid({ promos: promosProp }: { promos?: PromoShape[] | null }) {
+  const { user } = useAuth();
   const promos = promosProp && promosProp.length > 0 ? promosProp : defaultPromos;
   const welcomePromo = promos.find((p) => (p.variant || "").toLowerCase() === "welcome") ?? promos[0];
-  const referralPromo = promos.find((p) => (p.variant || "").toLowerCase() === "referral") ?? promos[1];
+  const referralRaw = promos.find((p) => (p.variant || "").toLowerCase() === "referral") ?? promos[1];
+  const referralPromo = referralRaw ? withReferralHref(referralRaw, user) : defaultPromos[1];
   return (
     <section className="py-8">
       <div className="container mx-auto px-4">

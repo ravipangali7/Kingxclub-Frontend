@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { getBonusRules, type BonusRule } from "@/api/bonus";
+import { getBonusRules, type BonusRule, rewardDisplay, bonusRuleMetaLine } from "@/api/bonus";
 import { getPlayerWallet, bonusRequestCreate } from "@/api/player";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -31,23 +31,6 @@ const VARIANT_STYLES: Record<string, string> = {
   deposit: "from-amber-600/90 to-cyan-800/90 border-amber-500/30",
   referral: "from-emerald-600/90 to-teal-800/90 border-emerald-500/30",
 };
-
-function rewardDisplay(rule: BonusRule) {
-  const val = rule.reward_amount ?? rule.reward_value ?? "0";
-  const type = rule.reward_type === "percentage" ? "%" : " Fixed";
-  return `${val}${type}`;
-}
-
-function metaLine(rule: BonusRule) {
-  const parts: string[] = [];
-  if (rule.roll_required != null && Number(rule.roll_required) > 0) {
-    parts.push(`Roll x${rule.roll_required}`);
-  }
-  if (rule.min_deposit != null && Number(rule.min_deposit) > 0) {
-    parts.push(`Min deposit ₹${rule.min_deposit}`);
-  }
-  return parts.length > 0 ? parts.join(" · ") : null;
-}
 
 type BonusRequestStatus =
   | { status: "pending" }
@@ -203,9 +186,9 @@ const BonusPage = () => {
                               {bonus.name}
                               <span className="text-amber-300 ml-1">{rewardDisplay(bonus)}</span>
                             </h3>
-                            {metaLine(bonus) && (
-                              <p className="text-white/90 text-sm mt-1">{metaLine(bonus)}</p>
-                            )}
+                            {bonusRuleMetaLine(bonus) ? (
+                              <p className="text-white/90 text-sm mt-1">{bonusRuleMetaLine(bonus)}</p>
+                            ) : null}
                             {isRejected && rejectReason && (
                               <p className="text-white/80 text-sm mt-2 italic">Reason: {rejectReason}</p>
                             )}
