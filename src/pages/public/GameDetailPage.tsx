@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GameImageWithFallback } from "@/components/shared/GameImageWithFallback";
 import { getGame, getGameImageUrl } from "@/api/games";
-import { getSiteSetting, getResolvedWhatsAppNumber, getWhatsAppLinkWithUser } from "@/api/site";
+import {
+  getSiteSetting,
+  getResolvedWhatsAppNumber,
+  getWhatsAppDepositLinkWithUser,
+  getWhatsAppWithdrawLinkWithUser,
+} from "@/api/site";
 import { getPlayerWallet, launchGameByMode } from "@/api/player";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Game } from "@/api/games";
@@ -116,8 +121,16 @@ const GameDetailPage = () => {
   const rtp = 96;
   const siteSettingRecord = siteSetting as { whatsapp_number?: string; phones?: string[] } | undefined;
   const resolvedNumber = getResolvedWhatsAppNumber(siteSettingRecord, user);
-  const whatsAppDepositLink = getWhatsAppLinkWithUser(siteSettingRecord, user, "Hi! I want to deposit funds to my account.");
-  const whatsAppWithdrawLink = getWhatsAppLinkWithUser(siteSettingRecord, user, "Hi! I want to withdraw funds from my account.");
+  const whatsAppDepositLink = getWhatsAppDepositLinkWithUser(
+    siteSettingRecord,
+    user,
+    "Hi! I want to deposit funds to my account."
+  );
+  const whatsAppWithdrawLink = getWhatsAppWithdrawLinkWithUser(
+    siteSettingRecord,
+    user,
+    "Hi! I want to withdraw funds from my account."
+  );
   const phones = siteSettingRecord?.phones;
   const phoneNumber = resolvedNumber || (Array.isArray(phones) && phones[0] ? phones[0] : "");
 
