@@ -454,7 +454,8 @@ export const AdminLayout = ({ role }: AdminLayoutProps) => {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 min-w-0">
+        {/* pr/pb: reserve space for GlobalMessageFab (fixed bottom-right) so pagination and footers stay clickable */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 p-4 pb-36 pr-20 md:pb-24">
           <Outlet />
         </main>
       </div>
