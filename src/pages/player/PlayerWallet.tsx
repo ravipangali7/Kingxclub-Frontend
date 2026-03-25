@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,25 +7,17 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCurrencySymbol } from "@/utils/currency";
 import { getPlayerWallet, getPaymentModes, getDepositPaymentModes, getDepositBonusEligibility, depositRequest, depositRequestWithScreenshot, withdrawRequest } from "@/api/player";
-import { getPublicPaymentMethods } from "@/api/site";
+import { getPublicPaymentMethods, getSiteSetting, getWhatsAppDepositLinkWithUser, getWhatsAppWithdrawLinkWithUser, type SiteSettingRecord } from "@/api/site";
 import { getMediaUrl } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
-import { ArrowDownCircle, ArrowUpCircle, Wallet, Upload, CheckCircle, Sparkles, TrendingUp, Gift, Copy } from "lucide-react";
+import { PaymentDetailsPanel, buildPaymentDetailsPlainText } from "@/components/PaymentDetailsPanel";
+import { ArrowDownCircle, ArrowUpCircle, Wallet, Upload, CheckCircle, Sparkles, TrendingUp, Gift, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 
 const quickAmounts = [500, 1000, 2000, 5000, 10000, 25000];
-
-async function copyToClipboard(text: string, label?: string) {
-  try {
-    await navigator.clipboard.writeText(text);
-    toast({ title: label ? `${label} copied` : "Copied to clipboard." });
-  } catch {
-    toast({ title: "Could not copy", variant: "destructive" });
-  }
-}
 
 const PlayerWallet = () => {
   const { user } = useAuth();
@@ -63,6 +55,27 @@ const PlayerWallet = () => {
     queryFn: getPublicPaymentMethods,
     enabled: depositOpen || withdrawOpen,
   });
+  const { data: siteSetting = {} } = useQuery({
+    queryKey: ["siteSetting"],
+    queryFn: getSiteSetting,
+    enabled: depositOpen || withdrawOpen,
+  });
+  const depositWhatsAppHref = useMemo(() => {
+    if (user?.role !== "player") return null;
+    return getWhatsAppDepositLinkWithUser(
+      siteSetting as SiteSettingRecord,
+      user,
+      `Hi, I need help with a deposit on Kingxclub. Username: ${user.username}.`
+    );
+  }, [user, siteSetting]);
+  const withdrawWhatsAppHref = useMemo(() => {
+    if (user?.role !== "player") return null;
+    return getWhatsAppWithdrawLinkWithUser(
+      siteSetting as SiteSettingRecord,
+      user,
+      `Hi, I need help with a withdrawal on Kingxclub. Username: ${user.username}.`
+    );
+  }, [user, siteSetting]);
   const paymentMethodImageMap = (publicPaymentMethods as { id: number; name: string; image_url?: string | null }[]).reduce(
     (acc, pm) => {
       if (pm.image_url) acc[pm.id] = pm.image_url;
@@ -243,6 +256,19 @@ const PlayerWallet = () => {
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-white tracking-wider">DEPOSIT FUNDS</DialogTitle>
           </DialogHeader>
+          {user?.role === "player" && depositWhatsAppHref ? (
+            <div className="flex justify-end -mt-1 mb-1">
+              <a
+                href={depositWhatsAppHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-green-400 hover:underline"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                Deposit via WhatsApp
+              </a>
+            </div>
+          ) : null}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Left: Step 1 + Step 2 (payment method list + pay to account) */}
             <div className="space-y-4">
@@ -290,58 +316,44 @@ const PlayerWallet = () => {
                 const displayName = String(selectedMode?.payment_method_name ?? "");
                 const details = selectedMode?.details as Record<string, unknown> | null | undefined;
                 const hasDetails = details != null && typeof details === "object" && Object.keys(details).length > 0;
-                const qrUrl = selectedMode?.qr_image_url ? getMediaUrl(String(selectedMode.qr_image_url)) : "";
+                const qrRaw = selectedMode?.qr_image_url ? String(selectedMode.qr_image_url) : null;
+                const copyPaymentDetails = async () => {
+                  const text = buildPaymentDetailsPlainText({
+                    methodName: displayName || "—",
+                    details: hasDetails ? details! : undefined,
+                    qrUrl: qrRaw ?? undefined,
+                    includeQrImageNote: Boolean(qrRaw),
+                  });
+                  try {
+                    await navigator.clipboard.writeText(text);
+                    toast({ title: "Copied payment details." });
+                  } catch {
+                    toast({ title: "Could not copy", variant: "destructive" });
+                  }
+                };
                 return (
                   <div>
-                    <p className="text-xs font-semibold text-gray-300 mb-2">2. Pay to this account</p>
-                    <div className="rounded-xl border border-gray-600 bg-gray-800 p-4 space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-semibold text-white">{displayName}</p>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(displayName, "Payment method")}
-                          className="p-1.5 rounded-md hover:bg-gray-700 text-gray-400 hover:text-white transition-colors touch-manipulation"
-                          aria-label="Copy payment method name"
-                        >
-                          <Copy className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                      {hasDetails ? (
-                        <div className="text-sm space-y-1.5 text-gray-300">
-                          {Object.entries(details).map(([k, v]) => {
-                            const label = k.replace(/_/g, " ");
-                            const value = String(v ?? "");
-                            return (
-                              <div key={k} className="flex items-center justify-between gap-2 group">
-                                <p><span className="text-gray-400">{label}:</span> <span className="font-mono font-medium text-white">{value}</span></p>
-                                <button
-                                  type="button"
-                                  onClick={() => copyToClipboard(value, label)}
-                                  className="p-1.5 rounded-md hover:bg-gray-700 text-gray-400 hover:text-white touch-manipulation shrink-0"
-                                  aria-label={`Copy ${label}`}
-                                >
-                                  <Copy className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-400">No details</p>
-                      )}
-                      {selectedMode?.qr_image_url && (
-                        <div className="mt-2 flex flex-col gap-1.5">
-                          <img src={qrUrl} alt="Payment QR" className="w-28 h-28 object-contain rounded-lg border border-gray-600 bg-white" />
-                          <button
-                            type="button"
-                            onClick={() => copyToClipboard(qrUrl, "QR link")}
-                            className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white text-xs transition-colors touch-manipulation w-fit"
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                            Copy QR link
-                          </button>
-                        </div>
-                      )}
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                      <p className="text-xs font-semibold text-gray-300">2. Pay to this account</p>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-8 text-xs border-gray-600 text-gray-200 hover:bg-gray-700"
+                        onClick={() => void copyPaymentDetails()}
+                      >
+                        Copy payment details
+                      </Button>
+                    </div>
+                    <div className="rounded-xl border border-gray-600 bg-gray-800 p-3 [&_p]:text-gray-200 [&_span.text-muted-foreground]:text-gray-400">
+                      <PaymentDetailsPanel
+                        methodName={displayName}
+                        details={hasDetails ? details! : undefined}
+                        qrUrl={qrRaw}
+                        showQrImage
+                        copyPlacement="hidden"
+                        className="border-0 bg-transparent p-0"
+                      />
                     </div>
                     <p className="text-xs text-gray-400 mt-2">Transfer the amount to the account above. Then enter the amount and upload your payment screenshot in the right column.</p>
                   </div>
@@ -444,14 +456,16 @@ const PlayerWallet = () => {
                     const formData = new FormData();
                     formData.append("amount", String(amt));
                     formData.append("payment_mode", String(selectedPM));
-                    formData.append("remarks", depositRemarks.trim() || "");
+                    formData.append("reference_id", depositRemarks.trim());
+                    formData.append("remarks", "");
                     formData.append("screenshot", depositScreenshot);
                     await depositRequestWithScreenshot(formData);
                   } else {
                     await depositRequest({
                       amount: amt,
                       payment_mode: Number(selectedPM),
-                      remarks: depositRemarks.trim() || "",
+                      remarks: "",
+                      reference_id: depositRemarks.trim(),
                     });
                   }
                   queryClient.invalidateQueries({ queryKey: ["player-wallet"] });
@@ -479,6 +493,19 @@ const PlayerWallet = () => {
           <DialogHeader>
             <DialogTitle className="font-gaming text-lg neon-text tracking-wider">WITHDRAW FUNDS</DialogTitle>
           </DialogHeader>
+          {user?.role === "player" && withdrawWhatsAppHref ? (
+            <div className="flex justify-end -mt-1 mb-1">
+              <a
+                href={withdrawWhatsAppHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-accent hover:underline"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                Withdraw via WhatsApp
+              </a>
+            </div>
+          ) : null}
           <div className="space-y-4">
             <div>
               <label className="text-xs text-muted-foreground font-medium mb-2 block">Select your approved payout method</label>

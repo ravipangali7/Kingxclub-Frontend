@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { getKycList, approveKyc, rejectKyc } from "@/api/admin";
 import { toast } from "@/hooks/use-toast";
 import { Check, X, Eye } from "lucide-react";
+import { RejectReasonSuggestionsRow } from "@/components/admin/RejectReasonSuggestionsRow";
+import { useRejectReasonSuggestions } from "@/hooks/useRejectReasonSuggestions";
 
 type KycRow = Record<string, unknown> & { id?: number; user_username?: string; document_url?: string | null; status?: string; created_at?: string };
 
@@ -24,6 +26,8 @@ const AdminKYC = () => {
   const [approvingId, setApprovingId] = useState<number | null>(null);
   const [rejectingId, setRejectingId] = useState<number | null>(null);
   const [selectedKyc, setSelectedKyc] = useState<KycRow | null>(null);
+  const { data: rejectSuggestionsRes } = useRejectReasonSuggestions(role);
+  const rejectChips = rejectSuggestionsRes?.data ?? [];
 
   const columns = [
     { header: "User", accessor: (row: KycRow) => String(row.user_username ?? row.username ?? "") },
@@ -111,6 +115,7 @@ const AdminKYC = () => {
         <DialogContent className="max-w-xs">
           <DialogHeader><DialogTitle className="font-display">Reject KYC — {String(selectedKyc?.user_username ?? selectedKyc?.username ?? "")}</DialogTitle></DialogHeader>
           <Textarea placeholder="Rejection reason..." rows={3} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
+          <RejectReasonSuggestionsRow suggestions={rejectChips} onSelect={(text) => setRejectReason(text)} />
           <DialogFooter>
             <Button variant="outline" onClick={() => setRejectOpen(false)}>Cancel</Button>
             <Button

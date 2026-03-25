@@ -49,6 +49,8 @@ type MasterRow = Record<string, unknown> & {
   status?: string; created_at?: string; pin?: string;
   commission_percentage?: string;
   whatsapp_number?: string | null;
+  whatsapp_deposit?: string | null;
+  whatsapp_withdraw?: string | null;
   is_default_master?: boolean;
 };
 
@@ -160,13 +162,17 @@ const AdminMasters = () => {
   const [pendingPayload, setPendingPayload] = useState<Record<string, unknown>>({});
   const [depositAmount, setDepositAmount] = useState("");
   const [depositRemarks, setDepositRemarks] = useState("");
+  const [depositReferenceId, setDepositReferenceId] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [withdrawRemarks, setWithdrawRemarks] = useState("");
+  const [withdrawReferenceId, setWithdrawReferenceId] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [editName, setEditName] = useState("");
   const [editCommission, setEditCommission] = useState("10");
   const [editWhatsApp, setEditWhatsApp] = useState("");
+  const [editWhatsappDeposit, setEditWhatsappDeposit] = useState("");
+  const [editWhatsappWithdraw, setEditWhatsappWithdraw] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [inlineEdit, setInlineEdit] = useState<InlineEditState | null>(null);
   const [pendingCellSave, setPendingCellSave] = useState<{ id: number; field: string; value: unknown } | null>(null);
@@ -367,7 +373,7 @@ const AdminMasters = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 text-warning" title="Regenerate PIN" onClick={() => { setSelectedUser(row); setPendingAction("regeneratePin"); setPendingPayload({ userId: row.id }); setPinOpen(true); }}><RefreshCw className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 text-neon" title="Settlement" onClick={() => { setSelectedUser(row); setSettlementOpen(true); }}><ArrowRightLeft className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => { setSelectedUser(row); setViewOpen(true); }}><Eye className="h-3 w-3" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => { setSelectedUser(row); setEditName(String(row.name ?? "")); setEditCommission(String(row.commission_percentage ?? "10")); setEditWhatsApp(String(row.whatsapp_number ?? "")); setEditOpen(true); }}><Edit className="h-3 w-3" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => { setSelectedUser(row); setEditName(String(row.name ?? "")); setEditCommission(String(row.commission_percentage ?? "10")); setEditWhatsApp(String(row.whatsapp_number ?? "")); setEditWhatsappDeposit(String(row.whatsapp_deposit ?? "")); setEditWhatsappWithdraw(String(row.whatsapp_withdraw ?? "")); setEditOpen(true); }}><Edit className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" title="Delete" onClick={() => setMasterToDelete(row)}><Trash2 className="h-3 w-3" /></Button>
         </div>
       ),
@@ -517,6 +523,8 @@ const AdminMasters = () => {
                   { label: "Username", val: String(selectedUser.username ?? "") },
                   { label: "Name", val: String(selectedUser.name ?? "") },
                   { label: "WhatsApp", val: String(selectedUser.whatsapp_number ?? "") },
+                  { label: "WhatsApp (deposit)", val: String(selectedUser.whatsapp_deposit ?? "") },
+                  { label: "WhatsApp (withdraw)", val: String(selectedUser.whatsapp_withdraw ?? "") },
                   { label: "Balance", val: fmt(selectedUser.main_balance) },
                   { label: "P/L", val: fmtPL(selectedUser.pl_balance) },
                   { label: "Bonus Bal", val: fmt(selectedUser.bonus_balance) },
@@ -561,6 +569,18 @@ const AdminMasters = () => {
                   <label className="text-xs text-muted-foreground block mb-1">WhatsApp Number</label>
                   <Input value={editWhatsApp} onChange={(e) => setEditWhatsApp(e.target.value)} placeholder="WhatsApp" />
                 </div>
+                {role === "super" && (
+                  <>
+                    <div className="sm:col-span-2">
+                      <label className="text-xs text-muted-foreground block mb-1">WhatsApp (deposit)</label>
+                      <Input value={editWhatsappDeposit} onChange={(e) => setEditWhatsappDeposit(e.target.value)} placeholder="Number for deposit inquiries" />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="text-xs text-muted-foreground block mb-1">WhatsApp (withdraw)</label>
+                      <Input value={editWhatsappWithdraw} onChange={(e) => setEditWhatsappWithdraw(e.target.value)} placeholder="Number for withdrawal inquiries" />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -573,11 +593,15 @@ const AdminMasters = () => {
                 if (!selectedUser?.id) return;
                 setEditSaving(true);
                 try {
-                  const payload: { name: string; commission_percentage: string; whatsapp_number?: string } = {
+                  const payload: Record<string, string> = {
                     name: editName.trim(),
                     commission_percentage: editCommission || "10",
                     whatsapp_number: editWhatsApp.trim(),
                   };
+                  if (role === "super") {
+                    payload.whatsapp_deposit = editWhatsappDeposit.trim();
+                    payload.whatsapp_withdraw = editWhatsappWithdraw.trim();
+                  }
                   await updateMaster(selectedUser.id as number, payload, role);
                   queryClient.invalidateQueries({ queryKey: ["admin-masters", role] });
                   toast({ title: "Master updated successfully." });
@@ -603,6 +627,7 @@ const AdminMasters = () => {
           <div className="space-y-3">
             <Input type="number" placeholder="Amount" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} />
             <Textarea placeholder="Remarks" rows={2} value={depositRemarks} onChange={(e) => setDepositRemarks(e.target.value)} />
+            <Input placeholder="Transaction / Reference ID (optional)" value={depositReferenceId} onChange={(e) => setDepositReferenceId(e.target.value)} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDepositOpen(false)}>Cancel</Button>
@@ -610,7 +635,12 @@ const AdminMasters = () => {
               className="gold-gradient text-primary-foreground"
               onClick={() => {
                 setPendingAction("deposit");
-                setPendingPayload({ userId: selectedUser?.id, amount: depositAmount, remarks: depositRemarks });
+                setPendingPayload({
+                  userId: selectedUser?.id,
+                  amount: depositAmount,
+                  remarks: depositRemarks,
+                  reference_id: depositReferenceId.trim() || undefined,
+                });
                 setDepositOpen(false);
                 setPinOpen(true);
               }}
@@ -628,14 +658,24 @@ const AdminMasters = () => {
           <div className="space-y-3">
             <Input type="number" placeholder="Amount" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} />
             <Textarea placeholder="Remarks" rows={2} value={withdrawRemarks} onChange={(e) => setWithdrawRemarks(e.target.value)} />
+            <Input placeholder="Transaction / Reference ID (required)" value={withdrawReferenceId} onChange={(e) => setWithdrawReferenceId(e.target.value)} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setWithdrawOpen(false)}>Cancel</Button>
             <Button
               className="gold-gradient text-primary-foreground"
               onClick={() => {
+                if (!withdrawReferenceId.trim()) {
+                  toast({ title: "Reference ID is required for manual withdrawal.", variant: "destructive" });
+                  return;
+                }
                 setPendingAction("withdraw");
-                setPendingPayload({ userId: selectedUser?.id, amount: withdrawAmount, remarks: withdrawRemarks });
+                setPendingPayload({
+                  userId: selectedUser?.id,
+                  amount: withdrawAmount,
+                  remarks: withdrawRemarks,
+                  reference_id: withdrawReferenceId.trim(),
+                });
                 setWithdrawOpen(false);
                 setPinOpen(true);
               }}
@@ -773,7 +813,11 @@ const AdminMasters = () => {
               const userId = pendingPayload.userId as number;
               const amount = pendingPayload.amount as string;
               const remarks = (pendingPayload.remarks as string) ?? "";
-              await directDeposit({ user_id: userId, amount: Number(amount) || 0, remarks, pin }, role);
+              const reference_id = pendingPayload.reference_id as string | undefined;
+              await directDeposit(
+                { user_id: userId, amount: Number(amount) || 0, remarks, pin, ...(reference_id ? { reference_id } : {}) },
+                role
+              );
               queryClient.invalidateQueries({ queryKey: ["admin-masters", role] });
               queryClient.invalidateQueries({ queryKey: ["admin-deposits", role] });
               toast({ title: "Deposit created and approved." });
@@ -781,7 +825,12 @@ const AdminMasters = () => {
               const userId = pendingPayload.userId as number;
               const amount = pendingPayload.amount as string;
               const remarks = (pendingPayload.remarks as string) ?? "";
-              await directWithdraw({ user_id: userId, amount: Number(amount) || 0, remarks, pin }, role);
+              const reference_id = String(pendingPayload.reference_id ?? "").trim();
+              if (!reference_id) {
+                toast({ title: "Reference ID is required.", variant: "destructive" });
+                return;
+              }
+              await directWithdraw({ user_id: userId, amount: Number(amount) || 0, remarks, reference_id, pin }, role);
               queryClient.invalidateQueries({ queryKey: ["admin-masters", role] });
               queryClient.invalidateQueries({ queryKey: ["admin-withdrawals", role] });
               toast({ title: "Withdrawal created and approved." });

@@ -23,6 +23,8 @@ export interface User {
   parent?: number | null;
   whatsapp_number?: string;
   parent_whatsapp_number?: string | null;
+  parent_whatsapp_deposit?: string | null;
+  parent_whatsapp_withdraw?: string | null;
   country_code?: string;
   currency_symbol?: string;
   last_login?: string | null;

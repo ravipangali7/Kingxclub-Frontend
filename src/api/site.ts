@@ -80,8 +80,21 @@ export type SiteSettingRecord = Record<string, unknown> & {
   phones?: string[];
 };
 
-/** User shape with optional parent_whatsapp_number (from /auth/me/ for players). */
-export type UserWithParentWhatsApp = { role?: string; parent_whatsapp_number?: string | null } | null | undefined;
+/** User shape with optional parent WhatsApp fields (from /auth/me/ for players). */
+export type UserWithParentWhatsApp = {
+  role?: string;
+  parent_whatsapp_number?: string | null;
+  parent_whatsapp_deposit?: string | null;
+  parent_whatsapp_withdraw?: string | null;
+} | null | undefined;
+
+function siteWhatsAppFallback(siteSetting: SiteSettingRecord | undefined | null): string {
+  if (!siteSetting) return "";
+  const raw =
+    (siteSetting.whatsapp_number && String(siteSetting.whatsapp_number).trim()) ||
+    (Array.isArray(siteSetting.phones) && siteSetting.phones[0] ? String(siteSetting.phones[0]).trim() : null);
+  return raw || "";
+}
 
 /**
  * Resolve the WhatsApp number to use for contact/support/deposit/withdraw links.
@@ -95,11 +108,43 @@ export function getResolvedWhatsAppNumber(
   if (user?.role === "player" && user.parent_whatsapp_number && String(user.parent_whatsapp_number).trim()) {
     return String(user.parent_whatsapp_number).trim();
   }
-  if (!siteSetting) return "";
-  const raw =
-    (siteSetting.whatsapp_number && String(siteSetting.whatsapp_number).trim()) ||
-    (Array.isArray(siteSetting.phones) && siteSetting.phones[0] ? String(siteSetting.phones[0]).trim() : null);
-  return raw || "";
+  return siteWhatsAppFallback(siteSetting);
+}
+
+/**
+ * Deposit: master whatsapp_deposit → parent_whatsapp_number → site.
+ */
+export function getResolvedWhatsAppNumberDeposit(
+  siteSetting: SiteSettingRecord | undefined | null,
+  user: UserWithParentWhatsApp
+): string {
+  if (user?.role === "player") {
+    const dep = user.parent_whatsapp_deposit != null ? String(user.parent_whatsapp_deposit).trim() : "";
+    if (dep) return dep;
+    if (user.parent_whatsapp_number && String(user.parent_whatsapp_number).trim()) {
+      return String(user.parent_whatsapp_number).trim();
+    }
+    return siteWhatsAppFallback(siteSetting);
+  }
+  return getResolvedWhatsAppNumber(siteSetting, user);
+}
+
+/**
+ * Withdraw: master whatsapp_withdraw → parent_whatsapp_number → site.
+ */
+export function getResolvedWhatsAppNumberWithdraw(
+  siteSetting: SiteSettingRecord | undefined | null,
+  user: UserWithParentWhatsApp
+): string {
+  if (user?.role === "player") {
+    const wd = user.parent_whatsapp_withdraw != null ? String(user.parent_whatsapp_withdraw).trim() : "";
+    if (wd) return wd;
+    if (user.parent_whatsapp_number && String(user.parent_whatsapp_number).trim()) {
+      return String(user.parent_whatsapp_number).trim();
+    }
+    return siteWhatsAppFallback(siteSetting);
+  }
+  return getResolvedWhatsAppNumber(siteSetting, user);
 }
 
 /**
@@ -133,6 +178,32 @@ export function getWhatsAppLinkWithUser(
   text?: string
 ): string | null {
   const num = getResolvedWhatsAppNumber(siteSetting, user);
+  const url = num ? getWhatsAppLinkFromNumber(num) : null;
+  if (!url) return null;
+  if (text) return `${url}?text=${encodeURIComponent(text)}`;
+  return url;
+}
+
+/** Deposit flow: uses master whatsapp_deposit (or fallbacks). */
+export function getWhatsAppDepositLinkWithUser(
+  siteSetting: SiteSettingRecord | undefined | null,
+  user: UserWithParentWhatsApp,
+  text?: string
+): string | null {
+  const num = getResolvedWhatsAppNumberDeposit(siteSetting, user);
+  const url = num ? getWhatsAppLinkFromNumber(num) : null;
+  if (!url) return null;
+  if (text) return `${url}?text=${encodeURIComponent(text)}`;
+  return url;
+}
+
+/** Withdraw flow: uses master whatsapp_withdraw (or fallbacks). */
+export function getWhatsAppWithdrawLinkWithUser(
+  siteSetting: SiteSettingRecord | undefined | null,
+  user: UserWithParentWhatsApp,
+  text?: string
+): string | null {
+  const num = getResolvedWhatsAppNumberWithdraw(siteSetting, user);
   const url = num ? getWhatsAppLinkFromNumber(num) : null;
   if (!url) return null;
   if (text) return `${url}?text=${encodeURIComponent(text)}`;

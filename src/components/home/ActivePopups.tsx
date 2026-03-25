@@ -68,11 +68,11 @@ export function ActivePopups() {
         </DialogHeader>
         <div className="space-y-4">
           {current?.image && (
-            <div className="rounded-lg overflow-hidden bg-muted aspect-video w-full">
+            <div className="rounded-lg overflow-hidden bg-muted w-full min-h-[140px] max-h-[45vh] flex items-center justify-center">
               <img
                 src={current.image}
                 alt=""
-                className="w-full h-full object-cover"
+                className="w-full max-h-[45vh] object-contain object-center"
               />
             </div>
           )}

@@ -80,11 +80,11 @@ export function SecondHomeComingSoon({ comingSoon: comingSoonProp, sectionTitle,
             className="shrink-0 w-[200px] md:w-[220px] snap-start rounded-2xl overflow-hidden border border-white/10 bg-[#0d1117] group hover:border-primary/30 transition-all"
           >
             {/* Thumbnail */}
-            <div className="relative aspect-[3/2] overflow-hidden">
+            <div className="relative aspect-[3/2] overflow-hidden bg-muted/80 flex items-center justify-center">
               <img
                 src={getImageUrl(item)}
                 alt={item.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-contain object-center group-hover:scale-[1.02] transition-transform duration-500"
                 loading="lazy"
               />
 

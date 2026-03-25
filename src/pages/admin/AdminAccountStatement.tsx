@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { DataTable } from "@/components/shared/DataTable";
@@ -6,6 +6,8 @@ import { ListDateRangeToolbar } from "@/components/shared/ListDateRangeToolbar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getAccountStatement, type StatementParams } from "@/api/admin";
 import { TableBadge } from "@/components/admin/TableBadge";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
 type StatementRow = Record<string, unknown> & {
   id?: number;
@@ -15,6 +17,7 @@ type StatementRow = Record<string, unknown> & {
   credit?: string;
   balance?: string;
   description?: string;
+  reference_id?: string;
 };
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -25,9 +28,24 @@ export default function AdminAccountStatement() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchInput.trim()), 400);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
   const params: StatementParams = useMemo(
-    () => ({ date_from: dateFrom, date_to: dateTo, page, page_size: 20 }),
-    [dateFrom, dateTo, page]
+    () => ({
+      date_from: dateFrom,
+      date_to: dateTo,
+      page,
+      page_size: 20,
+      ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    }),
+    [dateFrom, dateTo, page, debouncedSearch]
   );
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["account-statement", role, params],
@@ -78,9 +96,20 @@ export default function AdminAccountStatement() {
       {
         header: "description",
         sortKey: "description",
-        accessor: (row: StatementRow) => (
-          <CellClick value={String(row.description ?? "")} onClick={() => setEditModal({ row, field: "description", value: row.description })} />
-        ),
+        accessor: (row: StatementRow) => {
+          const ref = String(row.reference_id ?? "").trim();
+          const desc = String(row.description ?? "");
+          return (
+            <div className="space-y-1 max-w-[260px]">
+              {ref !== "" && (
+                <Badge variant="secondary" className="text-[10px] font-normal whitespace-normal block w-fit">
+                  Transaction/Reference Code: {ref}
+                </Badge>
+              )}
+              <CellClick value={desc} onClick={() => setEditModal({ row, field: "description", value: row.description })} />
+            </div>
+          );
+        },
       },
     ],
     []
@@ -99,14 +128,13 @@ export default function AdminAccountStatement() {
         onLoad={() => refetch()}
         loading={isLoading}
       />
-      <DataTable
-        data={rows}
-        columns={columns}
-        pageSize={20}
-        searchPlaceholder="Search username..."
-        searchKey="username"
-        variant="adminListing"
+      <Input
+        placeholder="Search username, description, or reference ID…"
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+        className="max-w-md h-9"
       />
+      <DataTable data={rows} columns={columns} pageSize={20} hideSearch variant="adminListing" />
       {totalCount > 20 && (
         <div className="flex justify-between text-sm text-muted-foreground">
           <span>Total: {totalCount}</span>

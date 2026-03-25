@@ -6,7 +6,7 @@ import { getSiteSetting, getWhatsAppLinkWithUser } from "@/api/site";
 export const WhatsAppButton = () => {
   const { user } = useAuth();
   const { data: siteSetting } = useQuery({ queryKey: ["siteSetting"], queryFn: getSiteSetting });
-  const waUrl = getWhatsAppLinkWithUser(siteSetting as { whatsapp_number?: string; phones?: string[] } | undefined, user, "Hi, I need support from KarnaliX.");
+  const waUrl = getWhatsAppLinkWithUser(siteSetting as { whatsapp_number?: string; phones?: string[] } | undefined, user, "Hi, I need support from Kingxclub.");
   if (!waUrl) return null;
   return (
     <a

@@ -72,8 +72,8 @@ export function ComingSoon({ comingSoon: comingSoonProp }: ComingSoonProps) {
           {comingSoon.map((item) => (
             <div key={item.id ?? item.name} className="w-[300px] flex-shrink-0 snap-start">
               <div className="group rounded-2xl overflow-hidden glass border border-border/50 hover:border-secondary/50 transition-all duration-300">
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <img src={getImageUrl(item)} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
+                <div className="relative aspect-[4/3] overflow-hidden bg-muted/80 flex items-center justify-center">
+                  <img src={getImageUrl(item)} alt={item.name} className="w-full h-full max-h-[200px] object-contain object-center" loading="lazy" />
                   <div className="absolute top-3 left-3">
                     <span className="px-3 py-1 bg-secondary/90 text-secondary-foreground text-xs font-bold rounded-full flex items-center gap-1">
                       <Clock className="w-3 h-3" />

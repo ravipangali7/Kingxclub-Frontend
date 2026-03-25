@@ -14,6 +14,8 @@ import { getMediaUrl } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import { Check, X, Eye } from "lucide-react";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { RejectReasonSuggestionsRow } from "@/components/admin/RejectReasonSuggestionsRow";
+import { useRejectReasonSuggestions } from "@/hooks/useRejectReasonSuggestions";
 
 type PaymentModeRow = Record<string, unknown> & {
   id?: number;
@@ -49,6 +51,8 @@ const AdminPaymentModeVerification = () => {
   const [statusEditValue, setStatusEditValue] = useState("");
   const [statusEditRejectReason, setStatusEditRejectReason] = useState("");
   const [statusEditSaving, setStatusEditSaving] = useState(false);
+  const { data: rejectSuggestionsRes } = useRejectReasonSuggestions(role);
+  const rejectChips = rejectSuggestionsRes?.data ?? [];
 
   const displayName = (row: PaymentModeRow) => String(row.payment_method_name ?? "—");
 
@@ -169,6 +173,7 @@ const AdminPaymentModeVerification = () => {
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Reject reason (optional)</label>
                   <Textarea placeholder="Reason..." rows={2} value={statusEditRejectReason} onChange={(e) => setStatusEditRejectReason(e.target.value)} />
+                  <RejectReasonSuggestionsRow suggestions={rejectChips} onSelect={(text) => setStatusEditRejectReason(text)} />
                 </div>
               )}
             </div>
@@ -249,6 +254,7 @@ const AdminPaymentModeVerification = () => {
         <DialogContent className="max-w-xs">
           <DialogHeader><DialogTitle className="font-display">Reject Payment Method</DialogTitle></DialogHeader>
           <Textarea placeholder="Rejection reason (optional)..." rows={3} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
+          <RejectReasonSuggestionsRow suggestions={rejectChips} onSelect={(text) => setRejectReason(text)} />
           <DialogFooter>
             <Button variant="outline" onClick={() => setRejectOpen(false)}>Cancel</Button>
             <Button

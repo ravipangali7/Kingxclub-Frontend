@@ -19,6 +19,8 @@ import { toast } from "@/hooks/use-toast";
 import { Check, X, Eye, RefreshCw } from "lucide-react";
 import { ListDateRangeToolbar } from "@/components/shared/ListDateRangeToolbar";
 import { TableBadge } from "@/components/admin/TableBadge";
+import { RejectReasonSuggestionsRow } from "@/components/admin/RejectReasonSuggestionsRow";
+import { useRejectReasonSuggestions } from "@/hooks/useRejectReasonSuggestions";
 
 type BonusRequestRow = Record<string, unknown> & {
   id?: number;
@@ -62,6 +64,8 @@ const AdminBonusRequests = () => {
   const [selected, setSelected] = useState<BonusRequestRow | null>(null);
   const [editAmount, setEditAmount] = useState("");
   const [savingAmount, setSavingAmount] = useState(false);
+  const { data: rejectSuggestionsRes } = useRejectReasonSuggestions(role);
+  const rejectChips = rejectSuggestionsRes?.data ?? [];
   const rows = bonusRequests as BonusRequestRow[];
 
   useEffect(() => {
@@ -210,6 +214,7 @@ const AdminBonusRequests = () => {
         <DialogContent className="max-w-xs">
           <DialogHeader><DialogTitle className="font-display">Reject Bonus Request</DialogTitle></DialogHeader>
           <Textarea placeholder="Rejection reason..." rows={3} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
+          <RejectReasonSuggestionsRow suggestions={rejectChips} onSelect={(text) => setRejectReason(text)} />
           <DialogFooter>
             <Button variant="outline" onClick={() => setRejectOpen(false)}>Cancel</Button>
             <Button

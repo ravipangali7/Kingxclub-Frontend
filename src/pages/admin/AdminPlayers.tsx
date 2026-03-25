@@ -61,8 +61,10 @@ const AdminPlayers = () => {
   const [pendingPayload, setPendingPayload] = useState<Record<string, unknown>>({});
   const [depositAmount, setDepositAmount] = useState("");
   const [depositRemarks, setDepositRemarks] = useState("");
+  const [depositReferenceId, setDepositReferenceId] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [withdrawRemarks, setWithdrawRemarks] = useState("");
+  const [withdrawReferenceId, setWithdrawReferenceId] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [editName, setEditName] = useState("");
@@ -513,6 +515,7 @@ const AdminPlayers = () => {
           <div className="space-y-3">
             <Input type="number" placeholder="Amount" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} />
             <Textarea placeholder="Remarks (optional)" rows={2} value={depositRemarks} onChange={(e) => setDepositRemarks(e.target.value)} />
+            <Input placeholder="Transaction / Reference ID (optional)" value={depositReferenceId} onChange={(e) => setDepositReferenceId(e.target.value)} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDepositOpen(false)}>Cancel</Button>
@@ -520,7 +523,12 @@ const AdminPlayers = () => {
               className="gold-gradient text-primary-foreground"
               onClick={() => {
                 setPendingAction("deposit");
-                setPendingPayload({ userId: selectedUser?.id, amount: depositAmount, remarks: depositRemarks });
+                setPendingPayload({
+                  userId: selectedUser?.id,
+                  amount: depositAmount,
+                  remarks: depositRemarks,
+                  reference_id: depositReferenceId.trim() || undefined,
+                });
                 setDepositOpen(false);
                 setPinOpen(true);
               }}
@@ -538,14 +546,24 @@ const AdminPlayers = () => {
           <div className="space-y-3">
             <Input type="number" placeholder="Amount" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} />
             <Textarea placeholder="Remarks (optional)" rows={2} value={withdrawRemarks} onChange={(e) => setWithdrawRemarks(e.target.value)} />
+            <Input placeholder="Transaction / Reference ID (required)" value={withdrawReferenceId} onChange={(e) => setWithdrawReferenceId(e.target.value)} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setWithdrawOpen(false)}>Cancel</Button>
             <Button
               className="gold-gradient text-primary-foreground"
               onClick={() => {
+                if (!withdrawReferenceId.trim()) {
+                  toast({ title: "Reference ID is required for manual withdrawal.", variant: "destructive" });
+                  return;
+                }
                 setPendingAction("withdraw");
-                setPendingPayload({ userId: selectedUser?.id, amount: withdrawAmount, remarks: withdrawRemarks });
+                setPendingPayload({
+                  userId: selectedUser?.id,
+                  amount: withdrawAmount,
+                  remarks: withdrawRemarks,
+                  reference_id: withdrawReferenceId.trim(),
+                });
                 setWithdrawOpen(false);
                 setPinOpen(true);
               }}
@@ -611,8 +629,9 @@ const AdminPlayers = () => {
               const userId = pendingPayload.userId as number;
               const amount = pendingPayload.amount as string;
               const remarks = (pendingPayload.remarks as string) ?? "";
+              const reference_id = pendingPayload.reference_id as string | undefined;
               await directDeposit(
-                { user_id: userId, amount: Number(amount) || 0, remarks, pin },
+                { user_id: userId, amount: Number(amount) || 0, remarks, pin, ...(reference_id ? { reference_id } : {}) },
                 role
               );
               queryClient.invalidateQueries({ queryKey: ["admin-players", role] });
@@ -622,8 +641,13 @@ const AdminPlayers = () => {
               const userId = pendingPayload.userId as number;
               const amount = pendingPayload.amount as string;
               const remarks = (pendingPayload.remarks as string) ?? "";
+              const reference_id = String(pendingPayload.reference_id ?? "").trim();
+              if (!reference_id) {
+                toast({ title: "Reference ID is required.", variant: "destructive" });
+                return;
+              }
               await directWithdraw(
-                { user_id: userId, amount: Number(amount) || 0, remarks, pin },
+                { user_id: userId, amount: Number(amount) || 0, remarks, reference_id, pin },
                 role
               );
               queryClient.invalidateQueries({ queryKey: ["admin-players", role] });
