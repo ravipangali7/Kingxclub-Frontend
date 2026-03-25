@@ -2,11 +2,18 @@ import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Plus, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getSuperSettings, saveSuperSettings } from "@/api/admin";
 import { toast } from "@/hooks/use-toast";
+
+function rowsFromRejectSuggestions(rr: unknown): string[] {
+  if (rr != null && typeof rr === "object" && Array.isArray((rr as { data?: unknown }).data)) {
+    return (rr as { data: unknown[] }).data.map((x) => (typeof x === "string" ? x : ""));
+  }
+  return [];
+}
 
 const PowerhouseSuperSettings = () => {
   const queryClient = useQueryClient();
@@ -19,7 +26,7 @@ const PowerhouseSuperSettings = () => {
   const [gameApiUrl, setGameApiUrl] = useState("");
   const [gameApiLaunchUrl, setGameApiLaunchUrl] = useState("");
   const [gameApiSecret, setGameApiSecret] = useState("");
-  const [rejectSuggestionsJson, setRejectSuggestionsJson] = useState('{"data":[]}');
+  const [rejectReasonRows, setRejectReasonRows] = useState<string[]>([""]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -33,33 +40,13 @@ const PowerhouseSuperSettings = () => {
     setGameApiLaunchUrl(String(s.game_api_launch_url ?? ""));
     setGameApiSecret(String(s.game_api_secret ?? ""));
     const rr = s.reject_reason_suggestions;
-    if (rr != null && typeof rr === "object") {
-      try {
-        setRejectSuggestionsJson(JSON.stringify(rr, null, 2));
-      } catch {
-        setRejectSuggestionsJson('{"data":[]}');
-      }
-    } else {
-      setRejectSuggestionsJson('{"data":[]}');
-    }
+    const rows = rowsFromRejectSuggestions(rr);
+    setRejectReasonRows(rows.length ? rows : [""]);
   }, [superSettings]);
 
   const handleSave = async () => {
-    let reject_reason_suggestions: unknown;
-    try {
-      reject_reason_suggestions = JSON.parse(rejectSuggestionsJson) as unknown;
-    } catch {
-      toast({ title: "Reject suggestions: invalid JSON.", variant: "destructive" });
-      return;
-    }
-    if (
-      reject_reason_suggestions == null ||
-      typeof reject_reason_suggestions !== "object" ||
-      !Array.isArray((reject_reason_suggestions as { data?: unknown }).data)
-    ) {
-      toast({ title: 'Reject suggestions must be JSON like {"data":["reason 1","reason 2"]}.', variant: "destructive" });
-      return;
-    }
+    const data = rejectReasonRows.map((s) => s.trim()).filter(Boolean);
+    const reject_reason_suggestions = { data };
     setSaving(true);
     try {
       await saveSuperSettings({
@@ -74,6 +61,7 @@ const PowerhouseSuperSettings = () => {
         reject_reason_suggestions,
       });
       queryClient.invalidateQueries({ queryKey: ["admin-super-settings"] });
+      queryClient.invalidateQueries({ queryKey: ["reject-reason-suggestions"] });
       toast({ title: "Super settings saved." });
     } catch (e) {
       const msg = (e as { detail?: string })?.detail ?? "Failed to save settings";
@@ -103,16 +91,53 @@ const PowerhouseSuperSettings = () => {
 
       <Card>
         <CardHeader className="p-4 pb-2"><CardTitle className="text-sm font-display">Reject reason suggestions</CardTitle></CardHeader>
-        <CardContent className="p-4 pt-2 space-y-2">
+        <CardContent className="p-4 pt-2 space-y-3">
           <p className="text-xs text-muted-foreground">
-            JSON with a <code className="text-[10px] bg-muted px-1 rounded">data</code> array of strings. Shown as quick-fill chips on deposit/withdraw/bonus/KYC reject dialogs.
+            One line per suggestion. These appear as quick-fill chips on deposit, withdraw, bonus, and KYC reject dialogs.
           </p>
-          <Textarea
-            value={rejectSuggestionsJson}
-            onChange={(e) => setRejectSuggestionsJson(e.target.value)}
-            className="font-mono text-xs min-h-[120px]"
-            spellCheck={false}
-          />
+          <div className="space-y-2">
+            {rejectReasonRows.map((value, index) => (
+              <div key={index} className="flex gap-2 items-center">
+                <Input
+                  value={value}
+                  onChange={(e) => {
+                    const next = [...rejectReasonRows];
+                    next[index] = e.target.value;
+                    setRejectReasonRows(next);
+                  }}
+                  placeholder={`Suggestion ${index + 1}`}
+                  className="text-sm rounded-md"
+                  spellCheck
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 h-10 w-10 text-muted-foreground hover:text-destructive"
+                  onClick={() => {
+                    if (rejectReasonRows.length <= 1) {
+                      setRejectReasonRows([""]);
+                      return;
+                    }
+                    setRejectReasonRows(rejectReasonRows.filter((_, i) => i !== index));
+                  }}
+                  aria-label="Remove suggestion"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full border-dashed"
+            onClick={() => setRejectReasonRows([...rejectReasonRows, ""])}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add suggestion
+          </Button>
         </CardContent>
       </Card>
 
