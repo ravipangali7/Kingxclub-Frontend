@@ -5,7 +5,7 @@ import {
   MessageCircle, Users, ArrowDownCircle, ArrowUpCircle,
   ShieldCheck, Gamepad2, Clock, Activity, Settings, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   Menu, X, Tag, Box, Gift, FileText, Star, Globe, LogOut, CreditCard, User, Key, Image,
-  Calculator, LayoutPanelTop, LayoutDashboard, Megaphone, MapPin, LayoutGrid, Palette
+  Calculator, LayoutPanelTop, LayoutDashboard, Megaphone, MapPin, LayoutGrid, Palette, Eraser
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDashboard, getUnreadMessageCount } from "@/api/admin";
@@ -95,6 +95,7 @@ const getNavItems = (role: string): NavItem[] => {
       { label: "Super Setting", path: "/super-settings", icon: Settings },
       { label: "Change Password", path: "/change-password", icon: Key },
       { label: "Profile", path: "/profile", icon: User },
+      { label: "Clean Data", path: "/clean-data", icon: Eraser },
     ];
   }
 

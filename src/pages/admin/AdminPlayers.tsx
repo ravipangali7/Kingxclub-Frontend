@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Textarea } from "@/components/ui/textarea";
 import { getMasters, getPlayers, createPlayer, updatePlayer, togglePlayerActive, directDeposit, directWithdraw, resetPassword, deletePlayer, type ListParams } from "@/api/admin";
 import { toast } from "@/hooks/use-toast";
@@ -409,7 +410,7 @@ const AdminPlayers = () => {
             <Input placeholder="Phone" value={createPhone} onChange={(e) => setCreatePhone(e.target.value)} />
             <Input placeholder="Email (optional)" value={createEmail} onChange={(e) => setCreateEmail(e.target.value)} />
             <Input placeholder="WhatsApp Number" value={createWhatsApp} onChange={(e) => setCreateWhatsApp(e.target.value)} />
-            <Input type="password" placeholder="Password" value={createPassword} onChange={(e) => setCreatePassword(e.target.value)} className="md:col-span-2" />
+            <PasswordInput placeholder="Password" value={createPassword} onChange={(e) => setCreatePassword(e.target.value)} className="md:col-span-2" />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
@@ -579,8 +580,8 @@ const AdminPlayers = () => {
         <DialogContent className="max-w-xs">
           <DialogHeader><DialogTitle className="font-display">Reset Password — {selectedUser?.username}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Input type="password" placeholder="New Password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-            <Input type="password" placeholder="Confirm New Password" value={newPasswordConfirm} onChange={(e) => setNewPasswordConfirm(e.target.value)} />
+            <PasswordInput placeholder="New Password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            <PasswordInput placeholder="Confirm New Password" value={newPasswordConfirm} onChange={(e) => setNewPasswordConfirm(e.target.value)} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setResetPwOpen(false)}>Cancel</Button>

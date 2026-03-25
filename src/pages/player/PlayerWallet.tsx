@@ -14,6 +14,7 @@ import { PaymentDetailsPanel, buildPaymentDetailsPlainText } from "@/components/
 import { ArrowDownCircle, ArrowUpCircle, Wallet, Upload, CheckCircle, Sparkles, TrendingUp, Gift, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 
@@ -581,7 +582,7 @@ const PlayerWallet = () => {
             </div>
             <div>
               <label className="text-xs text-muted-foreground font-medium mb-2 block">Password (to confirm)</label>
-              <Input type="password" placeholder="Enter password" value={withdrawPassword} onChange={(e) => setWithdrawPassword(e.target.value)} className="h-11" />
+              <PasswordInput placeholder="Enter password" value={withdrawPassword} onChange={(e) => setWithdrawPassword(e.target.value)} className="h-11" />
             </div>
           </div>
           <DialogFooter>

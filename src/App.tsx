@@ -100,6 +100,7 @@ import PowerhouseComingSoon from "@/pages/admin/PowerhouseComingSoon";
 import PowerhouseSiteHomeReferBonus from "@/pages/admin/PowerhouseSiteHomeReferBonus";
 import PowerhouseSiteHomePaymentAccepted from "@/pages/admin/PowerhouseSiteHomePaymentAccepted";
 import PowerhouseSiteTheme from "@/pages/admin/PowerhouseSiteTheme";
+import PowerhouseCleanData from "@/pages/admin/PowerhouseCleanData";
 
 import NotFound from "@/pages/NotFound";
 import { GlobalMessageFab } from "@/components/shared/GlobalMessageFab";
@@ -316,6 +317,7 @@ function AppShell() {
               <Route path="/powerhouse/countries" element={<PowerhouseCountries />} />
               <Route path="/powerhouse/profile" element={<AdminProfile />} />
               <Route path="/powerhouse/change-password" element={<AdminChangePassword />} />
+              <Route path="/powerhouse/clean-data" element={<PowerhouseCleanData />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

@@ -4,12 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { GoogleLogin } from "@react-oauth/google";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { REGISTER_COUNTRY_OPTIONS } from "@/constants/countryCodes";
 import { getSiteSetting } from "@/api/site";
-import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { signupCheckPhone, signupSendOtp, signupVerifyOtp } from "@/api/auth";
 
@@ -32,13 +33,11 @@ const RegisterPage = () => {
   const [referralCode, setReferralCode] = useState(refFromUrl);
   const [signupToken, setSignupToken] = useState("");
   const [verifiedPhone, setVerifiedPhone] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleUsername, setGoogleUsername] = useState("");
   const [googlePassword, setGooglePassword] = useState("");
   const [googleConfirmPassword, setGoogleConfirmPassword] = useState("");
-  const [showGooglePassword, setShowGooglePassword] = useState(false);
   const [googleIdToken, setGoogleIdToken] = useState("");
   const [showGoogleUsernameStep, setShowGoogleUsernameStep] = useState(false);
   const { register, loginWithGoogle, googleComplete } = useAuth();
@@ -216,32 +215,20 @@ const RegisterPage = () => {
                 minLength={3}
                 maxLength={30}
               />
-              <div className="relative">
-                <Input
-                  type={showGooglePassword ? "text" : "password"}
-                  placeholder="Password (min 6 characters)"
-                  className="h-11 pr-10"
-                  value={googlePassword}
-                  onChange={(e) => setGooglePassword(e.target.value)}
-                  minLength={6}
-                />
-                <button type="button" onClick={() => setShowGooglePassword(!showGooglePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  {showGooglePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-              <div className="relative">
-                <Input
-                  type={showGooglePassword ? "text" : "password"}
-                  placeholder="Confirm password"
-                  className="h-11 pr-10"
-                  value={googleConfirmPassword}
-                  onChange={(e) => setGoogleConfirmPassword(e.target.value)}
-                  minLength={6}
-                />
-                <button type="button" onClick={() => setShowGooglePassword(!showGooglePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  {showGooglePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+              <PasswordInput
+                placeholder="Password (min 6 characters)"
+                className="h-11"
+                value={googlePassword}
+                onChange={(e) => setGooglePassword(e.target.value)}
+                minLength={6}
+              />
+              <PasswordInput
+                placeholder="Confirm password"
+                className="h-11"
+                value={googleConfirmPassword}
+                onChange={(e) => setGoogleConfirmPassword(e.target.value)}
+                minLength={6}
+              />
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -357,19 +344,13 @@ const RegisterPage = () => {
           {step === "password" && (
             <form onSubmit={handleRegister} className="space-y-3">
               {error && <p className="text-xs text-destructive">{error}</p>}
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password (min 6 characters)"
-                  className="h-11"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+              <PasswordInput
+                placeholder="Password (min 6 characters)"
+                className="h-11"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
               <Button type="submit" className="w-full gold-gradient text-primary-foreground font-display font-semibold h-11 neon-glow-sm" disabled={loading}>
                 {loading ? "Creating account..." : "Create account"}
               </Button>

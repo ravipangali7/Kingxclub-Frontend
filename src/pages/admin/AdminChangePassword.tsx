@@ -1,9 +1,9 @@
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
-import { Lock, Eye, EyeOff } from "lucide-react";
+import { Lock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { changePassword, type AdminRole } from "@/api/admin";
@@ -17,8 +17,6 @@ const getRoleFromPath = (pathname: string): AdminRole => {
 const AdminChangePassword = () => {
   const { pathname } = useLocation();
   const role = getRoleFromPath(pathname);
-  const [showCurrent, setShowCurrent] = useState(false);
-  const [showNew, setShowNew] = useState(false);
   const [current, setCurrent] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -65,42 +63,12 @@ const AdminChangePassword = () => {
 
           <div>
             <label className="text-xs text-muted-foreground font-medium mb-1 block">Current Password</label>
-            <div className="relative">
-              <Input
-                type={showCurrent ? "text" : "password"}
-                placeholder="Enter current password"
-                value={current}
-                onChange={(e) => setCurrent(e.target.value)}
-                className="h-11 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              >
-                {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
+            <PasswordInput placeholder="Enter current password" value={current} onChange={(e) => setCurrent(e.target.value)} className="h-11" />
           </div>
 
           <div>
             <label className="text-xs text-muted-foreground font-medium mb-1 block">New Password</label>
-            <div className="relative">
-              <Input
-                type={showNew ? "text" : "password"}
-                placeholder="Enter new password"
-                value={newPw}
-                onChange={(e) => setNewPw(e.target.value)}
-                className="h-11 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowNew(!showNew)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              >
-                {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
+            <PasswordInput placeholder="Enter new password" value={newPw} onChange={(e) => setNewPw(e.target.value)} className="h-11" />
             {newPw && (
               <p className={`text-[10px] mt-1 ${newPw.length >= 6 ? "text-green-600" : "text-destructive"}`}>
                 {newPw.length >= 6 ? "✓ At least 6 characters" : "✗ Minimum 6 characters"}
@@ -110,13 +78,7 @@ const AdminChangePassword = () => {
 
           <div>
             <label className="text-xs text-muted-foreground font-medium mb-1 block">Confirm New Password</label>
-            <Input
-              type="password"
-              placeholder="Confirm new password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              className="h-11"
-            />
+            <PasswordInput placeholder="Confirm new password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="h-11" />
             {confirm && newPw && (
               <p className={`text-[10px] mt-1 ${confirm === newPw ? "text-green-600" : "text-destructive"}`}>
                 {confirm === newPw ? "✓ Passwords match" : "✗ Passwords don't match"}

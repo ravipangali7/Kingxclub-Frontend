@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { getPlayerReport, resetPassword, type AdminRole } from "@/api/admin";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useState } from "react";
@@ -199,8 +200,7 @@ export default function AdminPlayerReport() {
           <div className="space-y-3">
             <div>
               <label className="text-sm font-medium">Admin PIN</label>
-              <Input
-                type="password"
+              <PasswordInput
                 maxLength={6}
                 placeholder="PIN"
                 value={pin}
@@ -210,8 +210,7 @@ export default function AdminPlayerReport() {
             </div>
             <div>
               <label className="text-sm font-medium">New password</label>
-              <Input
-                type="password"
+              <PasswordInput
                 placeholder="Min 6 characters"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}

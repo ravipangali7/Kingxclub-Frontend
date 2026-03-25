@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowDownCircle, ArrowUpCircle, Upload, CheckCircle } from "lucide-react";
@@ -84,7 +85,7 @@ const WalletPage = () => {
           </Card>
 
           <Input type="number" placeholder="Enter withdrawal amount" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} className="h-11" />
-          <Input type="password" placeholder="Enter password to confirm" className="h-11" />
+          <PasswordInput placeholder="Enter password to confirm" className="h-11" />
           <Button className="w-full bg-accent text-accent-foreground font-display font-semibold h-11" disabled>Login to withdraw</Button>
         </TabsContent>
       </Tabs>

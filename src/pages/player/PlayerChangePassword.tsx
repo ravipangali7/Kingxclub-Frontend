@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
-import { Lock, Eye, EyeOff } from "lucide-react";
+import { Lock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { changePassword } from "@/api/player";
 
 const PlayerChangePassword = () => {
-  const [showNew, setShowNew] = useState(false);
   const [newPw, setNewPw] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -51,12 +50,7 @@ const PlayerChangePassword = () => {
 
           <div>
             <label className="text-xs text-muted-foreground font-medium mb-1 block">New Password</label>
-            <div className="relative">
-              <Input type={showNew ? "text" : "password"} placeholder="Enter new password" value={newPw} onChange={(e) => setNewPw(e.target.value)} className="h-11 pr-10" />
-              <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
+            <PasswordInput placeholder="Enter new password" value={newPw} onChange={(e) => setNewPw(e.target.value)} className="h-11" />
             {newPw && (
               <div className="flex gap-2 mt-2">
                 <span className={`text-[10px] px-2 py-0.5 rounded-full ${newPw.length >= 6 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>
@@ -74,7 +68,7 @@ const PlayerChangePassword = () => {
 
           <div>
             <label className="text-xs text-muted-foreground font-medium mb-1 block">Confirm New Password</label>
-            <Input type="password" placeholder="Confirm new password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="h-11" />
+            <PasswordInput placeholder="Confirm new password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="h-11" />
             {confirm && newPw && (
               <p className={`text-[10px] mt-1 ${confirm === newPw ? "text-success" : "text-destructive"}`}>
                 {confirm === newPw ? "✓ Passwords match" : "✗ Passwords don't match"}

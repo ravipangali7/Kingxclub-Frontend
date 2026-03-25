@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -572,7 +573,7 @@ const PowerhouseSiteSettings = () => {
           </div>
           <div>
             <label className="text-sm font-medium mb-1.5 block">Google Client Secret</label>
-            <Input
+            <PasswordInput
               value={googleClientSecret}
               onChange={(e) => setGoogleClientSecret(e.target.value)}
               placeholder="Client secret"

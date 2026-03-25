@@ -4,10 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { GoogleLogin } from "@react-oauth/google";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { getSiteSetting, getWhatsAppLink } from "@/api/site";
-import { Eye, EyeOff, Gamepad2 } from "lucide-react";
+import { Gamepad2 } from "lucide-react";
 
 const roleRedirect: Record<string, string> = {
   powerhouse: "/powerhouse/players",
@@ -17,7 +18,6 @@ const roleRedirect: Record<string, string> = {
 };
 
 const LoginPage = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,7 +25,6 @@ const LoginPage = () => {
   const [googleUsername, setGoogleUsername] = useState("");
   const [googlePassword, setGooglePassword] = useState("");
   const [googleConfirmPassword, setGoogleConfirmPassword] = useState("");
-  const [showGooglePassword, setShowGooglePassword] = useState(false);
   const [googleIdToken, setGoogleIdToken] = useState("");
   const [showGoogleUsernameStep, setShowGoogleUsernameStep] = useState(false);
   const { login, loginWithGoogle, googleComplete } = useAuth();
@@ -137,32 +136,20 @@ const LoginPage = () => {
                 minLength={3}
                 maxLength={30}
               />
-              <div className="relative">
-                <Input
-                  type={showGooglePassword ? "text" : "password"}
-                  placeholder="Password (min 6 characters)"
-                  className="h-11 pr-10"
-                  value={googlePassword}
-                  onChange={(e) => setGooglePassword(e.target.value)}
-                  minLength={6}
-                />
-                <button type="button" onClick={() => setShowGooglePassword(!showGooglePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  {showGooglePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-              <div className="relative">
-                <Input
-                  type={showGooglePassword ? "text" : "password"}
-                  placeholder="Confirm password"
-                  className="h-11 pr-10"
-                  value={googleConfirmPassword}
-                  onChange={(e) => setGoogleConfirmPassword(e.target.value)}
-                  minLength={6}
-                />
-                <button type="button" onClick={() => setShowGooglePassword(!showGooglePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  {showGooglePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+              <PasswordInput
+                placeholder="Password (min 6 characters)"
+                className="h-11"
+                value={googlePassword}
+                onChange={(e) => setGooglePassword(e.target.value)}
+                minLength={6}
+              />
+              <PasswordInput
+                placeholder="Confirm password"
+                className="h-11"
+                value={googleConfirmPassword}
+                onChange={(e) => setGoogleConfirmPassword(e.target.value)}
+                minLength={6}
+              />
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -182,12 +169,7 @@ const LoginPage = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {error && <p className="text-xs text-destructive">{error}</p>}
                 <Input placeholder="Username" className="h-11" value={username} onChange={(e) => setUsername(e.target.value)} required />
-                <div className="relative">
-                  <Input type={showPassword ? "text" : "password"} placeholder="Password" className="h-11" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
+                <PasswordInput placeholder="Password" className="h-11" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 <Button type="submit" className="w-full gold-gradient text-primary-foreground font-display font-semibold h-11 neon-glow-sm" disabled={loading}>
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>

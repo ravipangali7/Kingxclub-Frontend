@@ -871,3 +871,17 @@ export async function updateCountry(id: number, body: Partial<{ name: string; co
 export async function deleteCountry(id: number) {
   return apiDelete(`${prefix("powerhouse")}/countries/${id}/`);
 }
+
+// --- Clean Data (powerhouse only) ---
+export type CleanDataModelMeta = {
+  id: string;
+  label: string;
+  protected: boolean;
+  presets: Record<string, boolean>;
+};
+export async function getCleanDataMetadata() {
+  return apiGet<{ models: CleanDataModelMeta[]; preset_ids: string[] }>(`${prefix("powerhouse")}/clean-data/`);
+}
+export async function executeCleanData(body: { pin: string; password: string; models: string[] }) {
+  return apiPost<{ deleted: Record<string, number>; detail?: string }>(`${prefix("powerhouse")}/clean-data/execute/`, body);
+}

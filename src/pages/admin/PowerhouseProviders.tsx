@@ -4,6 +4,7 @@ import { DataTable } from "@/components/shared/DataTable";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useQuery } from "@tanstack/react-query";
 import { getProvidersAdmin, createProviderAdmin, createProviderAdminForm, updateProviderAdmin, updateProviderAdminForm, deleteProviderAdmin, getImportGameApiUrl, fetchProviderGamesFromGameApi, postImportGames, type ImportProvider, type ImportGame } from "@/api/admin";
 import { StatusBadge } from "@/components/shared/StatusBadge";
@@ -28,7 +29,6 @@ const PowerhouseProviders = () => {
   const [apiEndpoint, setApiEndpoint] = useState("");
   const [apiSecret, setApiSecret] = useState("");
   const [apiToken, setApiToken] = useState("");
-  const [showApiSecrets, setShowApiSecrets] = useState(false);
 
   // Direct Import modal (game API called from browser; backend only gives URL and persists import)
   const [importOpen, setImportOpen] = useState(false);
@@ -346,27 +346,13 @@ const PowerhouseProviders = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">API secret (optional)</label>
-                  <Input
-                    type={showApiSecrets ? "text" : "password"}
-                    placeholder="API secret"
-                    value={apiSecret}
-                    onChange={(e) => setApiSecret(e.target.value)}
-                  />
+                  <PasswordInput placeholder="API secret" value={apiSecret} onChange={(e) => setApiSecret(e.target.value)} />
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">API token (optional)</label>
-                  <Input
-                    type={showApiSecrets ? "text" : "password"}
-                    placeholder="API token"
-                    value={apiToken}
-                    onChange={(e) => setApiToken(e.target.value)}
-                  />
+                  <PasswordInput placeholder="API token" value={apiToken} onChange={(e) => setApiToken(e.target.value)} />
                 </div>
               </div>
-              <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                <input type="checkbox" checked={showApiSecrets} onChange={(e) => setShowApiSecrets(e.target.checked)} className="rounded border-border" />
-                Show secret and token
-              </label>
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">Provider image (optional)</label>
@@ -432,27 +418,13 @@ const PowerhouseProviders = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">API secret (optional)</label>
-                  <Input
-                    type={showApiSecrets ? "text" : "password"}
-                    placeholder="API secret"
-                    value={apiSecret}
-                    onChange={(e) => setApiSecret(e.target.value)}
-                  />
+                  <PasswordInput placeholder="API secret" value={apiSecret} onChange={(e) => setApiSecret(e.target.value)} />
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">API token (optional)</label>
-                  <Input
-                    type={showApiSecrets ? "text" : "password"}
-                    placeholder="API token"
-                    value={apiToken}
-                    onChange={(e) => setApiToken(e.target.value)}
-                  />
+                  <PasswordInput placeholder="API token" value={apiToken} onChange={(e) => setApiToken(e.target.value)} />
                 </div>
               </div>
-              <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                <input type="checkbox" checked={showApiSecrets} onChange={(e) => setShowApiSecrets(e.target.checked)} className="rounded border-border" />
-                Show secret and token
-              </label>
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">Provider image (optional, leave empty to keep current)</label>
