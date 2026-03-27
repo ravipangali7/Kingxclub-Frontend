@@ -49,7 +49,6 @@ const HomeDesignPage = lazy(() => import("@/pages/public/HomeDesignPage"));
 
 // ── Player Pages ──────────────────────────────────────────────────────────────
 const PlayerDashboard = lazy(() => import("@/pages/player/PlayerDashboard"));
-const PlayerMessages = lazy(() => import("@/pages/player/PlayerMessages"));
 const PlayerWallet = lazy(() => import("@/pages/player/PlayerWallet"));
 const PlayerTransactions = lazy(() => import("@/pages/player/PlayerTransactions"));
 const PlayerGameResults = lazy(() => import("@/pages/player/PlayerGameResults"));
@@ -227,7 +226,6 @@ function AppShell() {
             <Route element={<ProtectedRoute allowedRole="player"><PlayerSiteLayout /></ProtectedRoute>}>
               <Route path="/player" element={<PlayerLayout />}>
                 <Route index element={<PlayerDashboard />} />
-                <Route path="messages" element={<PlayerMessages />} />
                 <Route path="wallet" element={<PlayerWallet />} />
                 <Route path="transactions" element={<PlayerTransactions />} />
                 <Route path="game-results" element={<PlayerGameResults />} />

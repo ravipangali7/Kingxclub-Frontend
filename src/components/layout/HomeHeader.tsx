@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Menu, X, Bell, Wallet } from "lucide-react";
+import { Menu, X, Bell, Wallet, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlayerNotification } from "@/contexts/PlayerNotificationContext";
@@ -191,9 +191,9 @@ export const HomeHeader = () => {
                 variant="ghost"
                 size="icon"
                 className="relative min-h-[44px] min-w-[44px] touch-manipulation"
-                onClick={() => notification?.openChat()}
+                onClick={() => notification?.openFabSheet("chat")}
               >
-                <Bell className="h-5 w-5" />
+                <MessageCircle className="h-5 w-5" />
                 {messageBadge > 0 && (
                   <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-xs font-semibold">
                     {messageBadge > 99 ? "99+" : messageBadge}

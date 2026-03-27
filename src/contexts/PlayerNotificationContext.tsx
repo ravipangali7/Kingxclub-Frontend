@@ -1,15 +1,18 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MessageCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getPlayerNotifications } from "@/api/player";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+
+export type FabTab = "chat" | "notifications";
+
+export type PlayerNotification = {
+  id: number;
+  sender_id: number;
+  sender_name?: string;
+  sender_username?: string;
+  message?: string;
+  created_at: string | null;
+};
 
 type PlayerNotificationContextValue = {
   isOpen: boolean;
@@ -17,6 +20,14 @@ type PlayerNotificationContextValue = {
   openModal: () => void;
   closeModal: () => void;
   openChat: (contactId?: number | null) => void;
+  // Fab sheet state
+  fabOpen: boolean;
+  fabDefaultTab: FabTab;
+  openFabSheet: (tab?: FabTab) => void;
+  closeFabSheet: () => void;
+  // Notifications data (consumed by GlobalMessageFab)
+  notifications: PlayerNotification[];
+  notificationsLoading: boolean;
 };
 
 const PlayerNotificationContext = createContext<PlayerNotificationContextValue | null>(null);
@@ -26,7 +37,7 @@ export function usePlayerNotification() {
   return ctx;
 }
 
-function formatTimeAgo(iso: string | null): string {
+export function formatTimeAgo(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
   const now = new Date();
@@ -41,12 +52,15 @@ function formatTimeAgo(iso: string | null): string {
 export function PlayerNotificationProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedContactId, setSelectedContactId] = useState<number | null>(null);
+  const [fabOpen, setFabOpen] = useState(false);
+  const [fabDefaultTab, setFabDefaultTab] = useState<FabTab>("chat");
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const isPlayer = user?.role === "player";
 
   const openModal = useCallback(() => setIsOpen(true), []);
   const closeModal = useCallback(() => setIsOpen(false), []);
+
   const openChat = useCallback((contactId?: number | null) => {
     if (typeof contactId === "number" && !Number.isNaN(contactId)) {
       setSelectedContactId(contactId);
@@ -59,73 +73,45 @@ export function PlayerNotificationProvider({ children }: { children: React.React
     queryClient.invalidateQueries({ queryKey: ["player-notifications"] });
   }, [queryClient]);
 
-  const { data: notifications = [], isLoading } = useQuery({
+  const openFabSheet = useCallback((tab: FabTab = "chat") => {
+    setFabDefaultTab(tab);
+    setFabOpen(true);
+    if (tab === "notifications") {
+      queryClient.invalidateQueries({ queryKey: ["player-notifications"] });
+    } else {
+      queryClient.invalidateQueries({ queryKey: ["player-messages-unread"] });
+      queryClient.invalidateQueries({ queryKey: ["player-message-contacts"] });
+    }
+  }, [queryClient]);
+
+  const closeFabSheet = useCallback(() => {
+    setFabOpen(false);
+    setSelectedContactId(null);
+  }, []);
+
+  const { data: notifications = [], isLoading: notificationsLoading } = useQuery({
     queryKey: ["player-notifications"],
     queryFn: getPlayerNotifications,
-    enabled: isOpen && isPlayer,
+    enabled: isPlayer && fabOpen,
   });
 
-  const handleNotificationClick = (senderId: number) => {
-    openChat(senderId);
+  const value: PlayerNotificationContextValue = {
+    isOpen,
+    selectedContactId,
+    openModal,
+    closeModal,
+    openChat,
+    fabOpen,
+    fabDefaultTab,
+    openFabSheet,
+    closeFabSheet,
+    notifications: notifications as PlayerNotification[],
+    notificationsLoading,
   };
-
-  const handleViewAll = () => {
-    openChat();
-  };
-
-  const value: PlayerNotificationContextValue = { isOpen, selectedContactId, openModal, closeModal, openChat };
 
   return (
     <PlayerNotificationContext.Provider value={value}>
       {children}
-      {isPlayer && (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
-          <DialogContent className="max-w-md max-h-[85vh] flex flex-col p-0 gap-0">
-            <DialogHeader className="p-4 border-b border-border flex-shrink-0">
-              <DialogTitle className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full gold-gradient flex items-center justify-center neon-glow-sm">
-                  <MessageCircle className="h-4 w-4 text-primary-foreground" />
-                </div>
-                Notifications
-              </DialogTitle>
-            </DialogHeader>
-            <div className="flex-1 overflow-y-auto min-h-0 flex flex-col">
-              {isLoading ? (
-                <p className="p-4 text-center text-sm text-muted-foreground">Loading…</p>
-              ) : notifications.length === 0 ? (
-                <p className="p-4 text-center text-sm text-muted-foreground">No new notifications</p>
-              ) : (
-                <ul className="divide-y divide-border">
-                  {notifications.map((n) => (
-                    <li key={n.id}>
-                      <button
-                        type="button"
-                        onClick={() => handleNotificationClick(n.sender_id)}
-                        className="w-full text-left p-4 hover:bg-muted/50 transition-colors flex flex-col gap-1"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-medium text-sm truncate">
-                            {n.sender_name || n.sender_username || "User"}
-                          </span>
-                          <span className="text-xs text-muted-foreground flex-shrink-0">
-                            {formatTimeAgo(n.created_at)}
-                          </span>
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{n.message || "—"}</p>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div className="p-3 border-t border-border flex-shrink-0">
-              <Button variant="outline" className="w-full" onClick={handleViewAll}>
-                View all messages
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
     </PlayerNotificationContext.Provider>
   );
 }
