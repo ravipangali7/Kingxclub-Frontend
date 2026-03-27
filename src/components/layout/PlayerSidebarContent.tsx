@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Home, Wallet, Clock, User, Gamepad2, Key, CreditCard, BarChart3, LogOut, Users } from "lucide-react";
+import { Home, Wallet, Clock, User, Gamepad2, Key, CreditCard, BarChart3, LogOut, Users, MessageCircle } from "lucide-react";
 import type { User as AuthUser } from "@/contexts/AuthContext";
 
 export const sidebarLinks = [
   { label: "Dashboard", path: "/player", icon: Home },
+  { label: "Messages", path: "/player/messages", icon: MessageCircle },
   { label: "Wallet", path: "/player/wallet", icon: Wallet },
   { label: "Transactions", path: "/player/transactions", icon: Clock },
   { label: "Bet History", path: "/player/game-results", icon: BarChart3 },
