@@ -110,13 +110,13 @@ const GameDetailPage = () => {
   const g = game as Game;
   const minBet = Number(g.min_bet) || 10;
   const maxBet = Number(g.max_bet) || 5000;
-  const totalBalance =
-    isPlayer && wallet != null
-      ? Number((wallet as { main_balance?: string }).main_balance || 0) +
-        Number((wallet as { bonus_balance?: string }).bonus_balance || 0)
-      : 0;
+  const mainBalance = isPlayer && wallet != null ? Number((wallet as { main_balance?: string }).main_balance || 0) : 0;
+  const bonusBalance = isPlayer && wallet != null ? Number((wallet as { bonus_balance?: string }).bonus_balance || 0) : 0;
+  const totalBalance = mainBalance + bonusBalance;
+  const useBonusWallet = mainBalance < minBet && bonusBalance >= minBet;
+  const effectivePlayableBalance = useBonusWallet ? bonusBalance : mainBalance;
   const balanceFormatted = totalBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 });
-  const canPlay = totalBalance >= betAmount;
+  const canPlay = isPlayer ? effectivePlayableBalance >= betAmount : totalBalance >= betAmount;
   const rating = 4.5;
   const rtp = 96;
   const siteSettingRecord = siteSetting as { whatsapp_number?: string; phones?: string[] } | undefined;
@@ -145,7 +145,7 @@ const GameDetailPage = () => {
       return;
     }
     if (user?.role !== "player") return;
-    if (totalBalance < betAmount) return;
+    if (!canPlay) return;
     setIsLaunching(true);
     try {
       await launchGameByMode(g.id, navigate);
@@ -207,6 +207,9 @@ const GameDetailPage = () => {
               </div>
               {!user && (
                 <p className="text-xs text-muted-foreground mt-1">Log in to see your balance</p>
+              )}
+              {isPlayer && useBonusWallet && (
+                <p className="text-xs text-accent mt-1">Playing with bonus balance</p>
               )}
             </div>
 

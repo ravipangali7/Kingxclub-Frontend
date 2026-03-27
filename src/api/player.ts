@@ -38,6 +38,23 @@ export async function launchGameByMode(
   gameId: number,
   navigate: (path: string) => void
 ): Promise<void> {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+  const rawUser = localStorage.getItem("user");
+  if (rawUser) {
+    try {
+      const parsed = JSON.parse(rawUser) as { role?: string };
+      if (parsed.role && parsed.role !== "player") {
+        navigate("/");
+        return;
+      }
+    } catch {
+      // Ignore malformed cache; backend guards launch access.
+    }
+  }
   if (PLAY_MODE === "iframe") {
     navigate(`/games/${gameId}/play`);
     return;

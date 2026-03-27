@@ -5,7 +5,7 @@ import {
   MessageCircle, Users, ArrowDownCircle, ArrowUpCircle,
   ShieldCheck, Gamepad2, Clock, Activity, Settings, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   Menu, X, Tag, Box, Gift, FileText, Star, Globe, LogOut, CreditCard, User, Key, Image,
-  Calculator, LayoutPanelTop, LayoutDashboard, Megaphone, MapPin, LayoutGrid, Palette, Eraser
+  Calculator, LayoutPanelTop, LayoutDashboard, Megaphone, MapPin, LayoutGrid, Palette, Eraser, BarChart2
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getDashboard, getUnreadMessageCount } from "@/api/admin";
@@ -32,6 +32,7 @@ const getNavItems = (role: string): NavItem[] => {
   if (role === "powerhouse") {
     return [
       { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+      { label: "Analytics", path: "/analytics", icon: BarChart2 },
       {
         label: "List of Users",
         icon: Users,

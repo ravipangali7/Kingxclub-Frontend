@@ -48,7 +48,7 @@ export const SecondPublicHeader = () => {
   const logo = (siteSetting as { logo?: string } | undefined)?.logo;
   const logoUrl = logo ? getMediaUrl(logo) : "/karnali-logo.png";
   const isPlayer = user?.role === "player";
-  const messagesPath = isLoggedIn && isPlayer ? `${dashboardPath}/messages` : null;
+  const messagesPath = isLoggedIn && !isPlayer ? `${dashboardPath}/messages` : null;
   const { data: unreadMessages = 0 } = useQuery({
     queryKey: ["player-messages-unread"],
     queryFn: getPlayerUnreadMessageCount,
@@ -123,12 +123,12 @@ export const SecondPublicHeader = () => {
               </Link>
             </>
           )}
-          {messagesPath && isPlayer && notification ? (
+          {isPlayer && notification ? (
             <Button
               variant="ghost"
               size="icon"
               className="relative text-muted-foreground hover:text-foreground h-9 w-9"
-              onClick={() => notification.openModal()}
+              onClick={() => notification.openChat()}
             >
               <Bell className="h-5 w-5" />
               {messageBadge > 0 && (

@@ -70,6 +70,7 @@ const AdminPlayers = () => {
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
+  const [editParentId, setEditParentId] = useState<number | "">("");
   const [editSaving, setEditSaving] = useState(false);
   const [cellEdit, setCellEdit] = useState<{ row: PlayerRow; field: string; label: string; value: unknown; editable: boolean } | null>(null);
   const [cellEditValue, setCellEditValue] = useState("");
@@ -250,7 +251,15 @@ const AdminPlayers = () => {
           <Button variant="ghost" size="icon" className="h-7 w-7 text-accent" title="Withdraw" onClick={() => { setSelectedUser(row); setWithdrawOpen(true); }}><ArrowUpCircle className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="Reset Password" onClick={() => { setSelectedUser(row); setResetPwOpen(true); }}><Key className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" title="View Report" onClick={() => navigate(`/${role}/players/${row.id}/report`)}><Eye className="h-3 w-3" /></Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => { setSelectedUser(row); setEditName(String(row.name ?? "")); setEditPhone(String(row.phone ?? "")); setEditOpen(true); }}><Edit className="h-3 w-3" /></Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => {
+            setSelectedUser(row);
+            setEditName(String(row.name ?? ""));
+            setEditPhone(String(row.phone ?? ""));
+            const rawParent = row.parent;
+            const nextParent = typeof rawParent === "number" ? rawParent : Number(rawParent);
+            setEditParentId(Number.isFinite(nextParent) && nextParent > 0 ? nextParent : "");
+            setEditOpen(true);
+          }}><Edit className="h-3 w-3" /></Button>
           {role !== "master" && (
             <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" title="Delete" onClick={() => setPlayerToDelete(row)}><Trash2 className="h-3 w-3" /></Button>
           )}
@@ -480,6 +489,21 @@ const AdminPlayers = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Full Name" />
               <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="Phone" />
+              {(role === "powerhouse" || role === "super") && (
+                <div className="md:col-span-2">
+                  <label className="text-xs text-muted-foreground">Master</label>
+                  <select
+                    className="w-full h-10 rounded-lg border border-border bg-background px-3 text-sm mt-1"
+                    value={editParentId}
+                    onChange={(e) => setEditParentId(e.target.value === "" ? "" : Number(e.target.value))}
+                  >
+                    <option value="">Select master</option>
+                    {(mastersList as { id?: number; username?: string }[]).map((m) => (
+                      <option key={m.id} value={m.id}>{m.username ?? m.id}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
@@ -491,7 +515,16 @@ const AdminPlayers = () => {
                 if (!selectedUser?.id) return;
                 setEditSaving(true);
                 try {
-                  await updatePlayer(selectedUser.id as number, { name: editName.trim(), phone: editPhone.trim() }, role);
+                  const body: Record<string, unknown> = { name: editName.trim(), phone: editPhone.trim() };
+                  if (role === "powerhouse" || role === "super") {
+                    if (editParentId === "" || editParentId === undefined) {
+                      toast({ title: "Please select a Master.", variant: "destructive" });
+                      setEditSaving(false);
+                      return;
+                    }
+                    body.parent = editParentId;
+                  }
+                  await updatePlayer(selectedUser.id as number, body, role);
                   queryClient.invalidateQueries({ queryKey: ["admin-players", role] });
                   toast({ title: "Player updated successfully." });
                   setEditOpen(false);

@@ -1,12 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Home, MessageCircle, Wallet, Clock, User, Gamepad2, Key, CreditCard, BarChart3, LogOut, Users } from "lucide-react";
+import { Home, Wallet, Clock, User, Gamepad2, Key, CreditCard, BarChart3, LogOut, Users } from "lucide-react";
 import type { User as AuthUser } from "@/contexts/AuthContext";
-import { Badge } from "@/components/ui/badge";
 
 export const sidebarLinks = [
   { label: "Dashboard", path: "/player", icon: Home },
   { label: "Wallet", path: "/player/wallet", icon: Wallet },
-  { label: "Messages", path: "/player/messages", icon: MessageCircle },
   { label: "Transactions", path: "/player/transactions", icon: Clock },
   { label: "Bet History", path: "/player/game-results", icon: BarChart3 },
   { label: "Payment Modes", path: "/player/payment-modes", icon: CreditCard },
@@ -20,21 +18,16 @@ const formatBal = (v: string | number | null | undefined) => (v != null ? `₹${
 export interface PlayerSidebarContentProps {
   user: AuthUser | null;
   logout: () => void;
-  messageBadge: number;
   currentPath: string;
   onNavigate?: () => void;
-  /** When provided and messageBadge > 0, clicking Messages opens this instead of navigating. */
-  onMessagesClick?: () => void;
   compact?: boolean;
 }
 
 export const PlayerSidebarContent = ({
   user,
   logout,
-  messageBadge,
   currentPath,
   onNavigate,
-  onMessagesClick,
   compact = false,
 }: PlayerSidebarContentProps) => {
   const navigate = useNavigate();
@@ -71,31 +64,6 @@ export const PlayerSidebarContent = ({
       {/* Nav items */}
       <nav className={compact ? "flex-1 px-2 py-1 space-y-0.5" : "flex-1 px-3 py-2 space-y-1"}>
         {sidebarLinks.map((link) => {
-          const isMessages = link.path === "/player/messages";
-          const openModalInstead = isMessages && messageBadge > 0 && onMessagesClick;
-          if (openModalInstead) {
-            return (
-              <button
-                key={link.path}
-                type="button"
-                onClick={() => {
-                  onMessagesClick();
-                  onNavigate?.();
-                }}
-                className={`${linkClass} w-full ${
-                  isActive(link.path)
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                <link.icon className={`h-4 w-4 flex-shrink-0 ${isActive(link.path) ? "text-primary-foreground" : ""}`} />
-                <span className="flex-1 truncate text-left">{link.label}</span>
-                <Badge variant="destructive" className="text-[10px] min-w-5 h-5 justify-center px-1">
-                  {messageBadge > 99 ? "99+" : messageBadge}
-                </Badge>
-              </button>
-            );
-          }
           return (
             <Link
               key={link.path}
@@ -109,11 +77,6 @@ export const PlayerSidebarContent = ({
             >
               <link.icon className={`h-4 w-4 flex-shrink-0 ${isActive(link.path) ? "text-primary-foreground" : ""}`} />
               <span className="flex-1 truncate">{link.label}</span>
-              {isMessages && messageBadge > 0 && (
-                <Badge variant="destructive" className="text-[10px] min-w-5 h-5 justify-center px-1">
-                  {messageBadge > 99 ? "99+" : messageBadge}
-                </Badge>
-              )}
             </Link>
           );
         })}

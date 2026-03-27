@@ -885,3 +885,49 @@ export async function getCleanDataMetadata() {
 export async function executeCleanData(body: { pin: string; password: string; models: string[] }) {
   return apiPost<{ deleted: Record<string, number>; detail?: string }>(`${prefix("powerhouse")}/clean-data/execute/`, body);
 }
+
+// --- Analytics (powerhouse only) ---
+
+export interface DateRangeParams {
+  date_from?: string;
+  date_to?: string;
+}
+
+function buildAnalyticsQS(params?: DateRangeParams): string {
+  if (!params) return "";
+  const q = new URLSearchParams();
+  if (params.date_from) q.set("date_from", params.date_from);
+  if (params.date_to) q.set("date_to", params.date_to);
+  const s = q.toString();
+  return s ? `?${s}` : "";
+}
+
+export async function getAnalyticsOverview(params?: DateRangeParams) {
+  return apiGet<Record<string, unknown>>(
+    `${prefix("powerhouse")}/analytics/overview/${buildAnalyticsQS(params)}`
+  );
+}
+
+export async function getAnalyticsGames(params?: DateRangeParams) {
+  return apiGet<Record<string, unknown>>(
+    `${prefix("powerhouse")}/analytics/games/${buildAnalyticsQS(params)}`
+  );
+}
+
+export async function getAnalyticsFinance(params?: DateRangeParams) {
+  return apiGet<Record<string, unknown>>(
+    `${prefix("powerhouse")}/analytics/finance/${buildAnalyticsQS(params)}`
+  );
+}
+
+export async function getAnalyticsCustomers(params?: DateRangeParams) {
+  return apiGet<Record<string, unknown>>(
+    `${prefix("powerhouse")}/analytics/customers/${buildAnalyticsQS(params)}`
+  );
+}
+
+export async function getAnalyticsUser(userId: number, params?: DateRangeParams) {
+  return apiGet<Record<string, unknown>>(
+    `${prefix("powerhouse")}/analytics/user/${userId}/${buildAnalyticsQS(params)}`
+  );
+}

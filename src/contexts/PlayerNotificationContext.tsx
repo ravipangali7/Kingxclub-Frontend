@@ -1,5 +1,4 @@
 import { createContext, useCallback, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,8 +13,10 @@ import { Button } from "@/components/ui/button";
 
 type PlayerNotificationContextValue = {
   isOpen: boolean;
+  selectedContactId: number | null;
   openModal: () => void;
   closeModal: () => void;
+  openChat: (contactId?: number | null) => void;
 };
 
 const PlayerNotificationContext = createContext<PlayerNotificationContextValue | null>(null);
@@ -39,13 +40,24 @@ function formatTimeAgo(iso: string | null): string {
 
 export function PlayerNotificationProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
+  const [selectedContactId, setSelectedContactId] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const isPlayer = user?.role === "player";
 
   const openModal = useCallback(() => setIsOpen(true), []);
   const closeModal = useCallback(() => setIsOpen(false), []);
+  const openChat = useCallback((contactId?: number | null) => {
+    if (typeof contactId === "number" && !Number.isNaN(contactId)) {
+      setSelectedContactId(contactId);
+    } else {
+      setSelectedContactId(null);
+    }
+    setIsOpen(false);
+    queryClient.invalidateQueries({ queryKey: ["player-messages-unread"] });
+    queryClient.invalidateQueries({ queryKey: ["player-message-contacts"] });
+    queryClient.invalidateQueries({ queryKey: ["player-notifications"] });
+  }, [queryClient]);
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ["player-notifications"],
@@ -54,20 +66,14 @@ export function PlayerNotificationProvider({ children }: { children: React.React
   });
 
   const handleNotificationClick = (senderId: number) => {
-    closeModal();
-    queryClient.invalidateQueries({ queryKey: ["player-messages-unread"] });
-    queryClient.invalidateQueries({ queryKey: ["player-message-contacts"] });
-    queryClient.invalidateQueries({ queryKey: ["player-notifications"] });
-    navigate(`/player/messages?contact=${senderId}`);
+    openChat(senderId);
   };
 
   const handleViewAll = () => {
-    closeModal();
-    queryClient.invalidateQueries({ queryKey: ["player-messages-unread"] });
-    navigate("/player/messages");
+    openChat();
   };
 
-  const value: PlayerNotificationContextValue = { isOpen, openModal, closeModal };
+  const value: PlayerNotificationContextValue = { isOpen, selectedContactId, openModal, closeModal, openChat };
 
   return (
     <PlayerNotificationContext.Provider value={value}>

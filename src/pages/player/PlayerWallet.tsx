@@ -96,6 +96,7 @@ const PlayerWallet = () => {
     total_withdrawable?: string;
     can_withdraw_main?: boolean;
     can_withdraw_bonus?: boolean;
+    rolls_needed?: number;
   };
   const myDeposits = w.deposits ?? w.recent_deposits ?? [];
   const myWithdrawals = w.withdrawals ?? w.recent_withdrawals ?? [];
@@ -106,6 +107,7 @@ const PlayerWallet = () => {
   const bonusWithdrawable = Number(w.bonus_withdrawable ?? 0);
   const totalWithdrawable = Number(w.total_withdrawable ?? 0);
   const canWithdrawBonus = Boolean(w.can_withdraw_bonus);
+  const rollsNeeded = Number(w.rolls_needed ?? 0);
   const maxAmountForWallet = withdrawWallet === "bonus" ? bonusWithdrawable : mainWithdrawable;
 
   return (
@@ -551,10 +553,14 @@ const PlayerWallet = () => {
               <p className="text-xs text-muted-foreground font-medium">Withdrawable</p>
               <p className="text-sm">
                 Main {symbol}{mainWithdrawable.toLocaleString()}
-                {bonusWithdrawable > 0 || !canWithdrawBonus ? (
+                {canWithdrawBonus && bonusWithdrawable > 0 ? (
                   <> · Bonus {symbol}{bonusWithdrawable.toLocaleString()}</>
+                ) : !canWithdrawBonus && bonusBalance > 0 ? (
+                  <span className="text-muted-foreground">
+                    {" "}· Bonus not withdrawable yet ({rollsNeeded} more game{rollsNeeded === 1 ? "" : "s"} needed)
+                  </span>
                 ) : (
-                  <span className="text-muted-foreground"> · Bonus not withdrawable (play required games after bonus approval)</span>
+                  <span className="text-muted-foreground"> · Bonus {symbol}{bonusWithdrawable.toLocaleString()}</span>
                 )}
               </p>
               {canWithdrawBonus && bonusWithdrawable > 0 && (

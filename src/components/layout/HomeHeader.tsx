@@ -57,7 +57,6 @@ export const HomeHeader = () => {
   const { user, logout } = useAuth();
   const isLoggedIn = !!user;
   const dashboardPath = user?.role ? getDashboardPath(user.role) : "/player";
-  const messagesPath = isLoggedIn ? `${dashboardPath}/messages` : "/login";
   const symbol = getCurrencySymbol(user);
   const walletBalance = user?.total_balance != null ? `${symbol}${Number(user.total_balance).toLocaleString()}` : `${symbol}0.00`;
 
@@ -140,15 +139,17 @@ export const HomeHeader = () => {
             >
               Bonus
             </Link>
-            <Link
-              to={messagesPath}
-              className={cn(
-                "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                location.pathname === messagesPath || location.pathname.startsWith(`${dashboardPath}/messages`) ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-              )}
-            >
-              Message
-            </Link>
+            {!isPlayer && (
+              <Link
+                to={isLoggedIn ? `${dashboardPath}/messages` : "/login"}
+                className={cn(
+                  "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                  location.pathname.startsWith(`${dashboardPath}/messages`) ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                )}
+              >
+                Message
+              </Link>
+            )}
             {isLoggedIn && (
               <>
                 <Link
@@ -190,7 +191,7 @@ export const HomeHeader = () => {
                 variant="ghost"
                 size="icon"
                 className="relative min-h-[44px] min-w-[44px] touch-manipulation"
-                onClick={() => notification?.openModal()}
+                onClick={() => notification?.openChat()}
               >
                 <Bell className="h-5 w-5" />
                 {messageBadge > 0 && (
@@ -289,19 +290,14 @@ export const HomeHeader = () => {
                 <PlayerSidebarContent
                   user={user}
                   logout={logout}
-                  messageBadge={messageBadge}
                   currentPath={location.pathname}
                   onNavigate={() => setMenuOpen(false)}
-                  onMessagesClick={() => {
-                    notification?.openModal();
-                    setMenuOpen(false);
-                  }}
                   compact
                 />
               </div>
             ) : (
               <>
-                <Link to={messagesPath} onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-3 mobile:px-4 py-3 rounded-lg text-sm font-medium", location.pathname === messagesPath || location.pathname.startsWith(`${dashboardPath}/messages`) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-white/5")}>
+                <Link to={isLoggedIn ? `${dashboardPath}/messages` : "/login"} onClick={() => setMenuOpen(false)} className={cn("flex items-center gap-3 px-3 mobile:px-4 py-3 rounded-lg text-sm font-medium", location.pathname.startsWith(`${dashboardPath}/messages`) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-white/5")}>
                   Message
                 </Link>
                 {isLoggedIn && (

@@ -35,6 +35,8 @@ export const GlobalMessageFab = () => {
   const role = user?.role ?? null;
   const partnerId = role === "player" ? (user?.parent ?? null) : null;
   const adminRole = role === "powerhouse" || role === "super" || role === "master" ? role : null;
+  const playerOpen = role === "player" ? (playerNotification?.selectedContactId !== null || open) : open;
+  const activePlayerPartnerId = role === "player" ? (playerNotification?.selectedContactId ?? partnerId) : null;
 
   const { data: playerUnread = 0 } = useQuery({
     queryKey: ["player-messages-unread"],
@@ -49,9 +51,9 @@ export const GlobalMessageFab = () => {
   const unread = role === "player" ? Number(playerUnread) || 0 : Number(adminUnread) || 0;
 
   const { connected } = useMessageSocket((msg) => {
-    if (role === "player" && partnerId != null) {
-      if (Number(msg.sender) === Number(partnerId) || Number(msg.receiver) === Number(partnerId)) {
-        queryClient.invalidateQueries({ queryKey: ["player-messages", partnerId] });
+    if (role === "player" && activePlayerPartnerId != null) {
+      if (Number(msg.sender) === Number(activePlayerPartnerId) || Number(msg.receiver) === Number(activePlayerPartnerId)) {
+        queryClient.invalidateQueries({ queryKey: ["player-messages", activePlayerPartnerId] });
         queryClient.invalidateQueries({ queryKey: ["player-messages-unread"] });
       }
     } else if (adminRole != null) {
@@ -61,30 +63,30 @@ export const GlobalMessageFab = () => {
   });
 
   const { data: messages = [], isLoading } = useQuery({
-    queryKey: ["player-messages", partnerId],
-    queryFn: () => getPlayerMessages(partnerId ?? undefined),
-    enabled: role === "player" && open && partnerId != null,
-    refetchInterval: connected ? false : open && partnerId != null ? POLL_INTERVAL_MS : false,
+    queryKey: ["player-messages", activePlayerPartnerId],
+    queryFn: () => getPlayerMessages(activePlayerPartnerId ?? undefined),
+    enabled: role === "player" && playerOpen && activePlayerPartnerId != null,
+    refetchInterval: connected ? false : playerOpen && activePlayerPartnerId != null ? POLL_INTERVAL_MS : false,
   });
 
   const [sending, setSending] = useState(false);
 
   const handlePlayerSend = async (messageOrPayload: string | SendPayload) => {
-    if (partnerId == null) return;
+    if (activePlayerPartnerId == null) return;
     setSending(true);
     try {
       if (typeof messageOrPayload === "string") {
-        await sendPlayerMessage({ receiver: partnerId, message: messageOrPayload });
+        await sendPlayerMessage({ receiver: activePlayerPartnerId, message: messageOrPayload });
       } else {
         const { message, file, image } = messageOrPayload;
         const formData = new FormData();
-        formData.append("receiver", String(partnerId));
+        formData.append("receiver", String(activePlayerPartnerId));
         formData.append("message", message);
         if (file) formData.append("file", file);
         if (image) formData.append("image", image);
         await sendPlayerMessageForm(formData);
       }
-      await queryClient.invalidateQueries({ queryKey: ["player-messages", partnerId] });
+      await queryClient.invalidateQueries({ queryKey: ["player-messages", activePlayerPartnerId] });
       await queryClient.invalidateQueries({ queryKey: ["player-messages-unread"] });
     } catch (e) {
       const err = e as { detail?: string };
@@ -109,7 +111,7 @@ export const GlobalMessageFab = () => {
 
   const handleFabClick = () => {
     if (isPlayer && playerNotification) {
-      playerNotification.openModal();
+      playerNotification.openChat();
     } else {
       setOpen(true);
     }
@@ -133,9 +135,23 @@ export const GlobalMessageFab = () => {
         )}
       </button>
 
-      <Sheet open={open} onOpenChange={handleOpenChange}>
+      <Sheet
+        open={playerOpen}
+        onOpenChange={(next) => {
+          if (isPlayer && playerNotification) {
+            if (next) {
+              handleOpenChange(true);
+            } else {
+              handleOpenChange(false);
+              playerNotification.openChat(null);
+            }
+            return;
+          }
+          handleOpenChange(next);
+        }}
+      >
         <SheetContent side="bottom" className="h-[85vh] max-h-[85vh] flex flex-col p-0 rounded-t-2xl">
-          {showPlayerSheet ? (
+          {showPlayerSheet && activePlayerPartnerId != null ? (
             <>
               <SheetHeader className="p-4 border-b border-border flex-shrink-0">
                 <SheetTitle className="flex items-center gap-3">
@@ -151,7 +167,7 @@ export const GlobalMessageFab = () => {
                 ) : (
                   <ChatInterface
                     currentUserId={user.id}
-                    partnerId={partnerId}
+                    partnerId={activePlayerPartnerId}
                     messages={messages as ApiMessage[]}
                     onSend={handlePlayerSend}
                     sending={sending}
