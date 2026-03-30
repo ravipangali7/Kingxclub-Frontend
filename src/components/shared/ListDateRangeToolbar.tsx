@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -6,7 +7,7 @@ export interface ListDateRangeToolbarProps {
   dateFrom: string;
   dateTo: string;
   onDateChange: (params: { dateFrom: string; dateTo: string }) => void;
-  onLoad: () => void;
+  onLoad: () => void | Promise<unknown>;
   loading?: boolean;
   className?: string;
 }
@@ -23,6 +24,18 @@ export function ListDateRangeToolbar({
   loading = false,
   className = "",
 }: ListDateRangeToolbarProps) {
+  const [loadBusy, setLoadBusy] = useState(false);
+  const busy = loading || loadBusy;
+
+  const handleLoad = async () => {
+    setLoadBusy(true);
+    try {
+      await Promise.resolve(onLoad());
+    } finally {
+      setLoadBusy(false);
+    }
+  };
+
   const setRange = (preset: "all" | "24h" | "week" | "month") => {
     if (preset === "all") {
       onDateChange({ dateFrom: "", dateTo: "" });
@@ -91,10 +104,10 @@ export function ListDateRangeToolbar({
             type="button"
             size="sm"
             className="h-10 gold-gradient text-primary-foreground font-semibold min-w-[100px] px-5 shadow-sm"
-            onClick={onLoad}
-            disabled={loading}
+            onClick={() => void handleLoad()}
+            disabled={busy}
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Load"}
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Load"}
           </Button>
         </div>
       </div>
